@@ -10,6 +10,7 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 import java.util.List;
 
+import ca.etsmtl.log792.pdavid.sketch.model.Book;
 import ca.etsmtl.log792.pdavid.sketch.model.Sketch;
 
 /**
@@ -21,6 +22,7 @@ public class ApplicationManager extends Application {
     public static int densityDpi;
     public static List<Sketch> sketchList;
     private static Context context;
+    public static List<Book> bookList;
 
     @Override
     public void onCreate() {
@@ -33,8 +35,12 @@ public class ApplicationManager extends Application {
         densityDpi = metrics.densityDpi;
 
         sketchList = new ArrayList<Sketch>();
-        sketchList.add(new Sketch("Public Sketches", "/public", null));
-        sketchList.add(new Sketch("Private Sketches", "/private", null));
+        sketchList.add(new Sketch("Sketch 1", "/public/Sketch1.png", null));
+        sketchList.add(new Sketch("Sketch 2", "/public/Sketch2.png", null));
+
+        bookList = new ArrayList<Book>();
+        bookList.add(new Book("Public Sketches", null, 10));
+        bookList.add(new Book("Private Sketches", null, 0));
 
         context = getApplicationContext();
     }

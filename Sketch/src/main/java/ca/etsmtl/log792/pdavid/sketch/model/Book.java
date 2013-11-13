@@ -5,7 +5,7 @@ import android.graphics.Bitmap;
 /**
  * Created by Phil on 13/11/13.
  */
-public class Book {
+public class Book implements BaseModel{
     public String name;
     public Bitmap thumbnail;
     public int sketchesCount;
@@ -14,5 +14,15 @@ public class Book {
         this.name = name;
         this.thumbnail = thumbnail;
         this.sketchesCount = sketchesCount;
+    }
+
+    @Override
+    public String getTitle() {
+        return name;
+    }
+
+    @Override
+    public Bitmap getImage() {
+        return thumbnail;
     }
 }
