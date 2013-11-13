@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <item
+        android:id="@+id/menu_color_wheel"
+        android:icon="@drawable/color_wheel"
+        android:title="Color Wheel"
+        android:showAsAction="always" />
+    <item
+        android:id="@+id/menu_save"
+        android:title="Save"
+        android:icon="@android:drawable/ic_menu_save"
+        android:showAsAction="always" />
+    <item
+        android:id="@+id/menu_draw_tools"
+        android:title="Drawing Tools"
+        android:icon="@android:drawable/ic_menu_edit"
+        android:showAsAction="always" />
+    <item
+        android:id="@+id/menu_info"
+        android:title="Help"
+        android:icon="@android:drawable/ic_menu_help"
+        android:showAsAction="ifRoom" />
+
+</menu>

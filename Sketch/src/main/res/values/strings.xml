@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Sketch</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="title_menuitem_list">Welcome to Sketch !</string>
+    <string name="title_menuitem_detail">Detail</string>
+    <string name="title_activity_fullscreen">Sketch 1</string>
+    <string name="drawer_open">Open</string>
+    <string name="drawer_close">Close</string>
+
+    <string name="menu_1">My Sketches</string>
+    <string name="menu_2">Favorites</string>
+    <string name="menu_3">Nearby Sketchers</string>
+    <string name="menu_4">Sketch !!!</string>
+    <string name="default_drawing_title">New Sketch 1</string>
+    <string name="default_new_drawing">New Sketch</string>
+    <!--Alert dialogs -->
+    <string name="alert_dialog_save_modif_message">Before closing, Do you want to save ?</string>
+    <string name="alert_dialog_save_modif_title">Warning !</string>
+
+
+</resources>
