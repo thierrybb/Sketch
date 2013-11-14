@@ -3,11 +3,23 @@ package ca.etsmtl.log792.pdavid.sketch.ui.activity;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.FragmentTransaction;
+import android.content.Context;
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Environment;
+import android.support.v4.app.NavUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+
+import com.larswerkman.holocolorpicker.ColorPicker;
+
+import java.io.File;
+import java.io.FileOutputStream;
 
 import ca.etsmtl.log792.pdavid.sketch.R;
+import ca.etsmtl.log792.pdavid.sketch.graphic.MultitouchFramework;
 import ca.etsmtl.log792.pdavid.sketch.ui.activity.util.SystemUiHider;
 
 /**
@@ -16,7 +28,7 @@ import ca.etsmtl.log792.pdavid.sketch.ui.activity.util.SystemUiHider;
  *
  * @see SystemUiHider
  */
-public class FullscreenActivity extends Activity implements ActionBar.TabListener {
+public class FullscreenActivity extends Activity implements ActionBar.TabListener, ColorPicker.OnColorChangedListener {
     /**
      * Whether or not the system UI should be auto-hidden after
      * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
@@ -51,18 +63,44 @@ public class FullscreenActivity extends Activity implements ActionBar.TabListene
      */
     private static final String STATE_SELECTED_NAVIGATION_ITEM = "selected_navigation_item";
     private boolean userDrawSomething = true;
+    private MultitouchFramework multiTouchFramework;
+    private ColorPicker picker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_fullscreen);
+        multiTouchFramework = (MultitouchFramework) findViewById(R.id.canvas);
+
         ActionBar actionBar = getActionBar();
-        actionBar.setDisplayShowHomeEnabled(true);
-        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setDisplayShowHomeEnabled(false);
+        actionBar.setDisplayShowTitleEnabled(false);
+
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
         actionBar.addTab(actionBar.newTab().setText(R.string.default_drawing_title).setTabListener(this), true);
         actionBar.addTab(actionBar.newTab().setText(R.string.default_new_drawing).setTabListener(this), false);
+
+
+        picker = (ColorPicker) findViewById(R.id.picker);
+//        SVBar svBar = (SVBar) findViewById(R.id.svbar);
+//        OpacityBar opacityBar = (OpacityBar) findViewById(R.id.opacitybar);
+//        SaturationBar saturationBar = (SaturationBar) findViewById(R.id.saturationbar);
+//        ValueBar valueBar = (ValueBar) findViewById(R.id.valuebar);
+
+//        picker.addSVBar(svBar);
+//        picker.addOpacityBar(opacityBar);
+//        picker.addSaturationBar(saturationBar);
+//        picker.addValueBar(valueBar);
+
+        //To get the color
+        //        picker.getColor();
+
+        //To set the old selected color u can do it like this
+//        picker.setOldCenterColor(picker.getColor());
+        // adds listener to the colorpicker which is implemented
+        //in the activity
+        picker.setOnColorChangedListener(this);
 
         // Set up an instance of SystemUiHider to control the system UI for
         // this activity.
@@ -138,25 +176,55 @@ public class FullscreenActivity extends Activity implements ActionBar.TabListene
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
         switch (item.getItemId()) {
             case android.R.id.home:
-
-                if (userDrawSomething) {
-//                    new AlertDialog.Builder(this).setTitle(R.string.alert_dialog_save_modif_title).setMessage(R.string.alert_dialog_save_modif_message).create().show();
-                }
-
+                NavUtils.navigateUpFromSameTask(this);
                 return true;
             case R.id.menu_info:
                 return true;
             case R.id.menu_draw_tools:
                 return true;
             case R.id.menu_save:
+                saveSVG();
                 return true;
             case R.id.menu_color_wheel:
+                if (picker.getVisibility() == View.GONE || picker.getVisibility() == View.INVISIBLE)
+                    picker.setVisibility(View.VISIBLE);
+                else
+                    picker.setVisibility(View.GONE);
                 return true;
-            default:
-                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void saveSVG() {
+        String basename = getString(R.string.default_drawing_title);
+        String result = multiTouchFramework.generateSVG(basename);
+
+        File storageDir = getAlbumStorageDir(this, "My Sketches");
+
+//        storageDir.
+    }
+
+    public File getAlbumStorageDir(Context context, String albumName) {
+        // Get the directory for the app's private pictures directory.
+        File file = new File(context.getExternalFilesDir(
+                Environment.DIRECTORY_PICTURES), albumName);
+        if (!file.mkdirs()) {
+            Log.e("ERROR", "Directory not created");
+        }
+        return file;
+    }
+
+    private void savePNG() {
+        String basename = getString(R.string.default_drawing_title);
+        Bitmap bitmap = multiTouchFramework.savePNG(basename);
+        try {
+            FileOutputStream output = openFileOutput(basename, Context.MODE_PRIVATE);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, output);
+            output.close();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -198,6 +266,11 @@ public class FullscreenActivity extends Activity implements ActionBar.TabListene
     @Override
     public void onTabReselected(ActionBar.Tab tab,
                                 FragmentTransaction fragmentTransaction) {
+    }
+
+    @Override
+    public void onColorChanged(int i) {
+
     }
 
 

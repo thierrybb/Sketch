@@ -7,7 +7,6 @@ import java.util.Map;
 
 import ca.etsmtl.log792.pdavid.sketch.R;
 import ca.etsmtl.log792.pdavid.sketch.ui.activity.FullscreenActivity;
-import ca.etsmtl.log792.pdavid.sketch.ui.fragment.BookListFragment;
 import ca.etsmtl.log792.pdavid.sketch.ui.fragment.MenuItemListFragment;
 import ca.etsmtl.log792.pdavid.sketch.ui.fragment.SketchesGridFragment;
 
@@ -38,12 +37,12 @@ public class DummyContent {
     static {
         // Add 4 Menu items.
         addItem(new DummyItem("1", "My Sketches", R.string.menu_1, SketchesGridFragment.class));
-        addItem(new DummyItem("2", "Favorites", R.string.menu_2, MenuItemListFragment.class));
+        addItem(new DummyItem("2", "Favorites", R.string.menu_2, SketchesGridFragment.class));
         addItem(new DummyItem("3", "Nearby Sketchers", R.string.menu_3, MenuItemListFragment.class));
         addItem(new DummyItem("4", "Sketch !!", R.string.menu_4, FullscreenActivity.class));
 
         // Add 4 Book items.
-        addBook(new DummyItem("1", "My Sketches", R.string.menu_1, BookListFragment.class));
+        addBook(new DummyItem("1", "My Sketches", R.string.menu_1, SketchesGridFragment.class));
         addBook(new DummyItem("2", "Private Sketch", R.string.menu_2, MenuItemListFragment.class));
         addBook(new DummyItem("3", "Public Sketch", R.string.menu_3, MenuItemListFragment.class));
         addBook(new DummyItem("4", "Quick Join a Random Public Sketch", R.string.menu_4, FullscreenActivity.class));

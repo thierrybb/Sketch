@@ -91,9 +91,6 @@ public class MenuItemListFragment extends ListFragment {
             setActivatedPosition(anInt);
             mCallbacks.onItemSelected(anInt);
 
-        } else {
-//            setActivatedPosition(0);
-//            mCallbacks.onItemSelected(0);
         }
     }
 

@@ -16,6 +16,7 @@ import android.widget.ListView;
 
 import ca.etsmtl.log792.pdavid.sketch.R;
 import ca.etsmtl.log792.pdavid.sketch.ui.activity.dummy.DummyContent;
+import ca.etsmtl.log792.pdavid.sketch.ui.fragment.BaseFragment;
 import ca.etsmtl.log792.pdavid.sketch.ui.fragment.MenuItemListFragment;
 
 
@@ -36,7 +37,7 @@ import ca.etsmtl.log792.pdavid.sketch.ui.fragment.MenuItemListFragment;
  * to listen for item selections.
  */
 public class MenuItemListActivity extends FragmentActivity
-        implements MenuItemListFragment.Callbacks {
+        implements MenuItemListFragment.Callbacks, BaseFragment.GridCallbacks {
 
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
@@ -160,7 +161,7 @@ public class MenuItemListActivity extends FragmentActivity
                 if (instance instanceof Fragment) {
                     fragment = (Fragment) instance;
                     getFragmentManager().beginTransaction()
-                            .replace(R.id.menuitem_detail_container, fragment)
+                            .replace(R.id.menuitem_detail_container, fragment).addToBackStack(null)
                             .commit();
 
                 } else {
@@ -206,7 +207,7 @@ public class MenuItemListActivity extends FragmentActivity
             // Insert the fragment by replacing any existing fragment
             FragmentManager fragmentManager = getFragmentManager();
             fragmentManager.beginTransaction()
-                    .replace(R.id.content_frame, fragment)
+                    .replace(R.id.content_frame, fragment).addToBackStack(null)
                     .commit();
 
 
@@ -215,7 +216,7 @@ public class MenuItemListActivity extends FragmentActivity
             setTitle(item.title);
             mDrawerLayout.closeDrawer(mDrawerList);
         } else {
-            startActivity(new Intent(getApplicationContext(), FullscreenActivity.class));
+            startActivityForResult(new Intent(getApplicationContext(), FullscreenActivity.class), 0);
         }
     }
 

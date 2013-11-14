@@ -6,17 +6,12 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.os.Environment;
 import android.os.Looper;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.SurfaceView;
 import android.view.View;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.HashMap;
 
 import ca.etsmtl.log792.pdavid.sketch.graphic.shape.Point2D;
@@ -52,6 +47,11 @@ public class MultitouchFramework extends SurfaceView {
         init();
     }
 
+    public MultitouchFramework(Context context, AttributeSet attributeSet) {
+        super(context, attributeSet);
+        init();
+    }
+
     private void init() {
         assert mf == null;
         mf = this;
@@ -69,7 +69,10 @@ public class MultitouchFramework extends SurfaceView {
         client.startBackgroundWork();
     }
 
-    public void savePNG(Drawing drawing, String basename) {
+    public Bitmap savePNG(String basename) {
+
+        Drawing drawing = client.getDrawing();
+
         GraphicsWrapper gw_img = new GraphicsWrapper();
         gw_img.resize(gw.getWidth(), gw.getHeight());
         gw_img.frame(drawing.getBoundingRectangle(), true);
@@ -98,18 +101,13 @@ public class MultitouchFramework extends SurfaceView {
                 canvas.drawLine(previousPoint.x(), previousPoint.y(), currentPoint.x(), currentPoint.y(), paint);
             }
         }
-        File f = new File(Environment.getExternalStorageDirectory() + "/" + Constant.subdir, basename);
-        FileOutputStream output;
-        try {
-            output = new FileOutputStream(f, false);
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, output);
-        } catch (FileNotFoundException e) {
-            log("Error while trying to save file");
-            log(" " + e.getMessage());
-        }
+        return bitmap;
     }
 
-    public void saveSVG(Drawing drawing, String basename) {
+    public String generateSVG(String basename) {
+
+        Drawing drawing = client.getDrawing();
+
         GraphicsWrapper gw_img = new GraphicsWrapper();
         gw_img.resize(gw.getWidth(), gw.getHeight());
         gw_img.frame(drawing.getBoundingRectangle(), true);
@@ -124,32 +122,9 @@ public class MultitouchFramework extends SurfaceView {
             res += "\n";
         }
         res += "</g>\n</svg>";
-
-        File f = new File(Environment.getExternalStorageDirectory() + "/" + Constant.subdir, basename);
-        FileOutputStream output;
-        try {
-            output = new FileOutputStream(f, true);
-            try {
-                output.write(res.getBytes());
-            } catch (IOException e) {
-                log("Write error");
-                log(" " + e.getMessage());
-            }
-        } catch (FileNotFoundException e) {
-            log("Error while trying to save file");
-            log(" " + e.getMessage());
-        }
+        return res;
     }
 
-    public void sendMailWithAttachedFile(String basename, String filetype) {
-//        activity.sendMailWithAttachedFile(basename, filetype);
-    }
-
-
-    public MultitouchFramework(Context context, AttributeSet attributeSet) {
-        super(context, attributeSet);
-        init();
-    }
 
     public void requestRedrawInUiThread() {
         // invalidate();
@@ -162,7 +137,6 @@ public class MultitouchFramework extends SurfaceView {
         activity.runOnUiThread(new Runnable() {
             public void run() {
                 view.invalidate();
-                // requestRedraw();
             }
         });
     }
@@ -185,20 +159,8 @@ public class MultitouchFramework extends SurfaceView {
 
     protected void onDraw(Canvas canvas) {
         // The view is constantly redrawn by this method
-
         gw.set(paint, canvas);
-
-        // gw.clear( 0.0f, 0.0f, 0.0f );
-        // gw.setCoordinateSystemToWorldSpaceUnits();
-        // gw.setLineWidth( 1 );
-        // gw.setCoordinateSystemToPixels();
-
         client.draw();
-//
-//        if (debugEvents) {
-//            logger.draw(gw);
-//        }
-
     }
 
     private OnTouchListener getTouchListener() {
@@ -251,9 +213,6 @@ public class MultitouchFramework extends SurfaceView {
                         idsAndPositions.put(event.getPointerId(i),
                                 new Point2D(event.getX(i), event.getY(i)));
                     }
-
-//                    v.invalidate(); // TODO XXX this shouldn't be necessary, but
-                    // will force a redraw
 
                     return true; // indicates we have consumed the event
                 }

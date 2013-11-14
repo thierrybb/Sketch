@@ -1,13 +1,11 @@
 package ca.etsmtl.log792.pdavid.sketch.ui.fragment;
 
-import android.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
+import android.widget.FrameLayout;
 import android.widget.GridView;
 
 import ca.etsmtl.log792.pdavid.sketch.R;
@@ -20,8 +18,9 @@ import ca.etsmtl.log792.pdavid.sketch.R;
  * <p/>
  * Created by Phil on 13/11/13.
  */
-public abstract class BaseGridFragment extends Fragment implements AdapterView.OnItemClickListener {
+public abstract class BaseGridFragment extends BaseFragment implements AdapterView.OnItemClickListener {
     protected GridView gridview;
+    protected FrameLayout root;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -31,20 +30,20 @@ public abstract class BaseGridFragment extends Fragment implements AdapterView.O
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        gridview = (GridView) inflater.inflate(R.layout.fragment_sketches_grid_view, container, false);
+        root = (FrameLayout) inflater.inflate(R.layout.fragment_sketches_grid_view, container, false);
+        assert root != null;
+        gridview = (GridView) root.findViewById(R.id.gridview);
+        return root;
+    }
 
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         gridview.setOnItemClickListener(this);
-
-        return gridview;
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        // Set the Required Animation to GridView and start the Animation
-        // use fly_in_from_center to have 2nd type of animation effect (snapshot 2)
-        Animation anim = AnimationUtils.loadAnimation(getActivity(), R.anim.fly_in_from_top_corner);
-        gridview.setAnimation(anim);
-        anim.start();
     }
 }

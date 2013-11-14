@@ -191,4 +191,8 @@ public class SimpleWhiteboard implements Runnable {
         if (redrawRequested)
             multitouchFramework.requestRedraw();
     }
+
+    public Drawing getDrawing() {
+        return drawing;
+    }
 }

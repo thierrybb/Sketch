@@ -5,7 +5,7 @@ import android.graphics.Bitmap;
 /**
  * Created by Phil on 13/11/13.
  */
-public class Book implements BaseModel{
+public class Book extends BaseModel{
     public String name;
     public Bitmap thumbnail;
     public int sketchesCount;

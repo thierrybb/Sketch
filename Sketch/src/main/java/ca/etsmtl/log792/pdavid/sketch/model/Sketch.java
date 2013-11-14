@@ -5,7 +5,7 @@ import android.graphics.Bitmap;
 /**
  * Created by pdavid on 11/12/13.
  */
-public class Sketch implements BaseModel {
+public class Sketch extends BaseModel {
     public String name;
     public String filePath;
     public Bitmap thumbnail;

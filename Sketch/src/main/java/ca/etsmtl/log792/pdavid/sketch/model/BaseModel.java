@@ -5,8 +5,9 @@ import android.graphics.Bitmap;
 /**
  * Created by Phil on 13/11/13.
  */
-public interface BaseModel {
+public abstract class BaseModel {
 
-    public String getTitle();
-    public Bitmap getImage();
+    public abstract String getTitle();
+
+    public abstract Bitmap getImage();
 }

@@ -369,8 +369,8 @@ public class UserContext {
                         cursor = cursorContainer.getCursorByIndex(cursorIndex);
                         cursor.setType(MyCursor.TYPE_INTERACTING_WITH_WIDGET, indexOfButton);
 
-                        String filename = getDateAndTimeAsString() + "." + Constant.PNG_STRING;
-                        mf.savePNG(drawing, filename);
+//                        String filename = getDateAndTimeAsString() + "." + Constant.PNG_STRING;
+//                        mf.savePNG(drawing, filename);
                     } else if (indexOfButton == palette.saveSVG_buttonIndex) {
                         palette.buttons.get(indexOfButton).isPressed = true;
 
@@ -380,8 +380,8 @@ public class UserContext {
                         cursor = cursorContainer.getCursorByIndex(cursorIndex);
                         cursor.setType(MyCursor.TYPE_INTERACTING_WITH_WIDGET, indexOfButton);
 
-                        String filename = getDateAndTimeAsString() + "." + Constant.SVG_STRING;
-                        mf.saveSVG(drawing, filename);
+//                        String filename = getDateAndTimeAsString() + "." + Constant.SVG_STRING;
+//                        mf.generateSVG(drawing, filename);
                     } else if (indexOfButton == palette.sendMailPNG_buttonIndex) {
                         palette.buttons.get(indexOfButton).isPressed = true;
 
@@ -392,8 +392,8 @@ public class UserContext {
                         cursor.setType(MyCursor.TYPE_INTERACTING_WITH_WIDGET, indexOfButton);
 
                         String filename = getDateAndTimeAsString() + "." + Constant.PNG_STRING;
-                        mf.savePNG(drawing, filename);
-                        mf.sendMailWithAttachedFile(filename, Constant.PNG_STRING);
+//                        mf.savePNG(drawing, filename);
+//                        mf.sendMailWithAttachedFile(filename, Constant.PNG_STRING);
                     } else if (indexOfButton == palette.sendMailSVG_buttonIndex) {
                         palette.buttons.get(indexOfButton).isPressed = true;
 
@@ -404,8 +404,8 @@ public class UserContext {
                         cursor.setType(MyCursor.TYPE_INTERACTING_WITH_WIDGET, indexOfButton);
 
                         String filename = getDateAndTimeAsString() + "." + Constant.SVG_STRING;
-                        mf.saveSVG(drawing, filename);
-                        mf.sendMailWithAttachedFile(filename, Constant.SVG_STRING);
+//                        mf.generateSVG(drawing, filename);
+//                        mf.sendMailWithAttachedFile(filename, Constant.SVG_STRING);
                     } else if (indexOfButton == palette.start_server && networkMode == Constant.NM_NONE) {
                         palette.buttons.get(indexOfButton).isPressed = true;
 

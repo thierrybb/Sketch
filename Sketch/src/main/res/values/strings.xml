@@ -14,11 +14,13 @@
     <string name="menu_2">Favorites</string>
     <string name="menu_3">Nearby Sketchers</string>
     <string name="menu_4">Sketch !!!</string>
-    <string name="default_drawing_title">New Sketch 1</string>
-    <string name="default_new_drawing">New Sketch</string>
+    <string name="default_drawing_title">Untitled</string>
+    <string name="default_new_drawing">New +</string>
     <!--Alert dialogs -->
     <string name="alert_dialog_save_modif_message">Before closing, Do you want to save ?</string>
     <string name="alert_dialog_save_modif_title">Warning !</string>
+    <string name="save_png">Save to PNG</string>
+    <string name="save_svg">Save to SVG</string>
 
 
 </resources>
