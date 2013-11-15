@@ -5,6 +5,7 @@ import android.content.Context;
 import android.util.DisplayMetrics;
 import android.widget.ImageView;
 
+import com.bugsense.trace.BugSenseHandler;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -24,8 +25,9 @@ public class ApplicationManager extends Application {
     public static int densityDpi;
     private static Context context;
     public static List<BaseModel> sketchList = new ArrayList<BaseModel>();
-    public static List<BaseModel> bookList=new ArrayList<BaseModel>();
-    public static List<BaseModel> onlineSketchersList=new ArrayList<BaseModel>();
+    public static List<BaseModel> bookList = new ArrayList<BaseModel>();
+    public static List<BaseModel> onlineSketchersList = new ArrayList<BaseModel>();
+    private String APIKEY = "b01157e6";
 
     @Override
     public void onCreate() {
@@ -41,10 +43,10 @@ public class ApplicationManager extends Application {
         //sketches
         sketchList.add(new Sketch("Sketch 1", "/public/Sketch1.png", null));
         sketchList.add(new Sketch("Sketch 2", "/public/Sketch2.png", null));
-        sketchList.add(new Sketch("Sketch 2", "/public/Sketch2.png", null));
-        sketchList.add(new Sketch("Sketch 2", "/public/Sketch2.png", null));
-        sketchList.add(new Sketch("Sketch 2", "/public/Sketch2.png", null));
-        sketchList.add(new Sketch("Sketch 2", "/public/Sketch2.png", null));
+        sketchList.add(new Sketch("Sketch 2", "/public/Sketch3.png", null));
+        sketchList.add(new Sketch("Sketch 2", "/public/Sketch4.png", null));
+        sketchList.add(new Sketch("Sketch 2", "/public/Sketch5.png", null));
+        sketchList.add(new Sketch("Sketch 2", "/public/Sketch6.png", null));
         sketchList.add(new Sketch("Sketch 2", "/public/Sketch2.png", null));
         sketchList.add(new Sketch("Sketch 2", "/public/Sketch2.png", null));
         sketchList.add(new Sketch("Sketch 2", "/public/Sketch2.png", null));
@@ -97,6 +99,7 @@ public class ApplicationManager extends Application {
         onlineSketchersList.add(new Sketcher());
 
         context = getApplicationContext();
+        BugSenseHandler.initAndStartSession(context, APIKEY);
     }
 
 

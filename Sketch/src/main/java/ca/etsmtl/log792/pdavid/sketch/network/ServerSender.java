@@ -5,8 +5,6 @@ import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 
-import ca.etsmtl.log792.pdavid.sketch.graphic.MultitouchFramework;
-
 public class ServerSender implements Runnable {
     NetworkServer start;
     PrintWriter out;
@@ -26,12 +24,12 @@ public class ServerSender implements Runnable {
                     try {
                         out = new PrintWriter(socket.getOutputStream());
                     } catch (IOException e) {
-                        MultitouchFramework.log("Error when sending message from server");
-                        MultitouchFramework.log(" " + e.getMessage());
+//                        MultitouchSurfaceView.log("Error when sending message from server");
+//                        MultitouchSurfaceView.log(" " + e.getMessage());
                     }
                     out.println(this.mess);
                     out.flush();
-                    MultitouchFramework.log(this.mess);
+//                    MultitouchSurfaceView.log(this.mess);
                 }
             }
         }

@@ -18,10 +18,6 @@ public class GraphicsWrapper {
     private int windowWidthInPixels = 128;
     private int windowHeightInPixels = 128;
     boolean areInitialWindowDimensionsKnown = false;
-    // boolean hasGLViewportBeenEverCalled = false; // not needed in this
-    // implementation of GraphicsWrapper, but added here to ease the later
-    // porting of some changes in this implementation to the JOGL implementation
-    // of GraphicsWrapper
 
     AlignedRectangle2D rectangleToFrameInitially = null;
     boolean isRectangleToFrameStoredForInitializationLater = false;
@@ -53,11 +49,6 @@ public class GraphicsWrapper {
                 paint.setTextSize(fontHeight);
                 isFontHeightStoredForInitializationLater = false;
             }
-            // if ( areInitialWindowDimensionsKnown &&
-            // !hasGLViewportBeenEverCalled ) {
-            // glViewport( ... );
-            // hasGLViewportBeenEverCalled = true;
-            // }
         }
     }
 
@@ -213,11 +204,6 @@ public class GraphicsWrapper {
             frame(rectangleToFrameInitially, false);
             rectangleToFrameInitially = null;
         }
-        // if ( paint != null && canvas != null && !hasGLViewportBeenEverCalled
-        // ) {
-        // glViewport(...);
-        // hasGLViewportBeenEverCalled = true;
-        // }
     }
 
     public void resize(int w, int h) {
@@ -252,6 +238,10 @@ public class GraphicsWrapper {
 
     public void clear(float r, float g, float b) {
         canvas.drawRGB((int) (r * 255), (int) (g * 255), (int) (b * 255));
+    }
+
+    public void setColor(int c) {
+        paint.setColor(c);
     }
 
     public void setColor(float r, float g, float b) {

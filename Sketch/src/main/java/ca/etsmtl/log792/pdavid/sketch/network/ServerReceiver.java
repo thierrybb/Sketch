@@ -8,7 +8,7 @@ import java.net.Socket;
 
 import ca.etsmtl.log792.pdavid.sketch.graphic.Drawing;
 import ca.etsmtl.log792.pdavid.sketch.graphic.GraphicsWrapper;
-import ca.etsmtl.log792.pdavid.sketch.graphic.MultitouchFramework;
+import ca.etsmtl.log792.pdavid.sketch.graphic.MultitouchSurfaceView;
 import ca.etsmtl.log792.pdavid.sketch.graphic.util.Constant;
 
 public class ServerReceiver implements Runnable {
@@ -16,11 +16,11 @@ public class ServerReceiver implements Runnable {
     Socket socketVersClient;
     BufferedReader in;
     Drawing drawing;
-    MultitouchFramework mf;
+    MultitouchSurfaceView mf;
     GraphicsWrapper gw;
     NetworkServer server;
 
-    public ServerReceiver(Socket s, NetworkServer server, Drawing drawing, MultitouchFramework mf, GraphicsWrapper gw) {
+    public ServerReceiver(Socket s, NetworkServer server, Drawing drawing, MultitouchSurfaceView mf, GraphicsWrapper gw) {
         this.socketVersClient = s;
         this.server = server;
         this.drawing = drawing;
@@ -29,7 +29,7 @@ public class ServerReceiver implements Runnable {
     }
 
     public void run() {
-        MultitouchFramework.log("A client has connected itself");
+//        MultitouchSurfaceView.log("A client has connected itself");
 
         while (true) {
             if (socketVersClient != null && !socketVersClient.isClosed()) {
@@ -41,18 +41,18 @@ public class ServerReceiver implements Runnable {
                         drawing.updateDrawing(message_distant, Constant.NM_SERVER, server, null, IP_sender);
                         if (Constant.autoFrameWhenUpdatingOverNetwork)
                             gw.frame(drawing.getBoundingRectangle(), true);
-                        mf.requestRedrawInUiThread();
-                        MultitouchFramework.log("Updating drawing");
+//                        mf.requestRedrawInUiThread();
+//                        MultitouchSurfaceView.log("Updating drawing");
                     } else {
-                        MultitouchFramework.log("Empty message");
+//                        MultitouchSurfaceView.log("Empty message");
                     }
                 } catch (IOException e) {
-                    MultitouchFramework.log("Error when receiving message for server");
-                    MultitouchFramework.log(" " + e.getMessage());
+//                    MultitouchSurfaceView.log("Error when receiving message for server");
+//                    MultitouchSurfaceView.log(" " + e.getMessage());
                     // e.printStackTrace();
                 }
             } else {
-                MultitouchFramework.log("Thread Reciever closed");
+//                MultitouchSurfaceView.log("Thread Reciever closed");
                 break;
             }
         }

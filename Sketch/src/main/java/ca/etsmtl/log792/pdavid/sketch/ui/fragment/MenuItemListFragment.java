@@ -46,7 +46,7 @@ public class MenuItemListFragment extends ListFragment {
         /**
          * Callback for when an item has been selected.
          */
-        public void onItemSelected(int id);
+        public void onListItemSelected(int id);
     }
 
     /**
@@ -55,7 +55,7 @@ public class MenuItemListFragment extends ListFragment {
      */
     private static Callbacks sDummyCallbacks = new Callbacks() {
         @Override
-        public void onItemSelected(int id) {
+        public void onListItemSelected(int id) {
         }
     };
 
@@ -89,7 +89,7 @@ public class MenuItemListFragment extends ListFragment {
             final int anInt = savedInstanceState.getInt(STATE_ACTIVATED_POSITION);
 
             setActivatedPosition(anInt);
-            mCallbacks.onItemSelected(anInt);
+            mCallbacks.onListItemSelected(anInt);
 
         }
     }
@@ -120,7 +120,7 @@ public class MenuItemListFragment extends ListFragment {
 
         // Notify the active callbacks interface (the activity, if the
         // fragment is attached to one) that an item has been selected.
-        mCallbacks.onItemSelected(position);
+        mCallbacks.onListItemSelected(position);
     }
 
     @Override

@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.DrawerLayout;
+import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -16,8 +17,9 @@ import android.widget.ListView;
 
 import ca.etsmtl.log792.pdavid.sketch.R;
 import ca.etsmtl.log792.pdavid.sketch.ui.activity.dummy.DummyContent;
-import ca.etsmtl.log792.pdavid.sketch.ui.fragment.BaseFragment;
+import ca.etsmtl.log792.pdavid.sketch.ui.fragment.BaseGridFragment;
 import ca.etsmtl.log792.pdavid.sketch.ui.fragment.MenuItemListFragment;
+import ca.etsmtl.log792.pdavid.sketch.ui.fragment.SketchesGridFragment;
 
 
 /**
@@ -37,7 +39,7 @@ import ca.etsmtl.log792.pdavid.sketch.ui.fragment.MenuItemListFragment;
  * to listen for item selections.
  */
 public class MenuItemListActivity extends FragmentActivity
-        implements MenuItemListFragment.Callbacks, BaseFragment.GridCallbacks {
+        implements MenuItemListFragment.Callbacks, BaseGridFragment.GridCallbacks {
 
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
@@ -49,6 +51,7 @@ public class MenuItemListActivity extends FragmentActivity
     private ActionBarDrawerToggle mDrawerToggle;
     private CharSequence mTitle;
     private int mDrawerTitle = R.string.title_menuitem_list;
+    private boolean backMustZoomOut = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -149,7 +152,7 @@ public class MenuItemListActivity extends FragmentActivity
      * indicating that the item with the given ID was selected.
      */
     @Override
-    public void onItemSelected(int id) {
+    public void onListItemSelected(int id) {
         if (mTwoPane) {
             // In two-pane mode, show the detail view in this activity by
             // adding or replacing the detail fragment using a
@@ -172,6 +175,11 @@ public class MenuItemListActivity extends FragmentActivity
             } catch (IllegalAccessException e) {
             }
         }
+    }
+
+    @Override
+    public void onGridItemClick(int id) {
+        backMustZoomOut = true;
     }
 
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
@@ -200,6 +208,7 @@ public class MenuItemListActivity extends FragmentActivity
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             }
+
             Bundle args = new Bundle();
             args.putInt("id", position);
             fragment.setArguments(args);
@@ -207,7 +216,7 @@ public class MenuItemListActivity extends FragmentActivity
             // Insert the fragment by replacing any existing fragment
             FragmentManager fragmentManager = getFragmentManager();
             fragmentManager.beginTransaction()
-                    .replace(R.id.content_frame, fragment).addToBackStack(null)
+                    .replace(R.id.content_frame, fragment, item.getTag()).addToBackStack(null)
                     .commit();
 
 
@@ -224,5 +233,21 @@ public class MenuItemListActivity extends FragmentActivity
     public void setTitle(CharSequence title) {
         mTitle = title;
         getActionBar().setTitle(mTitle);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_BACK:
+                final FragmentManager fragmentManager = getFragmentManager();
+                final Fragment fragmentByTag = fragmentManager.findFragmentByTag(SketchesGridFragment.TAG);
+                SketchesGridFragment sketchesGridFragment = (SketchesGridFragment) fragmentByTag;
+
+                assert sketchesGridFragment != null;
+                sketchesGridFragment.zoomOut();
+
+                return !backMustZoomOut;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 }

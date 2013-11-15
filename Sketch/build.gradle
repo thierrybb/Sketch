@@ -10,6 +10,9 @@ apply plugin: 'android'
 
 repositories {
     mavenCentral()
+    maven {
+        url 'http://www.bugsense.com/gradle/'
+    }
 }
 
 android {
@@ -27,4 +30,6 @@ dependencies {
     compile 'com.android.support:support-v4:18.0.0'
     compile 'com.squareup.picasso:picasso:2.1.1@jar'
     compile 'com.larswerkman:HoloColorPicker:1.1'
+    compile 'com.bugsense.trace:bugsense:3.4'
+    compile 'com.j256:ormlite:3.0'
 }

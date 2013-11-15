@@ -6,7 +6,7 @@ import java.io.InputStreamReader;
 
 import ca.etsmtl.log792.pdavid.sketch.graphic.Drawing;
 import ca.etsmtl.log792.pdavid.sketch.graphic.GraphicsWrapper;
-import ca.etsmtl.log792.pdavid.sketch.graphic.MultitouchFramework;
+import ca.etsmtl.log792.pdavid.sketch.graphic.MultitouchSurfaceView;
 import ca.etsmtl.log792.pdavid.sketch.graphic.util.Constant;
 
 public class ClientReceiver implements Runnable {
@@ -14,10 +14,10 @@ public class ClientReceiver implements Runnable {
     NetworkClient start;
     BufferedReader in;
     Drawing drawing;
-    MultitouchFramework mf;
+    MultitouchSurfaceView mf;
     GraphicsWrapper gw;
 
-    public ClientReceiver(NetworkClient sc, Drawing drawing, MultitouchFramework mf, GraphicsWrapper gw) {
+    public ClientReceiver(NetworkClient sc, Drawing drawing, MultitouchSurfaceView mf, GraphicsWrapper gw) {
         this.start = sc;
         this.drawing = drawing;
         this.mf = mf;
@@ -34,12 +34,12 @@ public class ClientReceiver implements Runnable {
                         drawing.updateDrawing(message_distant, Constant.NM_CLIENT, null, start, null);
                         if (Constant.autoFrameWhenUpdatingOverNetwork)
                             gw.frame(drawing.getBoundingRectangle(), true);
-                        mf.requestRedrawInUiThread();
-                        MultitouchFramework.log("Received: " + message_distant.substring(0, 4));
+//                        mf.requestRedrawInUiThread();
+//                        MultitouchSurfaceView.log("Received: " + message_distant.substring(0, 4));
                     }
                 } catch (IOException e) {
-                    MultitouchFramework.log("Problem receiving message for client");
-                    MultitouchFramework.log(" " + e.getMessage());
+//                    MultitouchSurfaceView.log("Problem receiving message for client");
+//                    MultitouchSurfaceView.log(" " + e.getMessage());
                     // e.printStackTrace();
                 }
             }

@@ -7,7 +7,7 @@ import java.util.ArrayList;
 
 import ca.etsmtl.log792.pdavid.sketch.graphic.Drawing;
 import ca.etsmtl.log792.pdavid.sketch.graphic.GraphicsWrapper;
-import ca.etsmtl.log792.pdavid.sketch.graphic.MultitouchFramework;
+import ca.etsmtl.log792.pdavid.sketch.graphic.MultitouchSurfaceView;
 import ca.etsmtl.log792.pdavid.sketch.graphic.util.Constant;
 
 public class NetworkServer implements Runnable {
@@ -16,12 +16,12 @@ public class NetworkServer implements Runnable {
     Socket socketOfServer;
     ArrayList<Socket> clientSockets;
     Drawing drawing;
-    MultitouchFramework mf;
+    MultitouchSurfaceView mf;
     GraphicsWrapper gw;
     Thread threadMulti;
     ServerMulticastReplyer multi;
 
-    public NetworkServer(Drawing drawing, MultitouchFramework mf, GraphicsWrapper gw) {
+    public NetworkServer(Drawing drawing, MultitouchSurfaceView mf, GraphicsWrapper gw) {
         this.drawing = drawing;
         this.mf = mf;
         this.gw = gw;
@@ -34,21 +34,21 @@ public class NetworkServer implements Runnable {
         threadMulti = new Thread(multi);
         threadMulti.start();
 
-        MultitouchFramework.log("Creation of server");
+//        MultitouchSurfaceView.log("Creation of server");
 
         try {
             serverSocket = new ServerSocket(Constant.PORT);
             while (true) {
                 socketOfServer = serverSocket.accept();
-                MultitouchFramework.log("New connection");
+//                MultitouchSurfaceView.log("New connection");
                 clientSockets.add(socketOfServer);
                 ServerReceiver pc = new ServerReceiver(socketOfServer, this, drawing, mf, gw);
                 Thread thread = new Thread(pc);
                 thread.start();
             }
         } catch (IOException e) {
-            MultitouchFramework.log("Error when trying to start server");
-            MultitouchFramework.log(" " + e.getMessage());
+//            MultitouchSurfaceView.log("Error when trying to start server");
+//            MultitouchSurfaceView.log(" " + e.getMessage());
         }
     }
 }

@@ -17,6 +17,7 @@ public class Stroke {
     private float color_red = 0;
     private float color_green = 0;
     private float color_blue = 0;
+    private int mColor = 0;
 
     public float getColor_red() {
         return color_red;
@@ -56,6 +57,10 @@ public class Stroke {
         color_blue = b;
     }
 
+    public void setColor(int color) {
+        mColor = color;
+    }
+
     public AlignedRectangle2D getBoundingRectangle() {
         if (isBoundingRectangleDirty) {
             boundingRectangle.clear();
@@ -84,7 +89,8 @@ public class Stroke {
     }
 
     public void draw(GraphicsWrapper gw) {
-        gw.setColor(color_red, color_green, color_blue);
+//        gw.setColor(color_red, color_green, color_blue);
+        gw.setColor(mColor);
         gw.drawPolyline(points);
     }
 

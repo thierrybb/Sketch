@@ -17,7 +17,7 @@
         android:layout_height="match_parent"
         android:fitsSystemWindows="true">
 
-        <ca.etsmtl.log792.pdavid.sketch.graphic.MultitouchFramework
+        <ca.etsmtl.log792.pdavid.sketch.graphic.MultitouchSurfaceView
             android:id="@+id/canvas"
             android:layout_height="match_parent"
             android:layout_width="match_parent" />

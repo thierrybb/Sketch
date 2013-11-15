@@ -7,7 +7,6 @@ import java.net.MulticastSocket;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 
-import ca.etsmtl.log792.pdavid.sketch.graphic.MultitouchFramework;
 import ca.etsmtl.log792.pdavid.sketch.graphic.util.Constant;
 
 public class ServerMulticastReplyer implements Runnable {
@@ -20,8 +19,8 @@ public class ServerMulticastReplyer implements Runnable {
         try {
             multicastGroupAddress = InetAddress.getByName(Constant.MULTICAST_ADDRESS);
         } catch (UnknownHostException e) {
-            MultitouchFramework.log("Error creating group address");
-            MultitouchFramework.log(" " + e.getMessage());
+//            MultitouchSurfaceView.log("Error creating group address");
+//            MultitouchSurfaceView.log(" " + e.getMessage());
         }
     }
 
@@ -44,14 +43,14 @@ public class ServerMulticastReplyer implements Runnable {
                 } catch (SocketTimeoutException e) {
                     // This seems to happen normally, so don't bother logging an
                     // error about it
-                    // MultitouchFramework.log( "Error with multicast: " +
+                    // MultitouchSurfaceView.log( "Error with multicast: " +
                     // e.getMessage() );
                 }
             }
-            MultitouchFramework.log("Multicast stopped");
+//            MultitouchSurfaceView.log("Multicast stopped");
         } catch (IOException e) {
-            MultitouchFramework.log("Error creating multicast socket");
-            MultitouchFramework.log(" " + e.getMessage());
+//            MultitouchSurfaceView.log("Error creating multicast socket");
+//            MultitouchSurfaceView.log(" " + e.getMessage());
         }
     }
 }

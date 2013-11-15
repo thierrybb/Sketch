@@ -22,6 +22,28 @@ public abstract class BaseGridFragment extends BaseFragment implements AdapterVi
     protected GridView gridview;
     protected FrameLayout root;
 
+    /**
+     * A callback interface that all activities containing this fragment must
+     * implement. This mechanism allows activities to be notified of item
+     * selections.
+     */
+    public interface GridCallbacks {
+        /**
+         * Callback for when an item has been selected.
+         */
+        public void onGridItemClick(int id);
+    }
+
+    /**
+     * A dummy implementation of the {@link ca.etsmtl.log792.pdavid.sketch.ui.fragment.BaseGridFragment} interface that does
+     * nothing. Used only when this fragment is not attached to an activity.
+     */
+    protected static GridCallbacks sDummyCallbacks = new GridCallbacks() {
+        @Override
+        public void onGridItemClick(int id) {
+        }
+    };
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,4 +68,13 @@ public abstract class BaseGridFragment extends BaseFragment implements AdapterVi
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
     }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+
+        // Reset the active callbacks interface to the dummy implementation.
+        mCallbacks = sDummyCallbacks;
+    }
+
 }

@@ -73,6 +73,8 @@
     <orderEntry type="library" exported="" name="support-v4-19.0.0" level="project" />
     <orderEntry type="library" exported="" name="ComLarswerkmanHoloColorPicker11.aar" level="project" />
     <orderEntry type="library" exported="" name="ComAndroidSupportAppcompatV71900.aar" level="project" />
+    <orderEntry type="library" exported="" name="bugsense-3.4" level="project" />
+    <orderEntry type="library" exported="" name="ormlite-3.0" level="project" />
   </component>
 </module>
 

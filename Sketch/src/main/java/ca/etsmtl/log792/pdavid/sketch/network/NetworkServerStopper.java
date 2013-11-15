@@ -3,8 +3,6 @@ package ca.etsmtl.log792.pdavid.sketch.network;
 import java.io.IOException;
 import java.net.Socket;
 
-import ca.etsmtl.log792.pdavid.sketch.graphic.MultitouchFramework;
-
 public class NetworkServerStopper implements Runnable {
 
     NetworkServer start;
@@ -19,7 +17,7 @@ public class NetworkServerStopper implements Runnable {
             for (Socket s : start.clientSockets) {
                 if (s != null) {
                     s.close();
-                    MultitouchFramework.log("Closing of socket");
+//                    MultitouchSurfaceView.log("Closing of socket");
                 }
             }
 
@@ -35,8 +33,8 @@ public class NetworkServerStopper implements Runnable {
             if (start.serverSocket != null)
                 start.serverSocket.close();
         } catch (IOException e) {
-            MultitouchFramework.log("Error when trying to stop server");
-            MultitouchFramework.log(" " + e.getMessage());
+//            MultitouchSurfaceView.log("Error when trying to stop server");
+//            MultitouchSurfaceView.log(" " + e.getMessage());
             // e.printStackTrace();
         }
     }

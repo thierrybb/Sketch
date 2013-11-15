@@ -11,7 +11,7 @@ import java.util.ArrayList;
 
 import ca.etsmtl.log792.pdavid.sketch.graphic.Drawing;
 import ca.etsmtl.log792.pdavid.sketch.graphic.GraphicsWrapper;
-import ca.etsmtl.log792.pdavid.sketch.graphic.MultitouchFramework;
+import ca.etsmtl.log792.pdavid.sketch.graphic.MultitouchSurfaceView;
 import ca.etsmtl.log792.pdavid.sketch.graphic.util.Constant;
 
 public class NetworkClient implements Runnable {
@@ -20,7 +20,7 @@ public class NetworkClient implements Runnable {
     InetAddress multiCastGroupAddress;
     ArrayList<InetAddress> buffer = new ArrayList<InetAddress>();
     Drawing drawing;
-    MultitouchFramework mf;
+    MultitouchSurfaceView mf;
     GraphicsWrapper gw;
 
     private static final int CONNECTION_WITH_USER_ENTERED_IP_ADDRESS = 1;
@@ -29,7 +29,7 @@ public class NetworkClient implements Runnable {
 
     InetAddress inetAddress;
 
-    public NetworkClient(Drawing drawing, MultitouchFramework mf, GraphicsWrapper gw) {
+    public NetworkClient(Drawing drawing, MultitouchSurfaceView mf, GraphicsWrapper gw) {
         this.drawing = drawing;
         this.mf = mf;
         this.gw = gw;
@@ -37,12 +37,12 @@ public class NetworkClient implements Runnable {
         try {
             multiCastGroupAddress = InetAddress.getByName(Constant.MULTICAST_ADDRESS);
         } catch (UnknownHostException e) {
-            MultitouchFramework.log("Error creating group address");
-            MultitouchFramework.log(" " + e.getMessage());
+//            MultitouchSurfaceView.log("Error creating group address");
+//            MultitouchSurfaceView.log(" " + e.getMessage());
         }
     }
 
-    public NetworkClient(String IPAddressOfServer, Drawing drawing, MultitouchFramework mf, GraphicsWrapper gw) {
+    public NetworkClient(String IPAddressOfServer, Drawing drawing, MultitouchSurfaceView mf, GraphicsWrapper gw) {
         this.drawing = drawing;
         this.mf = mf;
         this.gw = gw;
@@ -50,8 +50,8 @@ public class NetworkClient implements Runnable {
         try {
             inetAddress = InetAddress.getByName(IPAddressOfServer);
         } catch (UnknownHostException e) {
-            MultitouchFramework.log("Error starting client");
-            MultitouchFramework.log(" " + e.getMessage());
+//            MultitouchSurfaceView.log("Error starting client");
+//            MultitouchSurfaceView.log(" " + e.getMessage());
         }
     }
 
@@ -91,15 +91,15 @@ public class NetworkClient implements Runnable {
                             wasSuccessful = true;
                         }
                     } catch (SocketTimeoutException e) {
-                        MultitouchFramework.log("Error during server discovery via multicast: SocketTimeoutException");
-                        MultitouchFramework.log(" " + e.getMessage());
+//                        MultitouchSurfaceView.log("Error during server discovery via multicast: SocketTimeoutException");
+//                        MultitouchSurfaceView.log(" " + e.getMessage());
                     }
                     timeLeft = endtime - (int) System.currentTimeMillis();
                 } while (!wasSuccessful && 0 < timeLeft);
                 multicastsocket.leaveGroup(this.multiCastGroupAddress);
             } catch (IOException e) {
-                MultitouchFramework.log("Error during server discovery via multicast: IOException");
-                MultitouchFramework.log(" " + e.getMessage());
+//                MultitouchSurfaceView.log("Error during server discovery via multicast: IOException");
+//                MultitouchSurfaceView.log(" " + e.getMessage());
             }
             if (this.buffer.size() > 0) {
                 try {
@@ -108,16 +108,16 @@ public class NetworkClient implements Runnable {
                     ClientReceiver reception = new ClientReceiver(this, drawing, mf, gw);
                     new Thread(reception).start();
                 } catch (UnknownHostException e) {
-                    MultitouchFramework.log("Error: unknown host");
-                    MultitouchFramework.log(" " + e.getMessage());
+//                    MultitouchSurfaceView.log("Error: unknown host");
+//                    MultitouchSurfaceView.log(" " + e.getMessage());
                     // e.printStackTrace();
                 } catch (IOException e) {
-                    MultitouchFramework.log("Error: IOException");
-                    MultitouchFramework.log(" " + e.getMessage());
+//                    MultitouchSurfaceView.log("Error: IOException");
+//                    MultitouchSurfaceView.log(" " + e.getMessage());
                     // e.printStackTrace();
                 }
             } else {
-                MultitouchFramework.log("No server available");
+//                MultitouchSurfaceView.log("No server available");
             }
         } else {
             try {
@@ -125,12 +125,12 @@ public class NetworkClient implements Runnable {
                 ClientReceiver reception = new ClientReceiver(this, drawing, mf, gw);
                 new Thread(reception).start();
             } catch (UnknownHostException e) {
-                MultitouchFramework.log("Error: unknown host");
-                MultitouchFramework.log(" " + e.getMessage());
+//                MultitouchSurfaceView.log("Error: unknown host");
+//                MultitouchSurfaceView.log(" " + e.getMessage());
                 // e.printStackTrace();
             } catch (IOException e) {
-                MultitouchFramework.log("Error: IOException");
-                MultitouchFramework.log(" " + e.getMessage());
+//                MultitouchSurfaceView.log("Error: IOException");
+//                MultitouchSurfaceView.log(" " + e.getMessage());
                 // e.printStackTrace();
             }
         }

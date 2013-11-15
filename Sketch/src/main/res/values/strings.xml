@@ -21,6 +21,10 @@
     <string name="alert_dialog_save_modif_title">Warning !</string>
     <string name="save_png">Save to PNG</string>
     <string name="save_svg">Save to SVG</string>
+    <string name="default_svg_string"><![CDATA[ <?xml version=\"1.0\" standalone=\"no\"?>
+            <!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">
+            <svg width=\"%1$dpx\" height=\"%2$dpx\" viewBox=\"0 0 %3$d %4$d \"xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\"> ]]>
+    </string>
 
 
 </resources>

@@ -14,6 +14,7 @@ import ca.etsmtl.log792.pdavid.sketch.R;
 public class SaveActionProvider extends ActionProvider implements MenuItem.OnMenuItemClickListener {
     private Context mContext;
     private int[] saveType = new int[]{R.string.save_png, R.string.save_svg};
+    private OnClickListener onClickListener;
 
     /**
      * Creates a new instance. ActionProvider classes should always implement a
@@ -36,7 +37,6 @@ public class SaveActionProvider extends ActionProvider implements MenuItem.OnMen
         return null;
     }
 
-
     @Override
     public void onPrepareSubMenu(SubMenu subMenu) {
         subMenu.clear();
@@ -49,10 +49,33 @@ public class SaveActionProvider extends ActionProvider implements MenuItem.OnMen
 
     @Override
     public boolean onMenuItemClick(MenuItem item) {
-        switch (item.getItemId()) {
-            default:
-                break;
+        int itemId = item.getItemId();
+        if (itemId == 0) {
+
+            onClickListener.onSavePng();
+
+        } else {
+
+            onClickListener.onSaveSvg();
+
         }
-        return false;
+        return true;
+    }
+
+    @Override
+    public boolean onPerformDefaultAction() {
+        onClickListener.onSavePng();
+        return true;
+    }
+
+    public void setOnClickListener(OnClickListener onClickListener) {
+
+        this.onClickListener = onClickListener;
+    }
+
+    public interface OnClickListener {
+        public void onSavePng();
+
+        public void onSaveSvg();
     }
 }

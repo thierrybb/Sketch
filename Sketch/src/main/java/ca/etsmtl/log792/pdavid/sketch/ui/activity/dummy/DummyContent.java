@@ -65,6 +65,7 @@ public class DummyContent {
         public String content;
         public int title;
         private Class fragment;
+        private String tag;
 
         public DummyItem(String id, String content, int title, Class f) {
             this.id = id;
@@ -80,6 +81,10 @@ public class DummyContent {
 
         public Class getFragment() {
             return fragment;
+        }
+
+        public String getTag() {
+            return fragment.getName();
         }
     }
 }

@@ -6,6 +6,7 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.graphics.Point;
 import android.graphics.Rect;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
@@ -25,6 +26,9 @@ import ca.etsmtl.log792.pdavid.sketch.ui.adapter.MyGridAdapter;
  */
 public class SketchesGridFragment extends BaseGridFragment {
 
+    public static final String TAG = SketchesGridFragment.class.getName();
+    private ImageView expandedImageView;
+
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
@@ -42,7 +46,8 @@ public class SketchesGridFragment extends BaseGridFragment {
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
         Sketch item = (Sketch) adapterView.getAdapter().getItem(i);
         zoomImageFromThumb(view, R.drawable.sample_0);
-        mCallbacks.onItemSelected(i);
+        getActivity().getActionBar().hide();
+//        mCallbacks.onGridItemClick(i);
     }
 
     // Hold a reference to the current animator,
@@ -52,7 +57,7 @@ public class SketchesGridFragment extends BaseGridFragment {
     // The system "short" animation time duration, in milliseconds. This
     // duration is ideal for subtle animations or animations that occur
     // very frequently.
-    private int mShortAnimationDuration;
+    private int mShortAnimationDuration = 200;
 
     private void zoomImageFromThumb(final View thumbView, int imageResId) {
         // If there's an animation in progress, cancel it
@@ -62,7 +67,7 @@ public class SketchesGridFragment extends BaseGridFragment {
         }
 
         // Load the high-resolution "zoomed-in" image.
-        final ImageView expandedImageView = (ImageView) root.findViewById(
+        expandedImageView = (ImageView) root.findViewById(
                 R.id.expanded_image);
         expandedImageView.setImageResource(imageResId);
 
@@ -155,6 +160,7 @@ public class SketchesGridFragment extends BaseGridFragment {
                 if (mCurrentAnimator != null) {
                     mCurrentAnimator.cancel();
                 }
+                getActivity().getActionBar().show();
 
                 // Animate the four positioning/sizing properties in parallel,
                 // back to their original values.
@@ -195,5 +201,15 @@ public class SketchesGridFragment extends BaseGridFragment {
         });
     }
 
+    public void zoomOut() {
+        if (expandedImageView != null) {
+            // Make sure we're running on Honeycomb or higher to use ActionBar APIs
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+                expandedImageView.callOnClick();
+            } else {
+                expandedImageView.performClick();
+            }
+        }
+    }
 
 }
