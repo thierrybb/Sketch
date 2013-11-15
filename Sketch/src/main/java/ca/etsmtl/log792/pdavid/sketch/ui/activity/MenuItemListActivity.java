@@ -160,11 +160,12 @@ public class MenuItemListActivity extends FragmentActivity
 
             Fragment fragment = null;
             try {
-                Object instance = DummyContent.ITEMS.get(id).getFragment().newInstance();
+                DummyContent.DummyItem dummyItem = DummyContent.ITEMS.get(id);
+                Object instance = dummyItem.getFragment().newInstance();
                 if (instance instanceof Fragment) {
                     fragment = (Fragment) instance;
                     getFragmentManager().beginTransaction()
-                            .replace(R.id.menuitem_detail_container, fragment).addToBackStack(null)
+                            .replace(R.id.menuitem_detail_container, fragment, dummyItem.getTag()).addToBackStack(null)
                             .commit();
 
                 } else {

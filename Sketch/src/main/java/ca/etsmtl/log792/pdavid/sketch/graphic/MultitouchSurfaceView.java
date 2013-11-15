@@ -251,8 +251,7 @@ public class MultitouchSurfaceView extends SurfaceView implements SurfaceHolder.
     }
 
     public void setColor(int i) {
-        paint.setColor(i);
-        userContexts[0].
+        userContexts[0].setCurrent_color(i);
     }
 
     ////////////////////////////////////

@@ -131,6 +131,10 @@ public class UserContext {
         }
     }
 
+    public void setCurrent_color(int current_color) {
+        this.current_color = current_color;
+    }
+
     /**
      * @param id
      * @param x                              in pixels
@@ -257,7 +261,8 @@ public class UserContext {
 
                     // Add the newly drawn stroke to the drawing
                     Stroke newStroke = new Stroke();
-                    newStroke.setColor(current_red, current_green, current_blue);
+//                    newStroke.setColor(current_red, current_green, current_blue);
+                    newStroke.setColor(current_color);
                     for (Point2D p : cursor.getPositions()) {
                         newStroke.addPoint(gw.convertPixelsToWorldSpaceUnits(p));
                     }

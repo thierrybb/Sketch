@@ -57,7 +57,7 @@ public class SketchesGridFragment extends BaseGridFragment {
     // The system "short" animation time duration, in milliseconds. This
     // duration is ideal for subtle animations or animations that occur
     // very frequently.
-    private int mShortAnimationDuration = 200;
+    private int mShortAnimationDuration = 300;
 
     private void zoomImageFromThumb(final View thumbView, int imageResId) {
         // If there's an animation in progress, cancel it
