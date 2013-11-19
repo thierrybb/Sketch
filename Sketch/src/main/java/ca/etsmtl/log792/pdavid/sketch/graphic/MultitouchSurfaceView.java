@@ -180,10 +180,10 @@ public class MultitouchSurfaceView extends SurfaceView implements SurfaceHolder.
         gw.set(paint, canvas);
         gw.clear(1, 1, 1);
         gw.setColor(0, 0, 0);
-        gw.setCoordinateSystemToWorldSpaceUnits();
+//        gw.setCoordinateSystemToWorldSpaceUnits();
         drawing.draw(gw);
 
-        gw.setCoordinateSystemToPixels();
+//        gw.setCoordinateSystemToPixels();
 
         gw.setFontHeight(Constant.TEXT_HEIGHT);
         for (int j = 0; j < Constant.NUM_USERS; ++j) {
@@ -281,6 +281,10 @@ public class MultitouchSurfaceView extends SurfaceView implements SurfaceHolder.
         }
     }
 
+    public void insertText(String s) {
+
+    }
+
     ////////////////////////////////////
     // REPAINT THREAD
     ////////////////////////////////////
@@ -306,8 +310,8 @@ public class MultitouchSurfaceView extends SurfaceView implements SurfaceHolder.
             while (_run) {     //When setRunning(false) occurs, _run is
                 c = null;      //set to false and loop ends, stopping thread
                 try {
-                    c = _surfaceHolder.lockCanvas(null);
                     synchronized (_surfaceHolder) {
+                        c = _surfaceHolder.lockCanvas(null);
                         //Insert methods to modify positions of items in onDraw()
                         postInvalidate();
 

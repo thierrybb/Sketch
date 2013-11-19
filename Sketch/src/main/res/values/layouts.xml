@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <item name="main_layout" type="layout">@layout/activity_menuitem_list</item>
+    <item name="sketches_grid_view" type="layout">@layout/fragment_sketches_grid_view</item>
     <bool name="has_two_panes">false</bool>
 </resources>

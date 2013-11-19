@@ -2,18 +2,24 @@ package ca.etsmtl.log792.pdavid.sketch.model;
 
 import android.graphics.Bitmap;
 
+import java.io.File;
+
 /**
  * Created by pdavid on 11/12/13.
  */
 public class Sketch extends BaseModel {
     public String name;
-    public String filePath;
+    public File file;
     public Bitmap thumbnail;
 
-    public Sketch(String name, String filePath, Bitmap thumbnail) {
+    public Sketch(String name, File filePath, Bitmap thumbnail) {
         this.name = name;
-        this.filePath = filePath;
+        this.file = filePath;
         this.thumbnail = thumbnail;
+    }
+
+    public Sketch(String name, File path) {
+        this(name, path, null);
     }
 
     @Override
@@ -24,5 +30,10 @@ public class Sketch extends BaseModel {
     @Override
     public Bitmap getImage() {
         return thumbnail;
+    }
+
+    @Override
+    public File getFile() {
+        return file;
     }
 }

@@ -6,13 +6,12 @@ import java.util.ArrayList;
 import ca.etsmtl.log792.pdavid.sketch.graphic.shape.AlignedRectangle2D;
 import ca.etsmtl.log792.pdavid.sketch.graphic.shape.Point2D;
 import ca.etsmtl.log792.pdavid.sketch.graphic.shape.Stroke;
+import ca.etsmtl.log792.pdavid.sketch.graphic.shape.Text;
 import ca.etsmtl.log792.pdavid.sketch.graphic.util.ActionTask;
 import ca.etsmtl.log792.pdavid.sketch.graphic.util.Command;
 import ca.etsmtl.log792.pdavid.sketch.graphic.util.Constant;
-import ca.etsmtl.log792.pdavid.sketch.network.ClientSender;
 import ca.etsmtl.log792.pdavid.sketch.network.NetworkClient;
 import ca.etsmtl.log792.pdavid.sketch.network.NetworkServer;
-import ca.etsmtl.log792.pdavid.sketch.network.ServerSender;
 
 // This stores a set of strokes.
 // Even if there are multiple users interacting with the window at the same
@@ -21,6 +20,7 @@ import ca.etsmtl.log792.pdavid.sketch.network.ServerSender;
 public class Drawing {
 
     public ArrayList<Stroke> strokes = new ArrayList<Stroke>();
+    public ArrayList<Text> texts = new ArrayList<Text>();
     public ActionTask actionsMade = new ActionTask();
     public ActionTask actionsUndo = new ActionTask();
 
@@ -33,23 +33,27 @@ public class Drawing {
         ArrayList<Stroke> ss = new ArrayList<Stroke>();
         ss.add(s);
         actionsMade.push(new Command(ss, true));
-        String message = this.toString(s, true);
-        if (networkMode == Constant.NM_SERVER) {
-            this.forwardAsServer(message, server, IP_sender);
-        } else if (networkMode == Constant.NM_CLIENT) {
-            this.forwardAsClient(message, client);
-        }
+//        String message = this.toString(s, true);
+//        if (networkMode == Constant.NM_SERVER) {
+//            this.forwardAsServer(message, server, IP_sender);
+//        } else if (networkMode == Constant.NM_CLIENT) {
+//            this.forwardAsClient(message, client);
+//        }
     }
 
     public void removeStroke(Stroke s, int networkMode, NetworkServer server, NetworkClient client,
                              InetAddress IP_sender) {
         strokes.remove(s);
-        String message = this.toString(s, false);
-        if (networkMode == Constant.NM_SERVER) {
-            this.forwardAsServer(message, server, IP_sender);
-        } else if (networkMode == Constant.NM_CLIENT) {
-            this.forwardAsClient(message, client);
-        }
+//        String message = this.toString(s, false);
+//        if (networkMode == Constant.NM_SERVER) {
+//            this.forwardAsServer(message, server, IP_sender);
+//        } else if (networkMode == Constant.NM_CLIENT) {
+//            this.forwardAsClient(message, client);
+//        }
+    }
+
+    public void addText(Text t) {
+        texts.add(t);
     }
 
     public synchronized String toString(Stroke s, boolean added) {
@@ -93,6 +97,10 @@ public class Drawing {
         for (Stroke s : strokes) {
             s.draw(gw);
         }
+
+        for (Text t : texts) {
+            gw.drawString(t.x, t.y, t.text);
+        }
         gw.setLineWidth(1);
     }
 
@@ -125,13 +133,13 @@ public class Drawing {
         }
     }
 
-    public void forwardAsServer(String message, NetworkServer server, InetAddress IP_sender) {
-        ServerSender emission = new ServerSender(server, message, IP_sender);
-        new Thread(emission).start();
-    }
-
-    public void forwardAsClient(String message, NetworkClient client) {
-        ClientSender emission = new ClientSender(client, message);
-        new Thread(emission).start();
-    }
+//    public void forwardAsServer(String message, NetworkServer server, InetAddress IP_sender) {
+//        ServerSender emission = new ServerSender(server, message, IP_sender);
+//        new Thread(emission).start();
+//    }
+//
+//    public void forwardAsClient(String message, NetworkClient client) {
+//        ClientSender emission = new ClientSender(client, message);
+//        new Thread(emission).start();
+//    }
 }

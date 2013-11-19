@@ -28,6 +28,13 @@
             android:layout_height="wrap_content"
             android:layout_gravity="left|bottom"
             android:visibility="gone" />
+
+        <ca.etsmtl.log792.pdavid.sketch.ui.view.TextCreatorView
+            android:id="@+id/text_creation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:visibility="gone" />
     </FrameLayout>
 
 </FrameLayout>

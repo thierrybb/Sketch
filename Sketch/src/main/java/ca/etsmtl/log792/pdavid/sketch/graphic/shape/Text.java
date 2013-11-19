@@ -1,0 +1,10 @@
+package ca.etsmtl.log792.pdavid.sketch.graphic.shape;
+
+/**
+ * Created by Phil on 19/11/13.
+ */
+public class Text {
+    public String text;
+    public int x = 0;
+    public int y = 0;
+}

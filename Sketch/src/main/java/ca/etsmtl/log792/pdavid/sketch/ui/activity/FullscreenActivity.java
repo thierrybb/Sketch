@@ -4,9 +4,10 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -17,6 +18,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.larswerkman.holocolorpicker.ColorPicker;
@@ -29,6 +31,7 @@ import ca.etsmtl.log792.pdavid.sketch.graphic.MultitouchSurfaceView;
 import ca.etsmtl.log792.pdavid.sketch.ui.activity.provider.SaveActionProvider;
 import ca.etsmtl.log792.pdavid.sketch.ui.activity.util.SystemUiHider;
 import ca.etsmtl.log792.pdavid.sketch.ui.dialog.SaveDialog;
+import ca.etsmtl.log792.pdavid.sketch.ui.view.TextCreatorView;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -74,6 +77,7 @@ public class FullscreenActivity extends Activity implements ActionBar.TabListene
     private MultitouchSurfaceView multiTouchFramework;
     private ColorPicker picker;
     private SaveDialog saveDialog;
+    private TextCreatorView textCreationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,13 +89,22 @@ public class FullscreenActivity extends Activity implements ActionBar.TabListene
         ActionBar actionBar = getActionBar();
         actionBar.setDisplayShowHomeEnabled(false);
         actionBar.setDisplayShowTitleEnabled(false);
+        actionBar.setBackgroundDrawable(new ColorDrawable(Color.BLACK));
 //        actionBar.hide();
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-        actionBar.addTab(actionBar.newTab().setText(R.string.default_drawing_title).setTabListener(this), true);
-        actionBar.addTab(actionBar.newTab().setText(R.string.default_new_drawing).setTabListener(this), false);
+//        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+//        actionBar.addTab(actionBar.newTab().setText(R.string.default_drawing_title).setTabListener(this), true);
+//        actionBar.addTab(actionBar.newTab().setText(R.string.default_new_drawing).setTabListener(this), false);
 
         picker = (ColorPicker) findViewById(R.id.picker);
         picker.setOnColorChangedListener(this);
+
+        textCreationView = (TextCreatorView) findViewById(R.id.text_creation);
+        textCreationView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                multiTouchFramework.insertText(((EditText)v.findViewById(R.id.text_creation_text)).getText().toString());
+            }
+        });
 
         // Set up an instance of SystemUiHider to control the system UI for
         // this activity.
@@ -186,11 +199,21 @@ public class FullscreenActivity extends Activity implements ActionBar.TabListene
                  * True is returned here so the submenu will open
                  */
                 return true;
+            case R.id.menu_draw_text_creation:
+                toggleTextCreation();
+                return true;
             case R.id.menu_color_wheel:
                 toggleColorWheel();
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void toggleTextCreation() {
+        if (textCreationView.getVisibility() == View.GONE || textCreationView.getVisibility() == View.INVISIBLE)
+            textCreationView.setVisibility(View.VISIBLE);
+        else
+            textCreationView.setVisibility(View.GONE);
     }
 
     /**
@@ -246,7 +269,7 @@ public class FullscreenActivity extends Activity implements ActionBar.TabListene
     @Override
     public void onColorChanged(int i) {
         multiTouchFramework.setColor(i);
-        Log.d("COLOR", "" + i);
+//        Log.d("COLOR", "" + i);
     }
 
     //  Save Action Provider Callbacks
@@ -269,7 +292,7 @@ public class FullscreenActivity extends Activity implements ActionBar.TabListene
     }
 
     public void savePNG(String name) {
-        File file = getAlbumStorageDir(this, name);
+        File file = getAlbumStorageDir(name + ".png");
         Bitmap bitmap = multiTouchFramework.generatePNG();
 
         boolean result = saveImage(file, bitmap);
@@ -287,19 +310,34 @@ public class FullscreenActivity extends Activity implements ActionBar.TabListene
 
     @Override
     public void onSaveSvg() {
-        saveSVG();
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        Fragment prev = getFragmentManager().findFragmentByTag("dialog");
+        if (prev != null) {
+            ft.remove(prev);
+        }
+        ft.addToBackStack(null);
+
+        // Create and show the dialog.
+        saveDialog = SaveDialog.newInstance(SaveDialog.TYPE_SVG);
+        saveDialog.show(ft, "dialog");
     }
 
-    private void saveSVG() {
-        final String basename = getString(R.string.default_drawing_title);
-        final String result = multiTouchFramework.generateSVG();
+    public void saveSVG(String name) {
+        File file = getAlbumStorageDir(name + ".svg");
+        final String svg = multiTouchFramework.generateSVG();
 
-        final String path = Environment.getExternalStorageDirectory().toString();
-        final File storageDir = new File(path, basename + ".svg");
+        boolean result = saveImage(file, svg);
+        if (result) {
+            sendBroadcast(new Intent(
+                    Intent.ACTION_MEDIA_MOUNTED,
+                    Uri.parse("file://" + Environment.getExternalStorageDirectory())));
+            Toast.makeText(getApplicationContext(), "File saved to :" + file.getAbsolutePath(), Toast.LENGTH_LONG).show();
+            if (saveDialog != null && saveDialog.isCancelable()) {
+                saveDialog.dismiss();
+            }
+        }
 
-//        saveToMediaStorage(storageDir, result);
     }
-
 
     /**
      * Get the directory for the app's private pictures directory.
@@ -308,48 +346,30 @@ public class FullscreenActivity extends Activity implements ActionBar.TabListene
      * @param fileName Name of the album
      * @return a file to write to
      */
-    public File getAlbumStorageDir(Context context, String fileName) {
-        File file = new File(Environment.getExternalStorageDirectory(), "/MySketches/" + fileName + ".png");
+    public File getAlbumStorageDir(String fileName) {
+        File file = new File(Environment.getExternalStorageDirectory(), "/MySketches/" + fileName);
         if (!file.mkdirs()) {
             Log.e("ERROR", "Directory not created");
         }
         return file;
     }
 
-//    private void saveToMediaStorage(File file, Object obj) {
-//        OutputStream fOut;
-//        try {
-//            fOut = new FileOutputStream(file);
-//            if (obj instanceof Bitmap) {
-//                Bitmap bitmap = (Bitmap) obj;
-//                bitmap.compress(Bitmap.CompressFormat.JPEG, 90, fOut);
-//                MediaStore.Images.Media.insertImage(getContentResolver(), file.getAbsolutePath(), file.getName(), file.getName());
-//            } else {
-//                fOut.write(((String) obj).getBytes());
-//            }
-//            fOut.flush();
-//            fOut.close();
-//        } catch (FileNotFoundException e) {
-//            e.printStackTrace();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//
-//        Toast.makeText(getApplicationContext(), "File saved to :" + file.getAbsolutePath(), Toast.LENGTH_LONG).show();
-//
-//    }
-
-    private boolean saveImage(File file, Bitmap finalBitmap) {
+    private boolean saveImage(File file, Object thingToSave) {
 
         if (file.exists()) file.delete();
 
         try {
+
             FileOutputStream out = new FileOutputStream(file);
-            finalBitmap.compress(Bitmap.CompressFormat.PNG, 90, out);
+            if (thingToSave instanceof Bitmap) {
+                ((Bitmap) thingToSave).compress(Bitmap.CompressFormat.PNG, 90, out);
+            } else {
+                out.write(thingToSave.toString().getBytes());
+            }
             out.flush();
             out.close();
-
-            MediaStore.Images.Media.insertImage(getContentResolver(), file.getAbsolutePath(), file.getName(), file.getName());
+            if (thingToSave instanceof Bitmap)
+                MediaStore.Images.Media.insertImage(getContentResolver(), file.getAbsolutePath(), file.getName(), file.getName());
         } catch (Exception e) {
             e.printStackTrace();
             return false;

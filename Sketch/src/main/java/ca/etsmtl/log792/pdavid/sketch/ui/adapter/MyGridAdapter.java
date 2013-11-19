@@ -8,6 +8,7 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import ca.etsmtl.log792.pdavid.sketch.ApplicationManager;
 import ca.etsmtl.log792.pdavid.sketch.R;
 import ca.etsmtl.log792.pdavid.sketch.model.BaseModel;
 
@@ -17,7 +18,7 @@ import ca.etsmtl.log792.pdavid.sketch.model.BaseModel;
 public class MyGridAdapter extends MyBaseAdapter<BaseModel> {
 
     public MyGridAdapter(Context c, List<BaseModel> list) {
-        super(c, R.layout.sketch_grid_item, list);
+        super(c, R.layout.sketches_grid_view, list);
 
     }
 
@@ -42,7 +43,7 @@ public class MyGridAdapter extends MyBaseAdapter<BaseModel> {
 
         final BaseModel item = getItem(position);
 
-//        ApplicationManager.getImage(holder.img, item.getImage());
+        ApplicationManager.getImage(holder.img, item.getFile());
         holder.txt.setText(item.getTitle());
 
         return convertView;

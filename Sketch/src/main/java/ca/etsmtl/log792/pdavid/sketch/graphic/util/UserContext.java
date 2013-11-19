@@ -1,5 +1,7 @@
 package ca.etsmtl.log792.pdavid.sketch.graphic.util;
 
+import android.graphics.Color;
+
 import java.util.ArrayList;
 
 import ca.etsmtl.log792.pdavid.sketch.graphic.CursorContainer;
@@ -25,7 +27,7 @@ public class UserContext {
     public float current_green = 0;
     public float current_blue = 0;
     public float current_alpha = 0;
-    public int current_color = 0;
+    public int current_color = Color.BLACK;
 
     private int networkMode = Constant.NM_NONE;
 
@@ -84,10 +86,8 @@ public class UserContext {
 
     public void draw(GraphicsWrapper gw) {
 
-//        draw(gw);
-
         // draw filled rectangles over the selected strokes
-        gw.setCoordinateSystemToWorldSpaceUnits();
+//        gw.setCoordinateSystemToWorldSpaceUnits();
         for (Stroke s : selectedStrokes) {
             AlignedRectangle2D r = s.getBoundingRectangle();
             gw.setColor(1.0f, 0.5f, 0, 0.2f); // transparent orange
@@ -95,7 +95,7 @@ public class UserContext {
             gw.fillRect(r.getMin().x(), r.getMin().y(), diagonal.x(), diagonal.y());
         }
 
-        gw.setCoordinateSystemToPixels();
+//        gw.setCoordinateSystemToPixels();
 
         // draw cursors
         for (int i = 0; i < cursorContainer.getNumCursors(); ++i) {

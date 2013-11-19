@@ -2,6 +2,8 @@ package ca.etsmtl.log792.pdavid.sketch.model;
 
 import android.graphics.Bitmap;
 
+import java.io.File;
+
 /**
  * Created by Phil on 13/11/13.
  */
@@ -24,5 +26,10 @@ public class Book extends BaseModel{
     @Override
     public Bitmap getImage() {
         return thumbnail;
+    }
+
+    @Override
+    public File getFile() {
+        return null;
     }
 }

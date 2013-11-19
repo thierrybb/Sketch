@@ -8,12 +8,12 @@ import android.widget.ImageView;
 import com.bugsense.trace.BugSenseHandler;
 import com.squareup.picasso.Picasso;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import ca.etsmtl.log792.pdavid.sketch.model.BaseModel;
 import ca.etsmtl.log792.pdavid.sketch.model.Book;
-import ca.etsmtl.log792.pdavid.sketch.model.Sketch;
 import ca.etsmtl.log792.pdavid.sketch.model.Sketcher;
 
 /**
@@ -39,25 +39,6 @@ public class ApplicationManager extends Application {
         final DisplayMetrics metrics = getResources().getDisplayMetrics();
         densityDpi = metrics.densityDpi;
 
-        //fake data
-        //sketches
-        sketchList.add(new Sketch("Sketch 1", "/public/Sketch1.png", null));
-        sketchList.add(new Sketch("Sketch 2", "/public/Sketch2.png", null));
-        sketchList.add(new Sketch("Sketch 2", "/public/Sketch3.png", null));
-        sketchList.add(new Sketch("Sketch 2", "/public/Sketch4.png", null));
-        sketchList.add(new Sketch("Sketch 2", "/public/Sketch5.png", null));
-        sketchList.add(new Sketch("Sketch 2", "/public/Sketch6.png", null));
-        sketchList.add(new Sketch("Sketch 2", "/public/Sketch2.png", null));
-        sketchList.add(new Sketch("Sketch 2", "/public/Sketch2.png", null));
-        sketchList.add(new Sketch("Sketch 2", "/public/Sketch2.png", null));
-        sketchList.add(new Sketch("Sketch 2", "/public/Sketch2.png", null));
-        sketchList.add(new Sketch("Sketch 2", "/public/Sketch2.png", null));
-        sketchList.add(new Sketch("Sketch 2", "/public/Sketch2.png", null));
-        sketchList.add(new Sketch("Sketch 2", "/public/Sketch2.png", null));
-        sketchList.add(new Sketch("Sketch 2", "/public/Sketch2.png", null));
-        sketchList.add(new Sketch("Sketch 2", "/public/Sketch2.png", null));
-        sketchList.add(new Sketch("Sketch 2", "/public/Sketch2.png", null));
-        sketchList.add(new Sketch("Sketch 2", "/public/Sketch2.png", null));
         //books
         bookList.add(new Book("Public Sketches", null, 10));
         bookList.add(new Book("Private Sketches", null, 0));
@@ -103,11 +84,12 @@ public class ApplicationManager extends Application {
     }
 
 
-    public static void getImage(ImageView imageView, String url) {
+    public static void getImage(ImageView imageView, File f) {
         Picasso.with(context)
-                .load(url)
+                .load(f)
                 .placeholder(android.R.color.white)
                 .error(android.R.color.holo_red_light)
+                .fit()
                 .into(imageView);
     }
 

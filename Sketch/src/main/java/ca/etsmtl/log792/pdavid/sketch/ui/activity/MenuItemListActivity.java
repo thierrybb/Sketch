@@ -109,10 +109,10 @@ public class MenuItemListActivity extends FragmentActivity
             mDrawerLayout.setDrawerListener(mDrawerToggle);
 
 
-            // Set Menu Item 0 as Default
-            if (savedInstanceState == null) {
-                selectMenuItem(0);
-            }
+        }
+        // Set Menu Item 0 as Default
+        if (savedInstanceState == null) {
+            onListItemSelected(0); //2 pane, handled in method
         }
 
         // TODO: If exposing deep links into your app, handle intents here.
@@ -174,6 +174,8 @@ public class MenuItemListActivity extends FragmentActivity
 
             } catch (IllegalAccessException e) {
             }
+        } else {
+            selectMenuItem(0);
         }
     }
 

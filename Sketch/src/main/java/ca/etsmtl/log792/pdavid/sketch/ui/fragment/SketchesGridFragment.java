@@ -17,6 +17,7 @@ import android.widget.ImageView;
 import java.io.File;
 import java.util.ArrayList;
 
+import ca.etsmtl.log792.pdavid.sketch.ApplicationManager;
 import ca.etsmtl.log792.pdavid.sketch.R;
 import ca.etsmtl.log792.pdavid.sketch.model.BaseModel;
 import ca.etsmtl.log792.pdavid.sketch.model.Sketch;
@@ -45,12 +46,15 @@ public class SketchesGridFragment extends BaseGridFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // Get all images
-        File root = new File(Environment
-                .getExternalStorageDirectory()
-                .getAbsolutePath());
+        File root = new File(Environment.getExternalStorageDirectory() + "/MySketches/");
+
         File[] files = root.listFiles();
         // Generate models
         list = new ArrayList<BaseModel>();
+        for (File f : files) {
+            if (f.getName().contains(".png"))
+                list.add(new Sketch(f.getName(), f));
+        }
 
     }
 
@@ -63,8 +67,11 @@ public class SketchesGridFragment extends BaseGridFragment {
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
         Sketch item = (Sketch) adapterView.getAdapter().getItem(i);
-        zoomImageFromThumb(view, R.drawable.sample_0);
-        getActivity().getActionBar().hide();
+        zoomImageFromThumb(view, item.getFile());
+        if(!ApplicationManager.isTablet){
+
+            getActivity().getActionBar().hide();
+        }
     }
 
     // Hold a reference to the current animator,
@@ -76,7 +83,7 @@ public class SketchesGridFragment extends BaseGridFragment {
     // very frequently.
     private int mShortAnimationDuration = 300;
 
-    private void zoomImageFromThumb(final View thumbView, int imageResId) {
+    private void zoomImageFromThumb(final View thumbView, File path) {
         // If there's an animation in progress, cancel it
         // immediately and proceed with this one.
         if (mCurrentAnimator != null) {
@@ -86,7 +93,8 @@ public class SketchesGridFragment extends BaseGridFragment {
         // Load the high-resolution "zoomed-in" image.
         expandedImageView = (ImageView) root.findViewById(
                 R.id.expanded_image);
-        expandedImageView.setImageResource(imageResId);
+//        expandedImageView.setImageResource(imageResId);
+        ApplicationManager.getImage(expandedImageView, path);
 
         // Calculate the starting and ending bounds for the zoomed-in image.
         // This step involves lots of math. Yay, math.

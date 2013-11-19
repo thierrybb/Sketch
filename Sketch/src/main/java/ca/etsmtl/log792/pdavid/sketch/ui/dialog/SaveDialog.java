@@ -15,6 +15,8 @@ import ca.etsmtl.log792.pdavid.sketch.ui.activity.FullscreenActivity;
  */
 public class SaveDialog extends DialogFragment {
     public static final int TYPE_PNG = 0;
+    public static final int TYPE_SVG = 1;
+
     private int mNum;
     private TextView tv;
 
@@ -47,6 +49,8 @@ public class SaveDialog extends DialogFragment {
                 // When button is clicked, call up to owning activity.
                 if(mNum == TYPE_PNG){
                     ((FullscreenActivity) getActivity()).savePNG(tv.getText().toString());
+                }else{
+                    ((FullscreenActivity) getActivity()).saveSVG(tv.getText().toString());
                 }
             }
         });

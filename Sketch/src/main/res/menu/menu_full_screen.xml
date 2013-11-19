@@ -7,7 +7,7 @@
         android:id="@+id/menu_color_wheel"
         android:icon="@drawable/color_wheel"
         android:title="Color Wheel"
-        
+
         android:showAsAction="always" />
     <item
         android:id="@+id/menu_save"
@@ -24,6 +24,12 @@
         android:id="@+id/menu_draw_tools"
         android:title="Drawing Tools"
         android:icon="@android:drawable/ic_menu_edit"
+        android:showAsAction="always" />
+
+    <item
+        android:id="@+id/menu_draw_text_creation"
+        android:title="Add Text"
+        android:icon="@android:drawable/ic_menu_sort_alphabetically"
         android:showAsAction="always" />
     <item
         android:id="@+id/menu_info"
