@@ -8,13 +8,17 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 
-import ca.etsmtl.log792.pdavid.sketch.ApplicationManager;
+import java.io.File;
+import java.util.ArrayList;
+
 import ca.etsmtl.log792.pdavid.sketch.R;
+import ca.etsmtl.log792.pdavid.sketch.model.BaseModel;
 import ca.etsmtl.log792.pdavid.sketch.model.Sketch;
 import ca.etsmtl.log792.pdavid.sketch.ui.adapter.MyGridAdapter;
 
@@ -28,6 +32,7 @@ public class SketchesGridFragment extends BaseGridFragment {
 
     public static final String TAG = SketchesGridFragment.class.getName();
     private ImageView expandedImageView;
+    private ArrayList<BaseModel> list;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -37,9 +42,22 @@ public class SketchesGridFragment extends BaseGridFragment {
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // Get all images
+        File root = new File(Environment
+                .getExternalStorageDirectory()
+                .getAbsolutePath());
+        File[] files = root.listFiles();
+        // Generate models
+        list = new ArrayList<BaseModel>();
+
+    }
+
+    @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        gridview.setAdapter(new MyGridAdapter(getActivity(), ApplicationManager.sketchList));
+        gridview.setAdapter(new MyGridAdapter(getActivity(), list));
     }
 
     @Override
@@ -47,7 +65,6 @@ public class SketchesGridFragment extends BaseGridFragment {
         Sketch item = (Sketch) adapterView.getAdapter().getItem(i);
         zoomImageFromThumb(view, R.drawable.sample_0);
         getActivity().getActionBar().hide();
-//        mCallbacks.onGridItemClick(i);
     }
 
     // Hold a reference to the current animator,

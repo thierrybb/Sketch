@@ -105,7 +105,7 @@ public class ApplicationManager extends Application {
 
     public static void getImage(ImageView imageView, String url) {
         Picasso.with(context)
-                .load(R.drawable.sample_0)
+                .load(url)
                 .placeholder(android.R.color.white)
                 .error(android.R.color.holo_red_light)
                 .into(imageView);

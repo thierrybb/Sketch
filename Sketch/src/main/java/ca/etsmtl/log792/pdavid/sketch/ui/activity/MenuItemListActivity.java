@@ -126,7 +126,6 @@ public class MenuItemListActivity extends FragmentActivity
             mDrawerToggle.syncState();
     }
 
-
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);

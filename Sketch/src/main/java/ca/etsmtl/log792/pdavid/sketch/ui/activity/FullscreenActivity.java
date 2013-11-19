@@ -2,9 +2,12 @@ package ca.etsmtl.log792.pdavid.sketch.ui.activity;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -19,15 +22,13 @@ import android.widget.Toast;
 import com.larswerkman.holocolorpicker.ColorPicker;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 
 import ca.etsmtl.log792.pdavid.sketch.R;
 import ca.etsmtl.log792.pdavid.sketch.graphic.MultitouchSurfaceView;
 import ca.etsmtl.log792.pdavid.sketch.ui.activity.provider.SaveActionProvider;
 import ca.etsmtl.log792.pdavid.sketch.ui.activity.util.SystemUiHider;
+import ca.etsmtl.log792.pdavid.sketch.ui.dialog.SaveDialog;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -72,6 +73,7 @@ public class FullscreenActivity extends Activity implements ActionBar.TabListene
     private boolean userDrawSomething = true;
     private MultitouchSurfaceView multiTouchFramework;
     private ColorPicker picker;
+    private SaveDialog saveDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -179,7 +181,7 @@ public class FullscreenActivity extends Activity implements ActionBar.TabListene
                 return true;
             case R.id.menu_save:
                 /**
-                 * save is handled by {@link ca.etsmtl.log792.pdavid.sketch.ui.activity.provider.SaveActionProvider}
+                 * saveDialog is handled by {@link ca.etsmtl.log792.pdavid.sketch.ui.activity.provider.SaveActionProvider}
                  * a callback is added at menu see On Create Options Menu.
                  * True is returned here so the submenu will open
                  */
@@ -222,17 +224,13 @@ public class FullscreenActivity extends Activity implements ActionBar.TabListene
     @Override
     public void onTabSelected(ActionBar.Tab tab,
                               FragmentTransaction fragmentTransaction) {
-        // When the given tab is selected, show the tab contents in the
-        // container view.
+        // When the given tab is selected, check if it's the active tab,
+        // show NameChangeDialog
 
-        // TODO : Extract Drawing view to it's own fragment
-//        Fragment fragment = new DummySectionFragment();
-//        Bundle args = new Bundle();
-//        args.putInt(DummySectionFragment.ARG_SECTION_NUMBER,
-//                tab.getPosition() + 1);
-//        fragment.setArguments(args);
-//        getFragmentManager().beginTransaction()
-//                .replace(R.id.fullscreen_content, fragment).commit();
+        if (getActionBar().getSelectedTab().equals(tab)) {
+
+
+        }
     }
 
     @Override
@@ -255,15 +253,36 @@ public class FullscreenActivity extends Activity implements ActionBar.TabListene
 
     @Override
     public void onSavePng() {
-        savePNG();
+        // DialogFragment.show() will take care of adding the fragment
+        // in a transaction.  We also want to remove any currently showing
+        // dialog, so make our own transaction and take care of that here.
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        Fragment prev = getFragmentManager().findFragmentByTag("dialog");
+        if (prev != null) {
+            ft.remove(prev);
+        }
+        ft.addToBackStack(null);
+
+        // Create and show the dialog.
+        saveDialog = SaveDialog.newInstance(SaveDialog.TYPE_PNG);
+        saveDialog.show(ft, "dialog");
     }
 
-    private void savePNG() {
-        //        String basename = getString(R.string.default_drawing_title);
-        File file = getAlbumStorageDir(this, "My Sketches");
+    public void savePNG(String name) {
+        File file = getAlbumStorageDir(this, name);
         Bitmap bitmap = multiTouchFramework.generatePNG();
 
-        saveToMediaStorage(file, bitmap);
+        boolean result = saveImage(file, bitmap);
+        if (result) {
+            sendBroadcast(new Intent(
+                    Intent.ACTION_MEDIA_MOUNTED,
+                    Uri.parse("file://" + Environment.getExternalStorageDirectory())));
+            Toast.makeText(getApplicationContext(), "File saved to :" + file.getAbsolutePath(), Toast.LENGTH_LONG).show();
+            if (saveDialog != null && saveDialog.isCancelable()) {
+                saveDialog.dismiss();
+            }
+        }
+
     }
 
     @Override
@@ -278,8 +297,7 @@ public class FullscreenActivity extends Activity implements ActionBar.TabListene
         final String path = Environment.getExternalStorageDirectory().toString();
         final File storageDir = new File(path, basename + ".svg");
 
-        saveToMediaStorage(storageDir, result);
-        Toast.makeText(getApplicationContext(), "File saved to :" + path, Toast.LENGTH_LONG).show();
+//        saveToMediaStorage(storageDir, result);
     }
 
 
@@ -287,38 +305,56 @@ public class FullscreenActivity extends Activity implements ActionBar.TabListene
      * Get the directory for the app's private pictures directory.
      *
      * @param context
-     * @param albumName Name of the album
+     * @param fileName Name of the album
      * @return a file to write to
      */
-    public File getAlbumStorageDir(Context context, String albumName) {
-        File file = new File(context.getExternalFilesDir(
-                Environment.DIRECTORY_PICTURES), albumName);
+    public File getAlbumStorageDir(Context context, String fileName) {
+        File file = new File(Environment.getExternalStorageDirectory(), "/MySketches/" + fileName + ".png");
         if (!file.mkdirs()) {
             Log.e("ERROR", "Directory not created");
         }
         return file;
     }
 
-    private void saveToMediaStorage(File file, Object obj) {
-        OutputStream fOut;
-        try {
-            fOut = new FileOutputStream(file);
-            if (obj instanceof Bitmap) {
-                Bitmap bitmap = (Bitmap) obj;
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 85, fOut);
-                MediaStore.Images.Media.insertImage(getContentResolver(), file.getAbsolutePath(), file.getName(), file.getName());
-            } else {
-                fOut.write(((String) obj).getBytes());
-            }
-            fOut.flush();
-            fOut.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        Toast.makeText(getApplicationContext(), "File saved to :" + file.getAbsolutePath(), Toast.LENGTH_LONG).show();
+//    private void saveToMediaStorage(File file, Object obj) {
+//        OutputStream fOut;
+//        try {
+//            fOut = new FileOutputStream(file);
+//            if (obj instanceof Bitmap) {
+//                Bitmap bitmap = (Bitmap) obj;
+//                bitmap.compress(Bitmap.CompressFormat.JPEG, 90, fOut);
+//                MediaStore.Images.Media.insertImage(getContentResolver(), file.getAbsolutePath(), file.getName(), file.getName());
+//            } else {
+//                fOut.write(((String) obj).getBytes());
+//            }
+//            fOut.flush();
+//            fOut.close();
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//
+//        Toast.makeText(getApplicationContext(), "File saved to :" + file.getAbsolutePath(), Toast.LENGTH_LONG).show();
+//
+//    }
 
+    private boolean saveImage(File file, Bitmap finalBitmap) {
+
+        if (file.exists()) file.delete();
+
+        try {
+            FileOutputStream out = new FileOutputStream(file);
+            finalBitmap.compress(Bitmap.CompressFormat.PNG, 90, out);
+            out.flush();
+            out.close();
+
+            MediaStore.Images.Media.insertImage(getContentResolver(), file.getAbsolutePath(), file.getName(), file.getName());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
     }
 
     /**
