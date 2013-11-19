@@ -5,6 +5,6 @@ package ca.etsmtl.log792.pdavid.sketch.graphic.shape;
  */
 public class Text {
     public String text;
-    public int x = 0;
-    public int y = 0;
+    public int x = 100;
+    public int y = 100;
 }

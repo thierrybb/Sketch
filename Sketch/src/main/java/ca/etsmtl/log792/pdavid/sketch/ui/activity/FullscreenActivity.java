@@ -18,6 +18,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewParent;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -25,6 +26,7 @@ import com.larswerkman.holocolorpicker.ColorPicker;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.lang.reflect.Field;
 
 import ca.etsmtl.log792.pdavid.sketch.R;
 import ca.etsmtl.log792.pdavid.sketch.graphic.MultitouchSurfaceView;
@@ -87,8 +89,8 @@ public class FullscreenActivity extends Activity implements ActionBar.TabListene
         multiTouchFramework = (MultitouchSurfaceView) findViewById(R.id.canvas);
 
         ActionBar actionBar = getActionBar();
-        actionBar.setDisplayShowHomeEnabled(false);
-        actionBar.setDisplayShowTitleEnabled(false);
+        actionBar.setDisplayShowHomeEnabled(true);
+        actionBar.setDisplayShowTitleEnabled(true);
         actionBar.setBackgroundDrawable(new ColorDrawable(Color.BLACK));
 //        actionBar.hide();
 //        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
@@ -99,10 +101,10 @@ public class FullscreenActivity extends Activity implements ActionBar.TabListene
         picker.setOnColorChangedListener(this);
 
         textCreationView = (TextCreatorView) findViewById(R.id.text_creation);
-        textCreationView.setOnClickListener(new View.OnClickListener() {
+        textCreationView.setOnInsertListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                multiTouchFramework.insertText(((EditText)v.findViewById(R.id.text_creation_text)).getText().toString());
+                multiTouchFramework.insertText(((EditText) v.findViewById(R.id.text_creation_text)).getText().toString());
             }
         });
 
@@ -210,10 +212,17 @@ public class FullscreenActivity extends Activity implements ActionBar.TabListene
     }
 
     private void toggleTextCreation() {
-        if (textCreationView.getVisibility() == View.GONE || textCreationView.getVisibility() == View.INVISIBLE)
+        if (textCreationView.getVisibility() == View.GONE || textCreationView.getVisibility() == View.INVISIBLE) {
+//            int[] location = new int[2];
+//            getActionItem(R.id.menu_draw_text_creation).getLocationInWindow(location);
+//            int x = location[0] + textCreationView.getWidth() / 2;
+//            int y = location[1] + textCreationView.getHeight() / 2;
+//            textCreationView.setX(x);
+//            textCreationView.setY(y);
             textCreationView.setVisibility(View.VISIBLE);
-        else
+        } else {
             textCreationView.setVisibility(View.GONE);
+        }
     }
 
     /**
@@ -398,4 +407,65 @@ public class FullscreenActivity extends Activity implements ActionBar.TabListene
 //        mHideHandler.removeCallbacks(mHideRunnable);
 //        mHideHandler.postDelayed(mHideRunnable, delayMillis);
 //    }
+    public View getActionItem(int actionItemId) {
+        try {
+            ViewParent actionBarView = getHomeButton();
+            if (!actionBarView.getClass().getName().contains("ActionBarView")) {
+                String previousP = actionBarView.getClass().getName();
+                actionBarView = actionBarView.getParent();
+                String throwP = actionBarView.getClass().getName();
+                if (!actionBarView.getClass().getName().contains("ActionBarView")) {
+                    throw new IllegalStateException("Cannot find ActionBarView for " +
+                            "Activity, instead found " + previousP + " and " + throwP);
+                }
+            }
+            Field actionMenuPresenterField = actionBarView.getClass().getSuperclass().getDeclaredField("mActionMenuPresenter");
+            actionMenuPresenterField.setAccessible(true);
+            Object actionMenuPresenter = actionMenuPresenterField.get(actionBarView);
+
+            Field menuViewField = actionMenuPresenter.getClass().getSuperclass().getDeclaredField("mMenuView");
+            menuViewField.setAccessible(true);
+            Object menuView = menuViewField.get(actionMenuPresenter);
+
+            Field mChField;
+            if (menuView.getClass().toString().contains("com.actionbarsherlock")) {
+                // There are thousands of superclasses to traverse up
+                // Have to get superclasses because mChildren is private
+                mChField = menuView.getClass().getSuperclass().getSuperclass()
+                        .getSuperclass().getSuperclass().getDeclaredField("mChildren");
+            } else if (menuView.getClass().toString().contains("android.support.v7")) {
+                mChField = menuView.getClass().getSuperclass().getSuperclass()
+                        .getSuperclass().getDeclaredField("mChildren");
+            } else {
+                mChField = menuView.getClass().getSuperclass().getSuperclass()
+                        .getDeclaredField("mChildren");
+            }
+            mChField.setAccessible(true);
+            Object[] mChs = (Object[]) mChField.get(menuView);
+            for (Object mCh : mChs) {
+                if (mCh != null) {
+                    View v = (View) mCh;
+                    if (v.getId() == actionItemId) {
+                        return v;
+                    }
+                }
+            }
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public ViewParent getHomeButton() {
+        View homeButton = findViewById(android.R.id.home);
+        if (homeButton == null) {
+            throw new RuntimeException(
+                    "insertShowcaseViewWithType cannot be used when the theme " +
+                            "has no ActionBar");
+        }
+        return homeButton.getParent().getParent();
+    }
+
 }
