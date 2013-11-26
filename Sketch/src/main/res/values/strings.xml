@@ -26,6 +26,8 @@
             <svg width=\"%1$dpx\" height=\"%2$dpx\" viewBox=\"0 0 %3$d %4$d \" xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\"> ]]>
     </string>
 
+    <string name="sender_id">AIzaSyBVWa1YUnX514OxUZC4PMeAP2hyA9WjVBA</string>
+
     <string-array name="country_arrays">
         <item>Malaysia</item>
         <item>United States</item>
