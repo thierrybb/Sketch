@@ -306,10 +306,10 @@ public class FullscreenActivity extends Activity implements ActionBar.TabListene
 
         boolean result = saveImage(file, bitmap);
         if (result) {
-            sendBroadcast(new Intent(
-                    Intent.ACTION_MEDIA_MOUNTED,
-                    Uri.parse("file://" + Environment.getExternalStorageDirectory())));
-            Toast.makeText(getApplicationContext(), "File saved to :" + file.getAbsolutePath(), Toast.LENGTH_LONG).show();
+//            sendBroadcast(new Intent(
+//                    Intent.ACTION_MEDIA_MOUNTED,
+//                    Uri.parse("file://" + Environment.getExternalStorageDirectory())));
+//            Toast.makeText(getApplicationContext(), "File saved to :" + file.getAbsolutePath(), Toast.LENGTH_LONG).show();
             if (saveDialog != null && saveDialog.isCancelable()) {
                 saveDialog.dismiss();
             }

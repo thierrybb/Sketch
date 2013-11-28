@@ -47,7 +47,11 @@ public class SketchesGridFragment extends BaseGridFragment {
         super.onCreate(savedInstanceState);
         // Get all images
         File root = new File(Environment.getExternalStorageDirectory() + "/MySketches/");
+        if (root != null){
+            if (!root.exists())
+                root.mkdir();
 
+        }
         File[] files = root.listFiles();
         // Generate models
         list = new ArrayList<BaseModel>();
@@ -68,7 +72,7 @@ public class SketchesGridFragment extends BaseGridFragment {
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
         Sketch item = (Sketch) adapterView.getAdapter().getItem(i);
         zoomImageFromThumb(view, item.getFile());
-        if(!ApplicationManager.isTablet){
+        if (!ApplicationManager.isTablet) {
 
             getActivity().getActionBar().hide();
         }

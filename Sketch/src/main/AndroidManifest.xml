@@ -8,15 +8,39 @@
         android:minSdkVersion="18"
         android:targetSdkVersion="19" />
 
+    <uses-permission android:name="android.permission.ACCESS_DOWNLOAD_MANAGER" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+
+    <permission
+        android:name="ca.etsmtl.log792.pdavid.sketch.gcm.permission.C2D_MESSAGE"
+        android:protectionLevel="signature" />
+    <uses-permission android:name="ca.etsmtl.log792.pdavid.sketch.gcm.permission.C2D_MESSAGE" />
     <application
         android:name="ApplicationManager"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
+
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
+        <receiver
+            android:name=".network.GcmBroadcastReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND">
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <category android:name="ca.etsmtl.log792.pdavid.sketch.gcm" />
+            </intent-filter>
+        </receiver>
+        <service android:name=".network.GcmIntentService" />
+
         <activity
             android:name=".ui.activity.MenuItemListActivity"
             android:label="@string/app_name">
@@ -28,6 +52,14 @@
         </activity>
         <activity
             android:name=".ui.activity.MenuItemDetailActivity"
+            android:label="@string/app_name"
+            android:parentActivityName=".MenuItemListActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MenuItemListActivity" />
+        </activity>
+        <activity
+            android:name=".ui.activity.HandleInviteActivity"
             android:label="@string/app_name"
             android:parentActivityName=".MenuItemListActivity">
             <meta-data

@@ -27,6 +27,8 @@
     </string>
 
     <string name="sender_id">AIzaSyBVWa1YUnX514OxUZC4PMeAP2hyA9WjVBA</string>
+    <string name="backend_url">http://young-lowlands-1317.herokuapp.com/register?udid=%s</string>
+    <string name="backend_url2">http://.herokuapp.com/register</string>
 
     <string-array name="country_arrays">
         <item>Malaysia</item>

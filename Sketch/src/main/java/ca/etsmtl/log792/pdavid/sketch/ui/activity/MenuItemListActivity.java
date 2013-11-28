@@ -2,19 +2,40 @@ package ca.etsmtl.log792.pdavid.sketch.ui.activity;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.DrawerLayout;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.gcm.GoogleCloudMessaging;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import ca.etsmtl.log792.pdavid.sketch.ApplicationManager;
 import ca.etsmtl.log792.pdavid.sketch.R;
 import ca.etsmtl.log792.pdavid.sketch.ui.activity.dummy.DummyContent;
 import ca.etsmtl.log792.pdavid.sketch.ui.fragment.BaseGridFragment;
@@ -37,10 +58,13 @@ import ca.etsmtl.log792.pdavid.sketch.ui.fragment.SketchesGridFragment;
  * This activity also implements the required
  * {@link ca.etsmtl.log792.pdavid.sketch.ui.fragment.MenuItemListFragment.Callbacks} interface
  * to listen for item selections.
+ * http://developer.android.com/google/gcm/client.html
  */
+@SuppressWarnings("unchecked")
 public class MenuItemListActivity extends FragmentActivity
         implements MenuItemListFragment.Callbacks, BaseGridFragment.GridCallbacks {
 
+    public static final String TAG = MenuItemListActivity.class.getSimpleName();
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
      * device.
@@ -52,6 +76,14 @@ public class MenuItemListActivity extends FragmentActivity
     private CharSequence mTitle;
     private int mDrawerTitle = R.string.title_menuitem_list;
     private boolean backMustZoomOut = false;
+    public static final String EXTRA_MESSAGE = "message";
+    public static final String SENDER_ID = "733448047839";
+
+    private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
+    private GoogleCloudMessaging gcm;
+    private String regid;
+    AtomicInteger msgId = new AtomicInteger();
+    private Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,7 +147,19 @@ public class MenuItemListActivity extends FragmentActivity
             onListItemSelected(0); //2 pane, handled in method
         }
 
-        // TODO: If exposing deep links into your app, handle intents here.
+        context = getApplicationContext();
+        // Check device for Play Services APK. If check succeeds, proceed with
+        //  GCM registration.
+        if (checkPlayServices()) {
+            gcm = GoogleCloudMessaging.getInstance(this);
+            regid = ApplicationManager.getRegistrationId(context);
+
+            if (regid.isEmpty()) {
+                registerInBackground();
+            }
+        } else {
+            Log.i(TAG, "No valid Google Play Services APK found.");
+        }
     }
 
     @Override
@@ -124,6 +168,13 @@ public class MenuItemListActivity extends FragmentActivity
         // Sync the toggle state after onRestoreInstanceState has occurred.
         if (!mTwoPane)
             mDrawerToggle.syncState();
+    }
+
+    // You need to do the Play Services APK check here too.
+    @Override
+    protected void onResume() {
+        super.onResume();
+        checkPlayServices();
     }
 
     @Override
@@ -252,4 +303,107 @@ public class MenuItemListActivity extends FragmentActivity
         }
         return super.onKeyDown(keyCode, event);
     }
+
+    // GCM
+
+    /**
+     * Check the device to make sure it has the Google Play Services APK. If
+     * it doesn't, display a dialog that allows users to download the APK from
+     * the Google Play Store or enable it in the device's system settings.
+     */
+    private boolean checkPlayServices() {
+
+        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
+                GooglePlayServicesUtil.getErrorDialog(resultCode, this,
+                        PLAY_SERVICES_RESOLUTION_REQUEST).show();
+            } else {
+                Log.i(TAG, "This device is not supported.");
+//                finish();
+            }
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Registers the application with GCM servers asynchronously.
+     * <p/>
+     * Stores the registration ID and app versionCode in the application's
+     * shared preferences.
+     */
+    private void registerInBackground() {
+        new AsyncTask() {
+            @Override
+            protected Object doInBackground(Object[] objects) {
+                try {
+                    if (gcm == null) {
+                        gcm = GoogleCloudMessaging.getInstance(context);
+                    }
+                    regid = gcm.register(SENDER_ID);
+
+                    final String msg = "Device registered, registration ID=" + regid;
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
+                        }
+                    });
+
+
+                    // You should send the registration ID to your server over HTTP,
+                    // so it can use GCM/HTTP or CCS to send messages to your app.
+                    // The request to your server should be authenticated if your app
+                    // is using accounts.
+                    HttpClient client = new DefaultHttpClient();
+                    URI website = null;
+                    try {
+                        website = new URI(String.format(context.getString(R.string.backend_url), regid));
+                    } catch (URISyntaxException e) {
+                        e.printStackTrace();
+                    }
+                    HttpGet request = new HttpGet();
+                    request.setURI(website);
+                    HttpResponse response = client.execute(request);
+                    int r = response.getStatusLine().getStatusCode();
+
+                    if (r == HttpStatus.SC_OK)
+
+                        // For this demo: we don't need to send it because the device
+                        // will send upstream messages to a server that echo back the
+                        // message using the 'from' address in the message.
+
+                        // Persist the regID - no need to register again.
+                        storeRegistrationId(context, regid);
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+//                    msg = "Error :" + ex.getMessage();
+                    // If there is an error, don't just keep trying to register.
+                    // Require the user to click a button again, or perform
+                    // exponential back-off.
+                }
+                return "";
+            }
+        }.execute(null, null, null);
+    }
+
+    /**
+     * Stores the registration ID and app versionCode in the application's
+     * {@code SharedPreferences}.
+     *
+     * @param context application's context.
+     * @param regId   registration ID
+     */
+    private void storeRegistrationId(Context context, String regId) {
+        final SharedPreferences prefs = ApplicationManager.getGCMPreferences(context);
+        int appVersion = ApplicationManager.getAppVersion(context);
+        Log.i(TAG, "Saving regId on app version " + appVersion);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(ApplicationManager.PROPERTY_REG_ID, regId);
+        editor.putInt(ApplicationManager.PROPERTY_APP_VERSION, appVersion);
+        editor.commit();
+    }
+
+
 }
