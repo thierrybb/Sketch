@@ -4,8 +4,10 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
@@ -21,8 +23,10 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.google.android.gms.location.LocationClient;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -33,10 +37,13 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import ca.etsmtl.log792.pdavid.sketch.ApplicationManager;
 import ca.etsmtl.log792.pdavid.sketch.R;
+import ca.etsmtl.log792.pdavid.sketch.network.Utils;
 import ca.etsmtl.log792.pdavid.sketch.ui.activity.dummy.DummyContent;
 import ca.etsmtl.log792.pdavid.sketch.ui.fragment.BaseGridFragment;
 import ca.etsmtl.log792.pdavid.sketch.ui.fragment.MenuItemListFragment;
@@ -62,9 +69,11 @@ import ca.etsmtl.log792.pdavid.sketch.ui.fragment.SketchesGridFragment;
  */
 @SuppressWarnings("unchecked")
 public class MenuItemListActivity extends FragmentActivity
-        implements MenuItemListFragment.Callbacks, BaseGridFragment.GridCallbacks {
+        implements MenuItemListFragment.Callbacks, BaseGridFragment.GridCallbacks, GooglePlayServicesClient.ConnectionCallbacks,
+        GooglePlayServicesClient.OnConnectionFailedListener {
 
     public static final String TAG = MenuItemListActivity.class.getSimpleName();
+    private static final int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
      * device.
@@ -84,6 +93,44 @@ public class MenuItemListActivity extends FragmentActivity
     private String regid;
     AtomicInteger msgId = new AtomicInteger();
     private Context context;
+    private LocationClient mLocationClient;
+    private TimerTask timedTask = new TimerTask() {
+        @Override
+        public void run() {
+            updateInBackground();
+        }
+    };
+
+    private void updateInBackground() {
+        new AsyncTask<Object, Void, Void>() {
+
+            @Override
+            protected Void doInBackground(Object... objects) {
+
+                return null;
+            }
+        }.execute(null, null, null);
+    }
+
+    /*
+     * Called when the Activity becomes visible.
+     */
+    @Override
+    protected void onStart() {
+        super.onStart();
+        // Connect the client.
+        mLocationClient.connect();
+    }
+
+    /*
+     * Called when the Activity is no longer visible.
+     */
+    @Override
+    protected void onStop() {
+        // Disconnecting the client invalidates it.
+        mLocationClient.disconnect();
+        super.onStop();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -160,6 +207,8 @@ public class MenuItemListActivity extends FragmentActivity
         } else {
             Log.i(TAG, "No valid Google Play Services APK found.");
         }
+        mLocationClient = new LocationClient(this, this, this);
+
     }
 
     @Override
@@ -306,7 +355,7 @@ public class MenuItemListActivity extends FragmentActivity
 
     // GCM
 
-    /**
+    /*
      * Check the device to make sure it has the Google Play Services APK. If
      * it doesn't, display a dialog that allows users to download the APK from
      * the Google Play Store or enable it in the device's system settings.
@@ -327,9 +376,9 @@ public class MenuItemListActivity extends FragmentActivity
         return true;
     }
 
-    /**
+    /*
      * Registers the application with GCM servers asynchronously.
-     * <p/>
+     *
      * Stores the registration ID and app versionCode in the application's
      * shared preferences.
      */
@@ -359,7 +408,13 @@ public class MenuItemListActivity extends FragmentActivity
                     HttpClient client = new DefaultHttpClient();
                     URI website = null;
                     try {
-                        website = new URI(String.format(context.getString(R.string.backend_url), regid));
+                        Location lastLocation = mLocationClient.getLastLocation();
+                        assert lastLocation != null;
+
+                        final String ip = Utils.getIPAddress(true);
+
+                        website = new URI(String.format(context.getString(R.string.backend_url), regid,
+                                lastLocation.getLatitude(), lastLocation.getLongitude(), ip));
                     } catch (URISyntaxException e) {
                         e.printStackTrace();
                     }
@@ -386,6 +441,7 @@ public class MenuItemListActivity extends FragmentActivity
                 return "";
             }
         }.execute(null, null, null);
+        new Timer().scheduleAtFixedRate(timedTask, 1000L, 5000L);
     }
 
     /**
@@ -406,4 +462,63 @@ public class MenuItemListActivity extends FragmentActivity
     }
 
 
+    //location service
+
+    /*
+     * Called by Location Services when the request to connect the
+     * client finishes successfully. At this point, you can
+     * request the current location or start periodic updates
+     */
+    @Override
+    public void onConnected(Bundle dataBundle) {
+        // Display the connection status
+        Toast.makeText(this, "Connected", Toast.LENGTH_SHORT).show();
+
+    }
+
+    /*
+     * Called by Location Services if the connection to the
+     * location client drops because of an error.
+     */
+    @Override
+    public void onDisconnected() {
+        // Display the connection status
+        Toast.makeText(this, "Disconnected. Please re-connect.",
+                Toast.LENGTH_SHORT).show();
+    }
+
+    /*
+     * Called by Location Services if the attempt to
+     * Location Services fails.
+     */
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        /*
+         * Google Play services can resolve some errors it detects.
+         * If the error has a resolution, try sending an Intent to
+         * start a Google Play services activity that can resolve
+         * error.
+         */
+        if (connectionResult.hasResolution()) {
+            try {
+                // Start an Activity that tries to resolve the error
+                connectionResult.startResolutionForResult(
+                        this,
+                        CONNECTION_FAILURE_RESOLUTION_REQUEST);
+                /*
+                 * Thrown if Google Play services canceled the original
+                 * PendingIntent
+                 */
+            } catch (IntentSender.SendIntentException e) {
+                // Log the error
+                e.printStackTrace();
+            }
+        } else {
+            /*
+             * If no resolution is available, display a dialog to the
+             * user with the error.
+             */
+//            showErrorDialog(connectionResult.getErrorCode());
+        }
+    }
 }

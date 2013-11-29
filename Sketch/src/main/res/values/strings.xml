@@ -27,18 +27,12 @@
     </string>
 
     <string name="sender_id">AIzaSyBVWa1YUnX514OxUZC4PMeAP2hyA9WjVBA</string>
-    <string name="backend_url">http://young-lowlands-1317.herokuapp.com/register?udid=%s</string>
+    <string name="backend_url">http://young-lowlands-1317.herokuapp.com/register?udid=$1%s&amp;lat=$2%f&amp;lng=$3%f&amp;ip=$4%s</string>
     <string name="backend_url2">http://.herokuapp.com/register</string>
 
     <string-array name="country_arrays">
-        <item>Malaysia</item>
-        <item>United States</item>
-        <item>Indonesia</item>
-        <item>France</item>
-        <item>Italy</item>
-        <item>Singapore</item>
-        <item>New Zealand</item>
-        <item>India</item>
+        <item>Droid</item>
+        <item>Droid Sans</item>
     </string-array>
 
 </resources>
