@@ -1,6 +1,5 @@
 package ca.etsmtl.log792.pdavid.sketch.graphic;
 
-import java.net.InetAddress;
 import java.util.ArrayList;
 
 import ca.etsmtl.log792.pdavid.sketch.graphic.shape.AlignedRectangle2D;
@@ -10,8 +9,6 @@ import ca.etsmtl.log792.pdavid.sketch.graphic.shape.Text;
 import ca.etsmtl.log792.pdavid.sketch.graphic.util.ActionTask;
 import ca.etsmtl.log792.pdavid.sketch.graphic.util.Command;
 import ca.etsmtl.log792.pdavid.sketch.graphic.util.Constant;
-import ca.etsmtl.log792.pdavid.sketch.network.NetworkClient;
-import ca.etsmtl.log792.pdavid.sketch.network.NetworkServer;
 
 // This stores a set of strokes.
 // Even if there are multiple users interacting with the window at the same
@@ -27,7 +24,7 @@ public class Drawing {
     private AlignedRectangle2D boundingRectangle = new AlignedRectangle2D();
     private boolean isBoundingRectangleDirty = false;
 
-    public void addStroke(Stroke s, int networkMode, NetworkServer server, NetworkClient client, InetAddress IP_sender) {
+    public void addStroke(Stroke s, int networkMode) {// NetworkServer server, NetworkClient client, InetAddress IP_sender
         strokes.add(s);
         isBoundingRectangleDirty = true;
         ArrayList<Stroke> ss = new ArrayList<Stroke>();
@@ -41,8 +38,8 @@ public class Drawing {
 //        }
     }
 
-    public void removeStroke(Stroke s, int networkMode, NetworkServer server, NetworkClient client,
-                             InetAddress IP_sender) {
+    public void removeStroke(Stroke s, int networkMode)//, NetworkServer server, NetworkClient client,InetAddress IP_sender)
+    {
         strokes.remove(s);
 //        String message = this.toString(s, false);
 //        if (networkMode == Constant.NM_SERVER) {
@@ -104,8 +101,8 @@ public class Drawing {
         gw.setLineWidth(1);
     }
 
-    public void updateDrawing(String message, int networkMode, NetworkServer server, NetworkClient client,
-                              InetAddress IP_sender) {
+    public void updateDrawing(String message, int networkMode) {
+//        , NetworkServer server, NetworkClient client,InetAddress IP_sender
         String[] words = message.split(" ");
         Stroke newStroke = new Stroke();
         if (words[1].equals("b")) {
@@ -122,11 +119,11 @@ public class Drawing {
         }
 
         if (words[0].equals(Constant.MESSAGE_PREFIX_TO_ADD_STROKE)) {
-            this.addStroke(newStroke, networkMode, server, client, IP_sender);
+            this.addStroke(newStroke, networkMode);//, server, client, IP_sender);
         } else if (words[0].equals(Constant.MESSAGE_PREFIX_TO_REMOVE_STROKE)) {
             for (Stroke s : this.strokes) {
                 if (s.egal(newStroke)) {
-                    this.removeStroke(s, networkMode, server, client, IP_sender);
+                    this.removeStroke(s, networkMode);//, server, client, IP_sender);
                     break;
                 }
             }

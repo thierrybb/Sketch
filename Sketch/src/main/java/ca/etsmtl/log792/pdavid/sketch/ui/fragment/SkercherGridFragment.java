@@ -1,16 +1,32 @@
 package ca.etsmtl.log792.pdavid.sketch.ui.fragment;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.octo.android.robospice.SpiceManager;
+import com.octo.android.robospice.persistence.DurationInMillis;
+import com.octo.android.robospice.persistence.exception.SpiceException;
+import com.octo.android.robospice.request.listener.RequestListener;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 
-import ca.etsmtl.log792.pdavid.sketch.model.BaseModel;
-import ca.etsmtl.log792.pdavid.sketch.ui.adapter.MyGridAdapter;
+import ca.etsmtl.log792.pdavid.sketch.ApplicationManager;
+import ca.etsmtl.log792.pdavid.sketch.R;
+import ca.etsmtl.log792.pdavid.sketch.model.Sketcher;
+import ca.etsmtl.log792.pdavid.sketch.network.AbsDataRequest;
+import ca.etsmtl.log792.pdavid.sketch.network.DataManager;
+import ca.etsmtl.log792.pdavid.sketch.network.GetRequest;
+import ca.etsmtl.log792.pdavid.sketch.ui.activity.HandleInviteActivity;
+import ca.etsmtl.log792.pdavid.sketch.ui.adapter.MyBaseAdapter;
 
 /**
  * Created by philippe on 27/11/13.
@@ -18,7 +34,48 @@ import ca.etsmtl.log792.pdavid.sketch.ui.adapter.MyGridAdapter;
 public class SkercherGridFragment extends BaseGridFragment {
 
     public static final String TAG = SketchesGridFragment.class.getName();
-    private List<BaseModel> list = new ArrayList<BaseModel>();
+    private List<Sketcher> list = new ArrayList<Sketcher>();
+    private SpiceManager spiceManager;
+    private SketcherAdapter myGridAdapter;
+    private RequestListener getAllSketchersListener = new RequestListener() {
+        @Override
+        public void onRequestFailure(SpiceException e) {
+            e.printStackTrace();
+        }
+
+        @Override
+        public void onRequestSuccess(Object o) {
+            if (o != null) {
+                if (o instanceof ArrayList) {
+                    ArrayList<LinkedHashMap<String, String>> mList = (ArrayList<LinkedHashMap<String, String>>) o;
+                    myGridAdapter.clear();
+                    for (LinkedHashMap<String, String> obj : mList) {
+                        myGridAdapter.add(new Sketcher(obj.get("udid"), obj.get("image"), obj.get("lat"), obj.get("lng"), obj.get("ip")));
+                    }
+                    myGridAdapter.notifyDataSetChanged();
+                }
+            }
+
+        }
+    };
+    private RequestListener notifyAndCreateLobbyListener = new RequestListener() {
+        @Override
+        public void onRequestFailure(SpiceException e) {
+            e.printStackTrace();
+            getActivity().setProgressBarIndeterminateVisibility(false);
+        }
+
+        @Override
+        public void onRequestSuccess(Object o) {
+            if (o != null) {
+                if (o instanceof String) {
+                    Intent intent = new Intent(getActivity(), HandleInviteActivity.class);
+                    getActivity().startActivity(intent);
+                }
+            }
+
+        }
+    };
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -31,7 +88,13 @@ public class SkercherGridFragment extends BaseGridFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        spiceManager = DataManager.prepareSpiceManager(getActivity());
 
+        final List<Sketcher> fakeList = new ArrayList<Sketcher>();
+        myGridAdapter = new SketcherAdapter(getActivity(), list);
+
+        AbsDataRequest request = new GetRequest(fakeList.getClass(), ApplicationManager.SERVER_URL);
+        DataManager.performRequest(spiceManager, getActivity(), request, getAllSketchersListener, DurationInMillis.ONE_SECOND);
     }
 
     @Override
@@ -41,12 +104,64 @@ public class SkercherGridFragment extends BaseGridFragment {
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+        Sketcher itemAtPosition = (Sketcher) adapterView.getItemAtPosition(i);
+        inviteAndStartNewLobby(itemAtPosition.getUuid());
+    }
 
+    private void inviteAndStartNewLobby(String id) {
+
+        final String from = ApplicationManager.getRegistrationId(getActivity());
+
+        final AbsDataRequest request = new GetRequest(String.class, String.format(getString(R.string.backend_url_invite, from, id)));
+        DataManager.performRequest(spiceManager, getActivity(), request, notifyAndCreateLobbyListener, DurationInMillis.ONE_SECOND);
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        gridview.setAdapter(new MyGridAdapter(getActivity(), list));
+
+        gridview.setAdapter(myGridAdapter);
+        gridview.setOnItemClickListener(this);
     }
+
+    public class SketcherAdapter extends MyBaseAdapter<Sketcher> {
+
+        public SketcherAdapter(Context c, List<Sketcher> list) {
+            super(c, R.layout.sketches_grid_view, list);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+
+            ViewHolder holder;
+            if (convertView == null) {  // if it's not recycled, initialize some attributes
+                holder = new ViewHolder();
+
+                convertView = inflater.inflate(R.layout.sketch_grid_item, parent, false);
+
+                holder.img = (ImageView) convertView.findViewById(R.id.imageView);
+                holder.txt = (TextView) convertView.findViewById(R.id.textView);
+
+                convertView.setTag(holder);
+
+            } else {
+                holder = (ViewHolder) convertView.getTag();
+            }
+
+            Sketcher item = getItem(position);
+
+            //Picasso
+            ApplicationManager.getImage(holder.img, item.getImageUrl());
+            holder.txt.setText(item.getTitle());
+
+            return convertView;
+        }
+
+        private class ViewHolder {
+
+            public ImageView img;
+            public TextView txt;
+        }
+    }
+
 }

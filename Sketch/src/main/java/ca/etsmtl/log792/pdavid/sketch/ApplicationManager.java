@@ -20,7 +20,6 @@ import java.util.List;
 
 import ca.etsmtl.log792.pdavid.sketch.model.BaseModel;
 import ca.etsmtl.log792.pdavid.sketch.model.Book;
-import ca.etsmtl.log792.pdavid.sketch.model.Sketcher;
 
 /**
  * Created by pdavid on 11/10/13.
@@ -28,6 +27,7 @@ import ca.etsmtl.log792.pdavid.sketch.model.Sketcher;
 public class ApplicationManager extends Application {
 
     private static final String TAG = "Sketch::ApplicationManager";
+    public static final String SERVER_URL = "http://young-lowlands-1317.herokuapp.com/";
     public static boolean isTablet;
     public static int densityDpi;
     private static Context context;
@@ -74,25 +74,6 @@ public class ApplicationManager extends Application {
         bookList.add(new Book("Private Sketches", null, 0));
         bookList.add(new Book("Private Sketches", null, 0));
         bookList.add(new Book("Private Sketches", null, 0));
-        //Online
-        onlineSketchersList.add(new Sketcher());
-        onlineSketchersList.add(new Sketcher());
-        onlineSketchersList.add(new Sketcher());
-        onlineSketchersList.add(new Sketcher());
-        onlineSketchersList.add(new Sketcher());
-        onlineSketchersList.add(new Sketcher());
-        onlineSketchersList.add(new Sketcher());
-        onlineSketchersList.add(new Sketcher());
-        onlineSketchersList.add(new Sketcher());
-        onlineSketchersList.add(new Sketcher());
-        onlineSketchersList.add(new Sketcher());
-        onlineSketchersList.add(new Sketcher());
-        onlineSketchersList.add(new Sketcher());
-        onlineSketchersList.add(new Sketcher());
-        onlineSketchersList.add(new Sketcher());
-        onlineSketchersList.add(new Sketcher());
-        onlineSketchersList.add(new Sketcher());
-        onlineSketchersList.add(new Sketcher());
 
         context = getApplicationContext();
         BugSenseHandler.initAndStartSession(context, APIKEY);
@@ -167,6 +148,14 @@ public class ApplicationManager extends Application {
                 .into(imageView);
     }
 
+    public static void getImage(ImageView img, String imageUrl) {
+        Picasso.with(context)
+                .load(imageUrl)
+                .placeholder(android.R.color.white)
+                .error(android.R.color.holo_red_light)
+                .into(img);
+    }
+
     private static final int TWO_MINUTES = 1000 * 60 * 2;
 
     /**
@@ -226,4 +215,6 @@ public class ApplicationManager extends Application {
         }
         return provider1.equals(provider2);
     }
+
+
 }

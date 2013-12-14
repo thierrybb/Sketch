@@ -6,11 +6,13 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.io.File;
 import java.util.List;
 
 import ca.etsmtl.log792.pdavid.sketch.ApplicationManager;
 import ca.etsmtl.log792.pdavid.sketch.R;
 import ca.etsmtl.log792.pdavid.sketch.model.BaseModel;
+import ca.etsmtl.log792.pdavid.sketch.model.Sketcher;
 
 /**
  * Created by Phil on 13/11/13.
@@ -43,7 +45,13 @@ public class MyGridAdapter extends MyBaseAdapter<BaseModel> {
 
         final BaseModel item = getItem(position);
 
-        ApplicationManager.getImage(holder.img, item.getFile());
+        File itemFile = item.getFile();
+        if(itemFile==null){
+            ApplicationManager.getImage(holder.img, ((Sketcher)item).getImageUrl());
+        }else{
+
+            ApplicationManager.getImage(holder.img, itemFile);
+        }
         holder.txt.setText(item.getTitle());
 
         return convertView;

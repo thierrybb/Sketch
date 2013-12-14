@@ -4,13 +4,22 @@ package ca.etsmtl.log792.pdavid.sketch.network;
  * Created by philippe on 28/11/13.
  */
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+
 import org.apache.http.conn.util.InetAddressUtils;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.List;
 
@@ -143,4 +152,63 @@ public class Utils {
         return "";
     }
 
+
+    // /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // //
+    // // NETWORK TOOLS
+    // //
+    // /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * REQUIRED: ACCESS_NETWORK_STATE permission
+     *
+     * @param context
+     * @return
+     */
+    public static boolean isNetworkAvailable(Context context) {
+        final ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        final NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+        // if no network is available networkInfo will be null
+        // otherwise check if we are connected
+        return networkInfo != null && networkInfo.isConnected();
+    }
+
+
+
+    // /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // //
+    // // CRYPT TOOLS
+    // //
+    // /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Generate the MD5 of the input data in Hex String
+     *
+     * @param input
+     * @return
+     * @throws java.security.NoSuchAlgorithmException
+     */
+    public static String md5(byte[] input) throws NoSuchAlgorithmException {
+        // Create MD5 Hash
+        final MessageDigest digest = MessageDigest.getInstance("MD5");
+        digest.update(input);
+        final byte messageDigest[] = digest.digest();
+
+        // Create Hex String
+        final StringBuffer hexString = new StringBuffer();
+        for (final byte element : messageDigest) {
+            hexString.append(Integer.toHexString(0xFF & element));
+        }
+        return hexString.toString();
+    }
+
+    // /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // //
+    // // TEXT TOOLS
+    // //
+    // /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    public static String cleanUrl(String url) {
+        return url.replaceAll("\\n", "").replaceAll("\\t", "").replaceAll("\\r", "");
+
+    }
 }

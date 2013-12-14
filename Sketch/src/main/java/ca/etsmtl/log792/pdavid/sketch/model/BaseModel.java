@@ -9,9 +9,15 @@ import java.io.File;
  */
 public abstract class BaseModel {
 
-    public abstract String getTitle();
+    public String getTitle() {
+        return null;
+    }
 
-    public abstract Bitmap getImage();
+    public Bitmap getImage() {
+        return null;
+    }
 
-    public abstract File getFile();
+    public File getFile(){
+        return null;
+    }
 }

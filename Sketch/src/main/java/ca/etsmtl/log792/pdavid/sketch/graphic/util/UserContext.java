@@ -13,15 +13,15 @@ import ca.etsmtl.log792.pdavid.sketch.graphic.Vector2D;
 import ca.etsmtl.log792.pdavid.sketch.graphic.shape.AlignedRectangle2D;
 import ca.etsmtl.log792.pdavid.sketch.graphic.shape.Point2D;
 import ca.etsmtl.log792.pdavid.sketch.graphic.shape.Stroke;
-import ca.etsmtl.log792.pdavid.sketch.network.NetworkClient;
-import ca.etsmtl.log792.pdavid.sketch.network.NetworkServer;
+//import ca.etsmtl.log792.pdavid.sketch.network.NetworkClient;
+//import ca.etsmtl.log792.pdavid.sketch.network.NetworkServer;
 
 public class UserContext {
     //    private Palette palette = new Palette();
     private CursorContainer cursorContainer = new CursorContainer();
     private Drawing drawing = null;
-    private NetworkServer server = null;
-    private NetworkClient client = null;
+//    private NetworkServer server = null;
+//    private NetworkClient client = null;
 
     public float current_red = 0;
     public float current_green = 0;
@@ -32,13 +32,13 @@ public class UserContext {
     private int networkMode = Constant.NM_NONE;
 
     private ArrayList<Stroke> selectedStrokes = new ArrayList<Stroke>();
-//    public static int movePalette_buttonIndex = 1;
+    //    public static int movePalette_buttonIndex = 1;
     public static int ink_buttonIndex = 0;
     public static int select_buttonIndex = 2;
-//    public static int black_buttonIndex = 3;
+    //    public static int black_buttonIndex = 3;
     public static int manipulate_buttonIndex = 4;
     public static int camera_buttonIndex = 5;
-//    public static int red_buttonIndex = 6;
+    //    public static int red_buttonIndex = 6;
 //    public static int green_buttonIndex = 7;
     public static int vertFlip_buttonIndex = 8;
     public static int horizFlip_buttonIndex = 9;
@@ -47,7 +47,7 @@ public class UserContext {
     public static int frameSelected_buttonIndex = 12;
     public static int undo_buttonIndex = 12;
     public static int redo_buttonIndex = 13;
-//    public static int savePNG_buttonIndex = 14;
+    //    public static int savePNG_buttonIndex = 14;
 //    public static int saveSVG_buttonIndex = 15;
 //    public static int sendMailPNG_buttonIndex = 16;
 //    public static int sendMailSVG_buttonIndex = 17;
@@ -266,7 +266,7 @@ public class UserContext {
                     for (Point2D p : cursor.getPositions()) {
                         newStroke.addPoint(gw.convertPixelsToWorldSpaceUnits(p));
                     }
-                    drawing.addStroke(newStroke, networkMode, server, client, null);
+                    drawing.addStroke(newStroke, networkMode);//, server, client, null);
 
                     cursorContainer.removeCursorByIndex(cursorIndex);
                 } else {

@@ -85,7 +85,6 @@ public class MenuItemListActivity extends FragmentActivity
     private CharSequence mTitle;
     private int mDrawerTitle = R.string.title_menuitem_list;
     private boolean backMustZoomOut = false;
-    public static final String EXTRA_MESSAGE = "message";
     public static final String SENDER_ID = "733448047839";
 
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
@@ -107,7 +106,7 @@ public class MenuItemListActivity extends FragmentActivity
             @Override
             protected Void doInBackground(Object... objects) {
 
-                return null;
+                return null;/**/
             }
         }.execute(null, null, null);
     }
@@ -413,7 +412,7 @@ public class MenuItemListActivity extends FragmentActivity
 
                         final String ip = Utils.getIPAddress(true);
 
-                        website = new URI(String.format(context.getString(R.string.backend_url), regid,
+                        website = new URI(String.format(context.getString(R.string.backend_url_register), regid,
                                 lastLocation.getLatitude(), lastLocation.getLongitude(), ip));
                     } catch (URISyntaxException e) {
                         e.printStackTrace();
@@ -472,7 +471,7 @@ public class MenuItemListActivity extends FragmentActivity
     @Override
     public void onConnected(Bundle dataBundle) {
         // Display the connection status
-        Toast.makeText(this, "Connected", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Location Services Connected", Toast.LENGTH_SHORT).show();
 
     }
 

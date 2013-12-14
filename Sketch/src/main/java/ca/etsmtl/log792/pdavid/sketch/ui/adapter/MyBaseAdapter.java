@@ -11,7 +11,7 @@ import java.util.List;
  */
 public abstract class MyBaseAdapter<T> extends ArrayAdapter<T> {
     protected final LayoutInflater inflater;
-    private List<T> items;
+    protected List<T> items;
 
     public MyBaseAdapter(Context context, int resource, List<T> items) {
         super(context, resource, items);

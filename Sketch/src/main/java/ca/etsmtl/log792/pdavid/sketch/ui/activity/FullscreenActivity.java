@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -16,18 +17,23 @@ import android.support.v4.app.NavUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewParent;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.clwillingham.socket.io.IOSocket;
+import com.clwillingham.socket.io.MessageCallback;
 import com.larswerkman.holocolorpicker.ColorPicker;
+
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.reflect.Field;
 
+import ca.etsmtl.log792.pdavid.sketch.ApplicationManager;
 import ca.etsmtl.log792.pdavid.sketch.R;
 import ca.etsmtl.log792.pdavid.sketch.graphic.MultitouchSurfaceView;
 import ca.etsmtl.log792.pdavid.sketch.ui.activity.provider.SaveActionProvider;
@@ -64,6 +70,9 @@ public class FullscreenActivity extends Activity implements ActionBar.TabListene
      * The flags to pass to {@link SystemUiHider#getInstance}.
      */
     private static final int HIDER_FLAGS = SystemUiHider.FLAG_HIDE_NAVIGATION;
+    private static final String HOST = "host";
+    private static final String ROOM_NAME = "room_name";
+    private static final String INVITATION_TYPE = "invitation_type";
 
     /**
      * The instance of the {@link SystemUiHider} for this activity.
@@ -80,10 +89,13 @@ public class FullscreenActivity extends Activity implements ActionBar.TabListene
     private ColorPicker picker;
     private SaveDialog saveDialog;
     private TextCreatorView textCreationView;
+//    private SocketIO socket;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        final Bundle extras = getIntent().getExtras();
 
         setContentView(R.layout.activity_fullscreen);
         multiTouchFramework = (MultitouchSurfaceView) findViewById(R.id.canvas);
@@ -108,64 +120,74 @@ public class FullscreenActivity extends Activity implements ActionBar.TabListene
             }
         });
 
-        // Set up an instance of SystemUiHider to control the system UI for
-        // this activity.
-//        mSystemUiHider = SystemUiHider.getInstance(this, contentView, HIDER_FLAGS);
-//        mSystemUiHider.setup();
-//        mSystemUiHider
-//                .setOnVisibilityChangeListener(new SystemUiHider.OnVisibilityChangeListener() {
-//                    // Cached values.
-//                    int mControlsHeight;
-//                    int mShortAnimTime;
-//
-//                    @Override
-//                    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-//                    public void onVisibilityChange(boolean visible) {
-//                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-//                            // If the ViewPropertyAnimator API is available
-//                            // (Honeycomb MR2 and later), use it to animate the
-//                            // in-layout UI controls at the bottom of the
-//                            // screen.
-//                            if (mControlsHeight == 0) {
-//                                mControlsHeight = controlsView.getHeight();
-//                            }
-//                            if (mShortAnimTime == 0) {
-//                                mShortAnimTime = getResources().getInteger(
-//                                        android.R.integer.config_shortAnimTime);
-//                            }
-//                            controlsView.animate()
-//                                    .translationY(visible ? 0 : mControlsHeight)
-//                                    .setDuration(mShortAnimTime);
-//                        } else {
-//                            // If the ViewPropertyAnimator APIs aren't
-//                            // available, simply show or hide the in-layout UI
-//                            // controls.
-//                            controlsView.setVisibility(visible ? View.VISIBLE : View.GONE);
-//                        }
-//
-//                        if (visible && AUTO_HIDE) {
-//                            // Schedule a hide().
-//                            delayedHide(AUTO_HIDE_DELAY_MILLIS);
-//                        }
-//                    }
-//                });
+        if (extras != null && extras.containsKey("start_io")) {
+            String invitation_type = extras.getString(INVITATION_TYPE);
+            String uuid = ApplicationManager.getRegistrationId(this);
+            String room = extras.getString(ROOM_NAME);
 
-        // Set up the user interaction to manually show or hide the system UI.
-//        contentView.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                if (TOGGLE_ON_CLICK) {
-//                    mSystemUiHider.hide();
-//                } else {
-//                    mSystemUiHider.show();
-//                }
-//            }
-//        });
+            startSocketIOServer(invitation_type, uuid, room);
+        }
+    }
 
-        // Upon interacting with UI controls, delay any scheduled hide()
-        // operations to prevent the jarring behavior of controls going away
-        // while interacting with the UI.
-//        findViewById(R.id.fullscreen_content).setOnTouchListener(mDelayHideTouchListener);
+    private void startSocketIOServer(String invitation_type, String uuid, String room) {
+
+        new AsyncTask<String, Void, Void>() {
+
+            @Override
+            protected Void doInBackground(String... strings) {
+                IOSocket socket = new IOSocket(getString(R.string.backend_url2), new MessageCallback() {
+                    public static final String TAG = "SocketIO";
+
+                    @Override
+                    public void on(String event, JSONObject... data) {
+                        // Handle events
+                        Log.w(TAG, event);
+                    }
+
+                    @Override
+                    public void onMessage(String message) {
+                        // Handle simple messages
+                        Log.w(TAG, message);
+                    }
+
+                    @Override
+                    public void onMessage(JSONObject message) {
+                        // Handle JSON messages
+                        Log.w(TAG, message.toString());
+
+                    }
+
+                    @Override
+                    public void onConnect() {
+                        // Socket connection opened
+                        Log.w(TAG, "ON CONNECT");
+
+                    }
+
+                    @Override
+                    public void onDisconnect() {
+                        // Socket connection closed
+                        Log.w(TAG, "disconnected");
+                    }
+                });
+                String invitation_type = strings[0], uuid = strings[1], room = strings[2];
+
+                try {
+                    socket.connect();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+//                if (invitation_type.equals(HOST)) {
+//
+//                    socket.emit("create_and_join", new JSONObject().put("room", room).put("uuid", uuid));
+//                } else
+//                    socket.emit("join", new JSONObject().put("room", room).put("uuid", uuid));
+
+                return null;
+            }
+        }.execute(invitation_type, uuid, room);
+
+
     }
 
     @Override
@@ -182,8 +204,9 @@ public class FullscreenActivity extends Activity implements ActionBar.TabListene
         return true;
     }
 
+    //
     //  Menu Selection
-
+    //
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -191,6 +214,9 @@ public class FullscreenActivity extends Activity implements ActionBar.TabListene
                 NavUtils.navigateUpFromSameTask(this);
                 return true;
             case R.id.menu_info:
+                return true;
+            case R.id.menu_hand:
+                startSocketIOServer(HOST, ApplicationManager.getRegistrationId(this), "room1");
                 return true;
             case R.id.menu_draw_tools:
                 return true;
@@ -235,8 +261,9 @@ public class FullscreenActivity extends Activity implements ActionBar.TabListene
             picker.setVisibility(View.GONE);
     }
 
+    //
     // Activity State
-
+    //
     @Override
     public void onSaveInstanceState(Bundle outState) {
         // Serialize the current tab position.
@@ -251,8 +278,9 @@ public class FullscreenActivity extends Activity implements ActionBar.TabListene
         }
     }
 
+    //
     //  Tabs Events
-
+    //
     @Override
     public void onTabSelected(ActionBar.Tab tab,
                               FragmentTransaction fragmentTransaction) {
@@ -281,7 +309,9 @@ public class FullscreenActivity extends Activity implements ActionBar.TabListene
 //        Log.d("COLOR", "" + i);
     }
 
+    //
     //  Save Action Provider Callbacks
+    //
 
     @Override
     public void onSavePng() {
@@ -351,7 +381,6 @@ public class FullscreenActivity extends Activity implements ActionBar.TabListene
     /**
      * Get the directory for the app's private pictures directory.
      *
-     * @param context
      * @param fileName Name of the album
      * @return a file to write to
      */
@@ -386,27 +415,6 @@ public class FullscreenActivity extends Activity implements ActionBar.TabListene
         return true;
     }
 
-    /**
-     * Touch listener to use for in-layout UI controls to delay hiding the
-     * system UI. This is to prevent the jarring behavior of controls going away
-     * while interacting with activity UI.
-     */
-    View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View view, MotionEvent motionEvent) {
-            view.setSystemUiVisibility(View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-            return false;
-        }
-    };
-
-    /**
-     * Schedules a call to hide() in [delay] milliseconds, canceling any
-     * previously scheduled calls.
-     */
-//    private void delayedHide(int delayMillis) {
-//        mHideHandler.removeCallbacks(mHideRunnable);
-//        mHideHandler.postDelayed(mHideRunnable, delayMillis);
-//    }
     public View getActionItem(int actionItemId) {
         try {
             ViewParent actionBarView = getHomeButton();
