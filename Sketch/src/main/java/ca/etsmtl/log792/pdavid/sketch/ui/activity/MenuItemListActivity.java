@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -37,12 +38,10 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import ca.etsmtl.log792.pdavid.sketch.ApplicationManager;
 import ca.etsmtl.log792.pdavid.sketch.R;
+import ca.etsmtl.log792.pdavid.sketch.network.NsdHelper;
 import ca.etsmtl.log792.pdavid.sketch.network.Utils;
 import ca.etsmtl.log792.pdavid.sketch.ui.activity.dummy.DummyContent;
 import ca.etsmtl.log792.pdavid.sketch.ui.fragment.BaseGridFragment;
@@ -90,26 +89,9 @@ public class MenuItemListActivity extends FragmentActivity
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
     private GoogleCloudMessaging gcm;
     private String regid;
-    AtomicInteger msgId = new AtomicInteger();
     private Context context;
     private LocationClient mLocationClient;
-    private TimerTask timedTask = new TimerTask() {
-        @Override
-        public void run() {
-            updateInBackground();
-        }
-    };
-
-    private void updateInBackground() {
-        new AsyncTask<Object, Void, Void>() {
-
-            @Override
-            protected Void doInBackground(Object... objects) {
-
-                return null;/**/
-            }
-        }.execute(null, null, null);
-    }
+    private NsdHelper mNsdHelper;
 
     /*
      * Called when the Activity becomes visible.
@@ -134,6 +116,7 @@ public class MenuItemListActivity extends FragmentActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.main_layout);
 
         /**
@@ -207,7 +190,14 @@ public class MenuItemListActivity extends FragmentActivity
             Log.i(TAG, "No valid Google Play Services APK found.");
         }
         mLocationClient = new LocationClient(this, this, this);
+        mNsdHelper = new NsdHelper(this);
+        mNsdHelper.initializeNsd();
+    }
 
+    @Override
+    protected void onDestroy() {
+        mNsdHelper.tearDown();
+        super.onDestroy();
     }
 
     @Override
@@ -218,11 +208,14 @@ public class MenuItemListActivity extends FragmentActivity
             mDrawerToggle.syncState();
     }
 
-    // You need to do the Play Services APK check here too.
+    // Play Services APK check here too.
     @Override
     protected void onResume() {
         super.onResume();
         checkPlayServices();
+        if (mNsdHelper != null) {
+            mNsdHelper.discoverServices();
+        }
     }
 
     @Override
@@ -407,13 +400,19 @@ public class MenuItemListActivity extends FragmentActivity
                     HttpClient client = new DefaultHttpClient();
                     URI website = null;
                     try {
-                        Location lastLocation = mLocationClient.getLastLocation();
-                        assert lastLocation != null;
-
                         final String ip = Utils.getIPAddress(true);
+                        if (mLocationClient.isConnected()) {
 
-                        website = new URI(String.format(context.getString(R.string.backend_url_register), regid,
-                                lastLocation.getLatitude(), lastLocation.getLongitude(), ip));
+                            Location lastLocation = mLocationClient.getLastLocation();
+                            assert lastLocation != null;
+
+
+                            website = new URI(String.format(context.getString(R.string.backend_url_register), regid,
+                                    lastLocation.getLatitude(), lastLocation.getLongitude(), ip));
+                        } else {
+                            website = new URI(String.format(context.getString(R.string.backend_url_register), regid,
+                                    0F, 0F, ip));
+                        }
                     } catch (URISyntaxException e) {
                         e.printStackTrace();
                     }
@@ -432,15 +431,10 @@ public class MenuItemListActivity extends FragmentActivity
                         storeRegistrationId(context, regid);
                 } catch (IOException ex) {
                     ex.printStackTrace();
-//                    msg = "Error :" + ex.getMessage();
-                    // If there is an error, don't just keep trying to register.
-                    // Require the user to click a button again, or perform
-                    // exponential back-off.
                 }
                 return "";
             }
         }.execute(null, null, null);
-        new Timer().scheduleAtFixedRate(timedTask, 1000L, 5000L);
     }
 
     /**
@@ -460,8 +454,9 @@ public class MenuItemListActivity extends FragmentActivity
         editor.commit();
     }
 
-
+    //
     //location service
+    //
 
     /*
      * Called by Location Services when the request to connect the

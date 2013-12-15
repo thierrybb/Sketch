@@ -41,6 +41,7 @@ public class SkercherGridFragment extends BaseGridFragment {
         @Override
         public void onRequestFailure(SpiceException e) {
             e.printStackTrace();
+            getActivity().setProgressBarIndeterminateVisibility(false);
         }
 
         @Override
@@ -55,7 +56,7 @@ public class SkercherGridFragment extends BaseGridFragment {
                     myGridAdapter.notifyDataSetChanged();
                 }
             }
-
+            getActivity().setProgressBarIndeterminateVisibility(false);
         }
     };
     private RequestListener notifyAndCreateLobbyListener = new RequestListener() {
@@ -93,6 +94,7 @@ public class SkercherGridFragment extends BaseGridFragment {
         final List<Sketcher> fakeList = new ArrayList<Sketcher>();
         myGridAdapter = new SketcherAdapter(getActivity(), list);
 
+        getActivity().setProgressBarIndeterminateVisibility(true);
         AbsDataRequest request = new GetRequest(fakeList.getClass(), ApplicationManager.SERVER_URL);
         DataManager.performRequest(spiceManager, getActivity(), request, getAllSketchersListener, DurationInMillis.ONE_SECOND);
     }

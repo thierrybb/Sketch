@@ -9,7 +9,6 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -22,15 +21,15 @@ import android.view.ViewParent;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.clwillingham.socket.io.IOSocket;
-import com.clwillingham.socket.io.MessageCallback;
+import com.koushikdutta.async.http.AsyncHttpClient;
+import com.koushikdutta.async.http.socketio.ConnectCallback;
+import com.koushikdutta.async.http.socketio.SocketIOClient;
 import com.larswerkman.holocolorpicker.ColorPicker;
 
-import org.json.JSONObject;
+import org.json.JSONArray;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.lang.reflect.Field;
 
 import ca.etsmtl.log792.pdavid.sketch.ApplicationManager;
@@ -47,44 +46,16 @@ import ca.etsmtl.log792.pdavid.sketch.ui.view.TextCreatorView;
  *
  * @see SystemUiHider
  */
-public class FullscreenActivity extends Activity implements ActionBar.TabListener, ColorPicker.OnColorChangedListener, SaveActionProvider.OnClickListener {
-    /**
-     * Whether or not the system UI should be auto-hidden after
-     * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
-     */
-    private static final boolean AUTO_HIDE = false;
-
-    /**
-     * If {@link #AUTO_HIDE} is set, the number of milliseconds to wait after
-     * user interaction before hiding the system UI.
-     */
-    private static final int AUTO_HIDE_DELAY_MILLIS = 3000;
-
-    /**
-     * If set, will toggle the system UI visibility upon interaction. Otherwise,
-     * will show the system UI visibility upon interaction.
-     */
-    private static final boolean TOGGLE_ON_CLICK = true;
-
-    /**
-     * The flags to pass to {@link SystemUiHider#getInstance}.
-     */
-    private static final int HIDER_FLAGS = SystemUiHider.FLAG_HIDE_NAVIGATION;
-    private static final String HOST = "host";
-    private static final String ROOM_NAME = "room_name";
-    private static final String INVITATION_TYPE = "invitation_type";
-
-    /**
-     * The instance of the {@link SystemUiHider} for this activity.
-     */
-    private SystemUiHider mSystemUiHider;
+public class FullscreenActivity extends Activity implements ColorPicker.OnColorChangedListener, SaveActionProvider.OnClickListener {
 
     /**
      * The serialization (saved instance state) Bundle key representing the
      * current tab position.
      */
     private static final String STATE_SELECTED_NAVIGATION_ITEM = "selected_navigation_item";
-    private boolean userDrawSomething = true;
+    private static final String HOST = "host";
+    private static final String INVITATION_TYPE = "invite_type";
+    private static final String ROOM_NAME = "room_name";
     private MultitouchSurfaceView multiTouchFramework;
     private ColorPicker picker;
     private SaveDialog saveDialog;
@@ -102,12 +73,8 @@ public class FullscreenActivity extends Activity implements ActionBar.TabListene
 
         ActionBar actionBar = getActionBar();
         actionBar.setDisplayShowHomeEnabled(true);
-        actionBar.setDisplayShowTitleEnabled(true);
+        actionBar.setDisplayShowTitleEnabled(false);
         actionBar.setBackgroundDrawable(new ColorDrawable(Color.BLACK));
-//        actionBar.hide();
-//        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-//        actionBar.addTab(actionBar.newTab().setText(R.string.default_drawing_title).setTabListener(this), true);
-//        actionBar.addTab(actionBar.newTab().setText(R.string.default_new_drawing).setTabListener(this), false);
 
         picker = (ColorPicker) findViewById(R.id.picker);
         picker.setOnColorChangedListener(this);
@@ -129,65 +96,26 @@ public class FullscreenActivity extends Activity implements ActionBar.TabListene
         }
     }
 
-    private void startSocketIOServer(String invitation_type, String uuid, String room) {
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
 
-        new AsyncTask<String, Void, Void>() {
-
+    private void startSocketIOServer(final String invitation_type, final String uuid, final String room) {
+        SocketIOClient.connect(AsyncHttpClient.getDefaultInstance(), getString(R.string.backend_url2), new ConnectCallback() {
             @Override
-            protected Void doInBackground(String... strings) {
-                IOSocket socket = new IOSocket(getString(R.string.backend_url2), new MessageCallback() {
-                    public static final String TAG = "SocketIO";
-
-                    @Override
-                    public void on(String event, JSONObject... data) {
-                        // Handle events
-                        Log.w(TAG, event);
-                    }
-
-                    @Override
-                    public void onMessage(String message) {
-                        // Handle simple messages
-                        Log.w(TAG, message);
-                    }
-
-                    @Override
-                    public void onMessage(JSONObject message) {
-                        // Handle JSON messages
-                        Log.w(TAG, message.toString());
-
-                    }
-
-                    @Override
-                    public void onConnect() {
-                        // Socket connection opened
-                        Log.w(TAG, "ON CONNECT");
-
-                    }
-
-                    @Override
-                    public void onDisconnect() {
-                        // Socket connection closed
-                        Log.w(TAG, "disconnected");
-                    }
-                });
-                String invitation_type = strings[0], uuid = strings[1], room = strings[2];
-
-                try {
-                    socket.connect();
-                } catch (IOException e) {
-                    e.printStackTrace();
+            public void onConnectCompleted(Exception ex, SocketIOClient client) {
+                if (ex != null) {
+                    ex.printStackTrace();
+                    return;
                 }
-//                if (invitation_type.equals(HOST)) {
-//
-//                    socket.emit("create_and_join", new JSONObject().put("room", room).put("uuid", uuid));
-//                } else
-//                    socket.emit("join", new JSONObject().put("room", room).put("uuid", uuid));
-
-                return null;
+                if (invitation_type.equals(HOST)) {
+                    client.emit("create_and_join", new JSONArray().put(room).put(uuid));
+                } else {
+                    client.emit("join", new JSONArray().put(room).put(uuid));
+                }
             }
-        }.execute(invitation_type, uuid, room);
-
-
+        });
     }
 
     @Override
@@ -276,31 +204,6 @@ public class FullscreenActivity extends Activity implements ActionBar.TabListene
         if (savedInstanceState.containsKey(STATE_SELECTED_NAVIGATION_ITEM)) {
             getActionBar().setSelectedNavigationItem(savedInstanceState.getInt(STATE_SELECTED_NAVIGATION_ITEM));
         }
-    }
-
-    //
-    //  Tabs Events
-    //
-    @Override
-    public void onTabSelected(ActionBar.Tab tab,
-                              FragmentTransaction fragmentTransaction) {
-        // When the given tab is selected, check if it's the active tab,
-        // show NameChangeDialog
-
-        if (getActionBar().getSelectedTab().equals(tab)) {
-
-
-        }
-    }
-
-    @Override
-    public void onTabUnselected(ActionBar.Tab tab,
-                                FragmentTransaction fragmentTransaction) {
-    }
-
-    @Override
-    public void onTabReselected(ActionBar.Tab tab,
-                                FragmentTransaction fragmentTransaction) {
     }
 
     @Override
