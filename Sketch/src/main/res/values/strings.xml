@@ -31,6 +31,7 @@
     <string name="backend_url_invite">http://young-lowlands-1317.herokuapp.com/invite?udid_from=%1$s&amp;udid_to=%2$s</string>
     <string name="backend_url">http://young-lowlands-1317.herokuapp.com/</string>
     <string name="backend_url2">http://192.168.1.149:5000/</string>
+    <string name="socketio_couldnt_connect">Could not connect to server, the server might be offline. Try again later.</string>
 
     <string-array name="country_arrays">
         <item>Droid</item>

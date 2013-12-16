@@ -34,6 +34,7 @@ public class SketchesGridFragment extends BaseGridFragment {
     public static final String TAG = SketchesGridFragment.class.getName();
     private ImageView expandedImageView;
     private ArrayList<BaseModel> list;
+    private boolean isZoomedIn;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -47,7 +48,7 @@ public class SketchesGridFragment extends BaseGridFragment {
         super.onCreate(savedInstanceState);
         // Get all images
         File root = new File(Environment.getExternalStorageDirectory() + "/MySketches/");
-        if (root != null){
+        if (root != null) {
             if (!root.exists())
                 root.mkdir();
 
@@ -178,7 +179,7 @@ public class SketchesGridFragment extends BaseGridFragment {
         });
         set.start();
         mCurrentAnimator = set;
-
+        isZoomedIn = true;
         // Upon clicking the zoomed-in image, it should zoom back down
         // to the original bounds and show the thumbnail instead of
         // the expanded image.
@@ -226,6 +227,7 @@ public class SketchesGridFragment extends BaseGridFragment {
                 });
                 set.start();
                 mCurrentAnimator = set;
+                isZoomedIn = false;
             }
         });
     }
@@ -241,4 +243,7 @@ public class SketchesGridFragment extends BaseGridFragment {
         }
     }
 
+    public boolean isZoomedIn() {
+        return isZoomedIn;
+    }
 }

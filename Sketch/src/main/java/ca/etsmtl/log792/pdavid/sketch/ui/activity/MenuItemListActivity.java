@@ -190,13 +190,13 @@ public class MenuItemListActivity extends FragmentActivity
             Log.i(TAG, "No valid Google Play Services APK found.");
         }
         mLocationClient = new LocationClient(this, this, this);
-        mNsdHelper = new NsdHelper(this);
-        mNsdHelper.initializeNsd();
+//        mNsdHelper = new NsdHelper(this);
+//        mNsdHelper.initializeNsd();
     }
 
     @Override
     protected void onDestroy() {
-        mNsdHelper.tearDown();
+//        mNsdHelper.tearDown();
         super.onDestroy();
     }
 
@@ -338,9 +338,14 @@ public class MenuItemListActivity extends FragmentActivity
                 SketchesGridFragment sketchesGridFragment = (SketchesGridFragment) fragmentByTag;
 
                 assert sketchesGridFragment != null;
-                sketchesGridFragment.zoomOut();
+                if (sketchesGridFragment.isZoomedIn()) {
+                    sketchesGridFragment.zoomOut();
+                } else {
+                    //leave App if we don't have to zoomOut
+                    finish();
+                }
 
-                return !backMustZoomOut;
+                return true;
         }
         return super.onKeyDown(keyCode, event);
     }

@@ -21,12 +21,16 @@ import android.view.ViewParent;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.koushikdutta.async.future.Future;
 import com.koushikdutta.async.http.AsyncHttpClient;
+import com.koushikdutta.async.http.socketio.Acknowledge;
 import com.koushikdutta.async.http.socketio.ConnectCallback;
+import com.koushikdutta.async.http.socketio.EventCallback;
 import com.koushikdutta.async.http.socketio.SocketIOClient;
 import com.larswerkman.holocolorpicker.ColorPicker;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -60,7 +64,8 @@ public class FullscreenActivity extends Activity implements ColorPicker.OnColorC
     private ColorPicker picker;
     private SaveDialog saveDialog;
     private TextCreatorView textCreationView;
-//    private SocketIO socket;
+    private Future<SocketIOClient> connect;
+    private boolean isConnectedToServer = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,6 +93,7 @@ public class FullscreenActivity extends Activity implements ColorPicker.OnColorC
         });
 
         if (extras != null && extras.containsKey("start_io")) {
+
             String invitation_type = extras.getString(INVITATION_TYPE);
             String uuid = ApplicationManager.getRegistrationId(this);
             String room = extras.getString(ROOM_NAME);
@@ -99,21 +105,45 @@ public class FullscreenActivity extends Activity implements ColorPicker.OnColorC
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (connect != null) {
+            connect.cancel();
+        }
+
     }
 
     private void startSocketIOServer(final String invitation_type, final String uuid, final String room) {
-        SocketIOClient.connect(AsyncHttpClient.getDefaultInstance(), getString(R.string.backend_url2), new ConnectCallback() {
+        connect = SocketIOClient.connect(AsyncHttpClient.getDefaultInstance(), getString(R.string.backend_url2), new ConnectCallback() {
             @Override
             public void onConnectCompleted(Exception ex, SocketIOClient client) {
                 if (ex != null) {
                     ex.printStackTrace();
+                    Toast.makeText(getApplicationContext(), R.string.socketio_couldnt_connect, Toast.LENGTH_LONG).show();
                     return;
                 }
+                client.on("room_joined", new EventCallback() {
+                    @Override
+                    public void onEvent(JSONArray jsonArray, Acknowledge acknowledge) {
+                        isConnectedToServer = true;
+                    }
+                });
+                client.on("update_room", new EventCallback() {
+                    @Override
+                    public void onEvent(JSONArray jsonArray, Acknowledge acknowledge) {
+                        try {
+                            Toast.makeText(getApplicationContext(), jsonArray.getString(0), Toast.LENGTH_LONG).show();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+                final JSONArray jsonArray = new JSONArray().put(room).put(uuid);
+
                 if (invitation_type.equals(HOST)) {
-                    client.emit("create_and_join", new JSONArray().put(room).put(uuid));
+                    client.emit("create_and_join", jsonArray);
                 } else {
-                    client.emit("join", new JSONArray().put(room).put(uuid));
+                    client.emit("join", jsonArray);
                 }
+
             }
         });
     }
