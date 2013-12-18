@@ -13,6 +13,7 @@ import android.util.Log;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 import ca.etsmtl.log792.pdavid.sketch.R;
+import ca.etsmtl.log792.pdavid.sketch.ui.activity.FullscreenActivity;
 import ca.etsmtl.log792.pdavid.sketch.ui.activity.HandleInviteActivity;
 import ca.etsmtl.log792.pdavid.sketch.ui.activity.MenuItemListActivity;
 
@@ -72,13 +73,17 @@ public class GcmIntentService extends IntentService {
         mNotificationManager = (NotificationManager)
                 this.getSystemService(Context.NOTIFICATION_SERVICE);
 
+        Intent intent = new Intent(this, FullscreenActivity.class);
+        intent.putExtra(FullscreenActivity.INVITATION_TYPE, FullscreenActivity.ATTENDEE);
+        intent.putExtra(FullscreenActivity.START_IO,true);
+
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
-                new Intent(this, HandleInviteActivity.class), 0);
+                intent, 0);
 
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
-                        .setSmallIcon(R.drawable.ic_stat_gcm)
-                        .setContentTitle("GCM Notification")
+                        .setSmallIcon(R.drawable.ic_launcher)
+                        .setContentTitle("Invitation to Sketch")
                         .setStyle(new NotificationCompat.BigTextStyle()
                                 .bigText(msg))
                         .setContentText(msg);

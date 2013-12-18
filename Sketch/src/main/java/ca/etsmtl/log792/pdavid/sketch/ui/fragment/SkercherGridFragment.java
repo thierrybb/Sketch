@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.octo.android.robospice.SpiceManager;
 import com.octo.android.robospice.persistence.DurationInMillis;
@@ -25,6 +26,7 @@ import ca.etsmtl.log792.pdavid.sketch.model.Sketcher;
 import ca.etsmtl.log792.pdavid.sketch.network.AbsDataRequest;
 import ca.etsmtl.log792.pdavid.sketch.network.DataManager;
 import ca.etsmtl.log792.pdavid.sketch.network.GetRequest;
+import ca.etsmtl.log792.pdavid.sketch.ui.activity.FullscreenActivity;
 import ca.etsmtl.log792.pdavid.sketch.ui.activity.HandleInviteActivity;
 import ca.etsmtl.log792.pdavid.sketch.ui.adapter.MyBaseAdapter;
 
@@ -59,7 +61,7 @@ public class SkercherGridFragment extends BaseGridFragment {
             getActivity().setProgressBarIndeterminateVisibility(false);
         }
     };
-    private RequestListener notifyAndCreateLobbyListener = new RequestListener() {
+    private RequestListener inviteAndCreateLobbyListener = new RequestListener() {
         @Override
         public void onRequestFailure(SpiceException e) {
             e.printStackTrace();
@@ -68,15 +70,20 @@ public class SkercherGridFragment extends BaseGridFragment {
 
         @Override
         public void onRequestSuccess(Object o) {
+
             if (o != null) {
                 if (o instanceof String) {
-                    Intent intent = new Intent(getActivity(), HandleInviteActivity.class);
+                    final Intent intent = new Intent(getActivity(), FullscreenActivity.class);
+                    intent.putExtra(FullscreenActivity.START_IO, true);
+                    intent.putExtra(FullscreenActivity.INVITATION_TYPE, FullscreenActivity.HOST);
+
                     getActivity().startActivity(intent);
                 }
             }
 
         }
     };
+    private String invitedUUID;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -106,16 +113,21 @@ public class SkercherGridFragment extends BaseGridFragment {
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-        Sketcher itemAtPosition = (Sketcher) adapterView.getItemAtPosition(i);
-        inviteAndStartNewLobby(itemAtPosition.getUuid());
+        final Sketcher itemAtPosition = (Sketcher) adapterView.getItemAtPosition(i);
+        inviteAndStartNewRoom(itemAtPosition.getUuid());
     }
 
-    private void inviteAndStartNewLobby(String id) {
+    private void inviteAndStartNewRoom(String id) {
 
+        invitedUUID = id;
         final String from = ApplicationManager.getRegistrationId(getActivity());
 
         final AbsDataRequest request = new GetRequest(String.class, String.format(getString(R.string.backend_url_invite, from, id)));
-        DataManager.performRequest(spiceManager, getActivity(), request, notifyAndCreateLobbyListener, DurationInMillis.ONE_SECOND);
+        DataManager.performRequest(spiceManager, getActivity(), request, inviteAndCreateLobbyListener, DurationInMillis.ONE_SECOND);
+
+        Toast.makeText(getActivity(), getString(R.string.toast_invite_sent),Toast.LENGTH_LONG).show();
+
+        getActivity().setProgressBarIndeterminateVisibility(true);
     }
 
     @Override

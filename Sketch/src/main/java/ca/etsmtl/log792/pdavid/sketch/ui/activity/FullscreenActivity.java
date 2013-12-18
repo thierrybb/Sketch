@@ -44,12 +44,6 @@ import ca.etsmtl.log792.pdavid.sketch.ui.activity.util.SystemUiHider;
 import ca.etsmtl.log792.pdavid.sketch.ui.dialog.SaveDialog;
 import ca.etsmtl.log792.pdavid.sketch.ui.view.TextCreatorView;
 
-/**
- * An example full-screen activity that shows and hides the system UI (i.e.
- * status bar and navigation/system bar) with user interaction.
- *
- * @see SystemUiHider
- */
 public class FullscreenActivity extends Activity implements ColorPicker.OnColorChangedListener, SaveActionProvider.OnClickListener {
 
     /**
@@ -57,15 +51,19 @@ public class FullscreenActivity extends Activity implements ColorPicker.OnColorC
      * current tab position.
      */
     private static final String STATE_SELECTED_NAVIGATION_ITEM = "selected_navigation_item";
-    private static final String HOST = "host";
-    private static final String INVITATION_TYPE = "invite_type";
-    private static final String ROOM_NAME = "room_name";
+    public static final String HOST = "host";
+    public static final String ATTENDEE = "attendee";
+    public static final String INVITATION_TYPE = "invite_type";
+    public static final String START_IO = "start_io";
+    public static final String ROOM_NAME = "room_name";
     private MultitouchSurfaceView multiTouchFramework;
     private ColorPicker picker;
     private SaveDialog saveDialog;
     private TextCreatorView textCreationView;
     private Future<SocketIOClient> connect;
     private boolean isConnectedToServer = false;
+    private MenuItem startSocketIOmenuItem;
+    private boolean socketIOisStarted = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,23 +90,24 @@ public class FullscreenActivity extends Activity implements ColorPicker.OnColorC
             }
         });
 
-        if (extras != null && extras.containsKey("start_io")) {
+        if (extras != null && extras.containsKey(START_IO)) {
 
             String invitation_type = extras.getString(INVITATION_TYPE);
-            String uuid = ApplicationManager.getRegistrationId(this);
-            String room = extras.getString(ROOM_NAME);
+            String from = ApplicationManager.getRegistrationId(this);
+            String room = ApplicationManager.getInstance().generateRoomName();
 
-            startSocketIOServer(invitation_type, uuid, room);
+            startSocketIOServer(invitation_type, from, room);
+             socketIOisStarted = true;
+            if(startSocketIOmenuItem != null)
+                startSocketIOmenuItem.setVisible(false);
         }
     }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
         if (connect != null) {
             connect.cancel();
         }
-
     }
 
     private void startSocketIOServer(final String invitation_type, final String uuid, final String room) {
@@ -136,6 +135,7 @@ public class FullscreenActivity extends Activity implements ColorPicker.OnColorC
                         }
                     }
                 });
+
                 final JSONArray jsonArray = new JSONArray().put(room).put(uuid);
 
                 if (invitation_type.equals(HOST)) {
@@ -143,7 +143,6 @@ public class FullscreenActivity extends Activity implements ColorPicker.OnColorC
                 } else {
                     client.emit("join", jsonArray);
                 }
-
             }
         });
     }
@@ -159,6 +158,11 @@ public class FullscreenActivity extends Activity implements ColorPicker.OnColorC
         super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.menu_full_screen, menu);
         ((SaveActionProvider) menu.getItem(1).getActionProvider()).setOnClickListener(this);
+        startSocketIOmenuItem = menu.getItem(1);
+
+        if (startSocketIOmenuItem != null && socketIOisStarted) {
+            startSocketIOmenuItem.setVisible(false);
+        }
         return true;
     }
 
