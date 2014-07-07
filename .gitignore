@@ -27,3 +27,5 @@ out
 */out/*
 .idea
 *.class
+
+/.gradle/
