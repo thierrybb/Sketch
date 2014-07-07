@@ -13,11 +13,13 @@ import ca.etsmtl.sketch.common.graphic.PointF;
 
 public class EventBusTouchListenerDelegator implements View.OnTouchListener {
     private EventBus eventBus;
+    private int userID;
 
     private HashMap<Integer, PointF> fingerLastPos = new HashMap<Integer, PointF>();
 
-    public EventBusTouchListenerDelegator(EventBus eventBus) {
+    public EventBusTouchListenerDelegator(EventBus eventBus, int userID) {
         this.eventBus = eventBus;
+        this.userID = userID;
     }
 
     @Override
@@ -28,11 +30,11 @@ public class EventBusTouchListenerDelegator implements View.OnTouchListener {
                 || event.getActionMasked() == MotionEvent.ACTION_DOWN) {
             PointF point = new PointF(event.getX(event.getActionIndex()), event.getY(event.getActionIndex()));
             fingerLastPos.put(pointerId, point);
-            eventBus.post(new OnFingerDownInkMode(pointerId, point));
+            eventBus.post(new OnFingerDownInkMode(pointerId, userID, point));
         } else if (event.getActionMasked() == MotionEvent.ACTION_POINTER_UP
                 || event.getActionMasked() == MotionEvent.ACTION_UP
                 || event.getActionMasked() == MotionEvent.ACTION_CANCEL) {
-            eventBus.post(new OnFingerUpInkMode(pointerId));
+            eventBus.post(new OnFingerUpInkMode(pointerId, userID));
         } else if (event.getActionMasked() == MotionEvent.ACTION_MOVE) {
             for (int i = 0; i < event.getPointerCount(); i++) {
                 pointerId = event.getPointerId(i);
@@ -42,7 +44,7 @@ public class EventBusTouchListenerDelegator implements View.OnTouchListener {
 
                     if (!lastPos.equals(event.getX(i), event.getY(i))) {
                         PointF newPoint = new PointF(event.getX(i), event.getY(i));
-                        eventBus.post(new OnFingerMoveInkMode(pointerId, newPoint));
+                        eventBus.post(new OnFingerMoveInkMode(pointerId, newPoint, userID));
                     }
                 }
             }

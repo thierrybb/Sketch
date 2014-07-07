@@ -8,6 +8,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import ca.etsmtl.sketch.common.bus.event.Event;
 import ca.etsmtl.sketch.common.bus.event.OnNewIDAssigned;
 import ca.etsmtl.sketch.common.bus.event.OnRequestListenToEventType;
+import ca.etsmtl.sketch.common.bus.event.OnRequestUnregisterToEventType;
 import ca.etsmtl.sketch.common.bus.eventbus.EventBus;
 import ca.etsmtl.sketch.common.bus.io.event.EventInputStream;
 import ca.etsmtl.sketch.common.bus.io.event.EventOutputStream;
@@ -44,8 +45,6 @@ public class ServerConnectorComponent {
         @Override
         public void onEventReceived(Event event) {
             outputEventQueue.offer(event);
-//            System.out.println("Event offer to queue " + event.getClass());
-
         }
     }
 
@@ -95,12 +94,14 @@ public class ServerConnectorComponent {
                 while (true) {
                     Event event = inputStream.readEvent();
 
-//                    System.out.println("Event received " + event.getClass());
-
                     if (event instanceof OnRequestListenToEventType) {
                         OnRequestListenToEventType requestEvent = (OnRequestListenToEventType) event;
                         eventBus.register(mainBusEventListener, requestEvent.getEventClassToListen());
                         registeredEvents.add(requestEvent.getEventClassToListen());
+                    } else if (event instanceof OnRequestUnregisterToEventType) {
+                        OnRequestUnregisterToEventType requestEvent = (OnRequestUnregisterToEventType) event;
+                        eventBus.unregister(mainBusEventListener, requestEvent.getEventClassToUnregister());
+                        registeredEvents.remove(requestEvent.getEventClassToUnregister());
                     } else {
                         events.add(event);
                         eventBus.post(event);

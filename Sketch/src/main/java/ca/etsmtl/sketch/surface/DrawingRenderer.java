@@ -31,7 +31,7 @@ public class DrawingRenderer implements GLSurfaceView.Renderer {
         gl.glDisable(GL10.GL_CULL_FACE);
         gl.glDisable(GL10.GL_DEPTH_BUFFER_BIT);
         gl.glDisable(GL10.GL_DEPTH_TEST);
-        gl.glClearColor(.5f, .5f, .8f, 1.f);
+        gl.glClearColor(1f, 1f, 1f, 1.f);
         gl.glShadeModel(GL10.GL_SMOOTH);
     }
 
@@ -40,8 +40,6 @@ public class DrawingRenderer implements GLSurfaceView.Renderer {
         gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
         gl.glTranslatef(0, 0, 0);
         gl.glScalef(1, 1, 1);
-
-        gl.glColor4f(1.0f, 0.3f, 0.0f, .5f);
 
         drawing.draw(gl);
     }

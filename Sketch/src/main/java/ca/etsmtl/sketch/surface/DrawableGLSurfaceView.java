@@ -8,18 +8,22 @@ import android.widget.Toast;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Stack;
 
 import ca.etsmtl.sketch.R;
 import ca.etsmtl.sketch.common.bus.builder.RemoteBusBuilder;
-import ca.etsmtl.sketch.common.bus.event.OnNewIDAssigned;
+import ca.etsmtl.sketch.common.bus.component.UniqueIDGenerator;
 import ca.etsmtl.sketch.common.bus.eventbus.EventBus;
+import ca.etsmtl.sketch.common.bus.eventbus.IDReceiverDecorator;
 import ca.etsmtl.sketch.common.bus.eventbus.SimpleEventBus;
 import ca.etsmtl.sketch.common.bus.eventbus.Subscribe;
-import ca.etsmtl.sketch.common.event.OnInkDrawingAdded;
+import ca.etsmtl.sketch.common.event.OnInkStrokeAdded;
+import ca.etsmtl.sketch.common.event.OnInkStrokeRemoved;
 import ca.etsmtl.sketch.common.event.OnNewUserAdded;
 import ca.etsmtl.sketch.eventbus.UIThreadEventBusDecorator;
+import ca.etsmtl.sketch.surface.command.AddInkStroke;
+import ca.etsmtl.sketch.surface.command.DrawingCommand;
 import ca.etsmtl.sketch.surface.openglshape.Drawing;
-import ca.etsmtl.sketch.surface.openglshape.InkStroke;
 import ca.etsmtl.sketch.surface.openglshape.Shape;
 import ca.etsmtl.sketch.surface.touch.OpenGLInkModeTouchComponent;
 import ca.etsmtl.sketch.utils.UserUtils;
@@ -31,8 +35,13 @@ public class DrawableGLSurfaceView extends GLSurfaceView {
 
     private int currentUserID;
 
+    private Stack<DrawingCommand> undoCommands = new Stack<DrawingCommand>();
+    private Stack<DrawingCommand> redoCommands = new Stack<DrawingCommand>();
+
     private OpenGLInkModeTouchComponent inkModeTouchComponent;
     private ProgressDialog connectionDialog;
+    private int currentStrokeColor = 0;
+    private UniqueIDGenerator newShapeIDGenerator = new UniqueIDGenerator();
 
     public DrawableGLSurfaceView(Context context) {
         super(context);
@@ -45,7 +54,6 @@ public class DrawableGLSurfaceView extends GLSurfaceView {
     }
 
     private void init() {
-        inkModeTouchComponent = new OpenGLInkModeTouchComponent(drawing);
         drawing.attachListener(new Shape.ShapeListener() {
             @Override
             public void onShapeChanged() {
@@ -67,7 +75,7 @@ public class DrawableGLSurfaceView extends GLSurfaceView {
         setRenderer(drawingRenderer);
 
         // Render the view only when there is a change in the drawing data
-        setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
+        setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
 
         createEventBus();
     }
@@ -79,16 +87,23 @@ public class DrawableGLSurfaceView extends GLSurfaceView {
                 try {
                     RemoteBusBuilder remoteBusBuilder = new RemoteBusBuilder();
                     Socket socket = new Socket("192.168.2.125", 11112);
+
+                    IDReceiverDecorator decorator = new IDReceiverDecorator(new UIThreadEventBusDecorator(new SimpleEventBus(), DrawableGLSurfaceView.this));
                     bus = remoteBusBuilder.setSocket(socket)
-                            .setDecoratedBus(new UIThreadEventBusDecorator(new SimpleEventBus(), DrawableGLSurfaceView.this))
+                            .setDecoratedBus(decorator)
                             .build();
-                    bus.register(DrawableGLSurfaceView.this, OnNewIDAssigned.class);
-                    bus.register(DrawableGLSurfaceView.this, OnInkDrawingAdded.class);
+                    bus.register(DrawableGLSurfaceView.this, OnInkStrokeAdded.class);
                     bus.register(DrawableGLSurfaceView.this, OnNewUserAdded.class);
-                    setOnTouchListener(new EventBusTouchListenerDelegator(bus));
+                    bus.register(DrawableGLSurfaceView.this, OnInkStrokeRemoved.class);
 
+
+                    currentUserID = decorator.getId();
+
+                    setOnTouchListener(new EventBusTouchListenerDelegator(bus, currentUserID));
+                    bus.post(new OnNewUserAdded(UserUtils.getUsername(DrawableGLSurfaceView.this.getContext()), currentUserID));
+
+                    inkModeTouchComponent = new OpenGLInkModeTouchComponent(drawing, currentUserID, newShapeIDGenerator);
                     inkModeTouchComponent.plug(bus);
-
                 } catch (IOException e) {
                     post(new Runnable() {
                         @Override
@@ -109,8 +124,32 @@ public class DrawableGLSurfaceView extends GLSurfaceView {
     }
 
     @Subscribe
-    public void onInkDrawingAdded(OnInkDrawingAdded event) {
-        drawing.addShape(new InkStroke(event.getPoints()));
+    public void onInkDrawingAdded(OnInkStrokeAdded event) {
+        AddInkStroke command = new AddInkStroke(event.getPoints(), event.getStrokeColor(),
+                event.getUserID(), event.getUniqueID());
+        executeCommand(command);
+    }
+
+    private void executeCommand(DrawingCommand command) {
+        undoCommands.add(command);
+        command.execute(drawing, bus);
+        redoCommands.clear();
+    }
+
+    public void undo() {
+        if (!undoCommands.isEmpty()) {
+            DrawingCommand pop = undoCommands.pop();
+            pop.undo(drawing, bus);
+            redoCommands.add(pop);
+        }
+    }
+
+    public void redo() {
+        if (!redoCommands.isEmpty()) {
+            DrawingCommand pop = redoCommands.pop();
+            undoCommands.add(pop);
+            pop.redo(drawing, bus);
+        }
     }
 
     @Subscribe
@@ -122,8 +161,12 @@ public class DrawableGLSurfaceView extends GLSurfaceView {
     }
 
     @Subscribe
-    public void onNewIdAssigned(OnNewIDAssigned event) {
-        currentUserID = event.getNewID();
-        bus.post(new OnNewUserAdded(UserUtils.getUsername(DrawableGLSurfaceView.this.getContext()), currentUserID));
+    public void onInkStrokeRemoved(OnInkStrokeRemoved event) {
+        drawing.removeShape(event.getUniqueID(), event.getUserID());
+    }
+
+    public void setStrokeColor(int strokeColor) {
+        currentStrokeColor = strokeColor;
+        inkModeTouchComponent.setStrokeColor(strokeColor);
     }
 }

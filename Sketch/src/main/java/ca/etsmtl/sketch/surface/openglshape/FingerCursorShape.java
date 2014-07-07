@@ -21,7 +21,7 @@ public class FingerCursorShape extends BaseShape {
     private List<PointF> points = new ArrayList<PointF>();
 
     public FingerCursorShape() {
-        init(0xffffff);
+        init(0);
     }
 
     private void init(int lineColor) {
@@ -31,7 +31,7 @@ public class FingerCursorShape extends BaseShape {
     }
 
     private void buildBuffer(int size) {
-        vertixBuffer = BufferFactory.buildFloatBuffer(size*2);
+        vertixBuffer = BufferFactory.buildFloatBuffer(size * 2);
         short[] indices = new short[size];
 
         for (short i = 0; i != size; ++i)

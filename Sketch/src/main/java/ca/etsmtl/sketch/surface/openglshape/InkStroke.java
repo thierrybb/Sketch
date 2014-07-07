@@ -11,9 +11,9 @@ public class InkStroke extends BaseShape {
     private FloatBuffer vertixBuffer;
     private ShortBuffer indiceBuffer;
     private int indiceCount;
-    private int color = 0xffffff;
+    private int color = 0;
 
-    public InkStroke(float[] points) {
+    public InkStroke(float[] points, int color) {
         vertixBuffer = BufferFactory.buildFloatBuffer(points);
         indiceCount = points.length / 2;
         short[] indices = new short[indiceCount];
@@ -22,6 +22,8 @@ public class InkStroke extends BaseShape {
             indices[i] = i;
 
         indiceBuffer = BufferFactory.buildShortBuffer(indices);
+
+        this.color = color;
     }
 
     @Override

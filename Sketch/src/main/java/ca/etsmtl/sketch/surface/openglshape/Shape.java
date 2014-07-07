@@ -16,5 +16,5 @@ public interface Shape {
 
     void draw(GL10 gl);
 
-    public void attachListener(ShapeListener listener);
+    void attachListener(ShapeListener listener);
 }

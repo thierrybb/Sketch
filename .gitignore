@@ -29,3 +29,5 @@ out
 *.class
 
 /.gradle/
+
+/build/

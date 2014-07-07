@@ -20,7 +20,7 @@ public class DataInputStreamWrapper implements DataInputStream {
         int bytesLength = readInt();
 
         if (bytesLength < 0) {
-            return "";
+            throw new IOException("Stream closed");
         }
 
         byte[] stringContent = read(inputStream, bytesLength);

@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NavUtils;
 import android.util.Log;
 import android.view.Menu;
@@ -29,52 +30,45 @@ import java.io.FileOutputStream;
 import java.lang.reflect.Field;
 
 import ca.etsmtl.sketch.R;
-import ca.etsmtl.sketch.graphic.MultitouchSurfaceView;
 import ca.etsmtl.sketch.surface.DrawableGLSurfaceView;
 import ca.etsmtl.sketch.ui.activity.provider.SaveActionProvider;
 import ca.etsmtl.sketch.ui.dialog.SaveDialog;
 import ca.etsmtl.sketch.ui.view.TextCreatorView;
 
-public class FullscreenActivity extends Activity implements ColorPicker.OnColorChangedListener, SaveActionProvider.OnClickListener {
-
-    public static final String HOST = "host";
-    public static final String ATTENDEE = "attendee";
-    public static final String INVITATION_TYPE = "invite_type";
-    /**
-     * The serialization (saved instance state) Bundle key representing the
-     * current tab position.
-     */
-    private static final String STATE_SELECTED_NAVIGATION_ITEM = "selected_navigation_item";
-//    private MultitouchSurfaceView multiTouchFramework;
+public class FullscreenActivity extends FragmentActivity {
     private ColorPicker picker;
     private SaveDialog saveDialog;
     private TextCreatorView textCreationView;
-    private MenuItem startSocketIOmenuItem;
+    private DrawableGLSurfaceView canvas;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-//        setContentView(R.layout.activity_fullscreen);
-        DrawableGLSurfaceView view = new DrawableGLSurfaceView(this);
-        setContentView(view);
-//        multiTouchFramework = (MultitouchSurfaceView) findViewById(R.id.canvas);
+        setContentView(R.layout.activity_fullscreen);
 
-//        ActionBar actionBar = getActionBar();
-//        actionBar.setDisplayShowHomeEnabled(true);
-//        actionBar.setDisplayShowTitleEnabled(false);
-//        actionBar.setBackgroundDrawable(new ColorDrawable(Color.BLACK));
-//
-//        picker = (ColorPicker) findViewById(R.id.picker);
-//        picker.setOnColorChangedListener(this);
-//
-//        textCreationView = (TextCreatorView) findViewById(R.id.text_creation);
-//        textCreationView.setOnInsertListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-////                multiTouchFramework.insertText(((EditText) v.findViewById(R.id.text_creation_text)).getText().toString());
-//            }
-//        });
+        canvas = (DrawableGLSurfaceView) findViewById(R.id.canvas);
+
+        ActionBar actionBar = getActionBar();
+        actionBar.setDisplayShowHomeEnabled(true);
+        actionBar.setDisplayShowTitleEnabled(false);
+        actionBar.setBackgroundDrawable(new ColorDrawable(Color.BLACK));
+
+        picker = (ColorPicker) findViewById(R.id.picker);
+        picker.setOnColorChangedListener(new ColorPicker.OnColorChangedListener() {
+            @Override
+            public void onColorChanged(int i) {
+                canvas.setStrokeColor(i);
+            }
+        });
+
+        textCreationView = (TextCreatorView) findViewById(R.id.text_creation);
+        textCreationView.setOnInsertListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                multiTouchFramework.insertText(((EditText) v.findViewById(R.id.text_creation_text)).getText().toString());
+            }
+        });
     }
 
     @Override
@@ -92,12 +86,6 @@ public class FullscreenActivity extends Activity implements ColorPicker.OnColorC
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.menu_full_screen, menu);
-        ((SaveActionProvider) menu.getItem(1).getActionProvider()).setOnClickListener(this);
-        startSocketIOmenuItem = menu.getItem(1);
-
-        if (startSocketIOmenuItem != null) {
-            startSocketIOmenuItem.setVisible(false);
-        }
         return true;
     }
 
@@ -114,13 +102,19 @@ public class FullscreenActivity extends Activity implements ColorPicker.OnColorC
                 return true;
             case R.id.menu_draw_tools:
                 return true;
-            case R.id.menu_save:
-                /**
-                 * saveDialog is handled by {@link ca.etsmtl.sketch.ui.activity.provider.SaveActionProvider}
-                 * a callback is added at menu see On Create Options Menu.
-                 * True is returned here so the submenu will open
-                 */
+            case R.id.menu_undo:
+                canvas.undo();
                 return true;
+            case R.id.menu_redo:
+                canvas.redo();
+                return true;
+//            case R.id.menu_save:
+//                /**
+//                 * saveDialog is handled by {@link ca.etsmtl.sketch.ui.activity.provider.SaveActionProvider}
+//                 * a callback is added at menu see On Create Options Menu.
+//                 * True is returned here so the submenu will open
+//                 */
+//                return true;
 //            case R.id.menu_draw_text_creation:
 //                toggleTextCreation();
 //                return true;
@@ -155,34 +149,6 @@ public class FullscreenActivity extends Activity implements ColorPicker.OnColorC
             picker.setVisibility(View.GONE);
     }
 
-    //
-    // Activity State
-    //
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        // Serialize the current tab position.
-        outState.putInt(STATE_SELECTED_NAVIGATION_ITEM, getActionBar()
-                .getSelectedNavigationIndex());
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        if (savedInstanceState.containsKey(STATE_SELECTED_NAVIGATION_ITEM)) {
-            getActionBar().setSelectedNavigationItem(savedInstanceState.getInt(STATE_SELECTED_NAVIGATION_ITEM));
-        }
-    }
-
-    @Override
-    public void onColorChanged(int i) {
-//        multiTouchFramework.setColor(i);
-//        Log.d("COLOR", "" + i);
-    }
-
-    //
-    //  Save Action Provider Callbacks
-    //
-
-    @Override
     public void onSavePng() {
         // DialogFragment.show() will take care of adding the fragment
         // in a transaction.  We also want to remove any currently showing
@@ -216,7 +182,6 @@ public class FullscreenActivity extends Activity implements ColorPicker.OnColorC
 
     }
 
-    @Override
     public void onSaveSvg() {
         FragmentTransaction ft = getFragmentManager().beginTransaction();
         Fragment prev = getFragmentManager().findFragmentByTag("dialog");

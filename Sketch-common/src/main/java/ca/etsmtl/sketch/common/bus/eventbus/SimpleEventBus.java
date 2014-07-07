@@ -41,10 +41,12 @@ public class SimpleEventBus implements EventBus {
 
     @Override
     public void post(Event event) {
-        List<EventListener> subscriberEventInvokers = this.subscribers.get(event.getClass());
+        if (subscribers.containsKey(event.getClass())) {
+            List<EventListener> subscriberEventInvokers = this.subscribers.get(event.getClass());
 
-        for (EventListener listener : subscriberEventInvokers) {
-            listener.onEventReceived(event);
+            for (EventListener listener : subscriberEventInvokers) {
+                listener.onEventReceived(event);
+            }
         }
     }
 

@@ -10,10 +10,12 @@ import ca.etsmtl.sketch.common.graphic.PointF;
 public class OnFingerMoveInkMode implements Event {
     private int fingerID;
     private PointF position;
+    private int userID;
 
-    public OnFingerMoveInkMode(int fingerID, PointF position) {
+    public OnFingerMoveInkMode(int fingerID, PointF position, int userID) {
         this.fingerID = fingerID;
         this.position = position;
+        this.userID = userID;
     }
 
     public OnFingerMoveInkMode() {
@@ -25,6 +27,10 @@ public class OnFingerMoveInkMode implements Event {
 
     public PointF getPosition() {
         return position;
+    }
+
+    public int getUserID() {
+        return userID;
     }
 
     @Override

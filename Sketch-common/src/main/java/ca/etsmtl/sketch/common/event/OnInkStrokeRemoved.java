@@ -6,32 +6,35 @@ import ca.etsmtl.sketch.common.bus.event.Event;
 import ca.etsmtl.sketch.common.bus.io.DataInputStream;
 import ca.etsmtl.sketch.common.bus.io.DataOutputStream;
 
-public class OnFingerUpInkMode implements Event {
-    private int fingerID;
+public class OnInkStrokeRemoved implements Event {
     private int userID;
+    private int uniqueID;
 
-    public OnFingerUpInkMode(int fingerID, int userID) {
-        this.fingerID = fingerID;
+    public OnInkStrokeRemoved() {
+    }
+
+    public OnInkStrokeRemoved(int userID, int uniqueID) {
         this.userID = userID;
-    }
-
-    public OnFingerUpInkMode() {
-    }
-
-    public int getFingerID() {
-        return fingerID;
+        this.uniqueID = uniqueID;
     }
 
     public int getUserID() {
         return userID;
     }
+
+    public int getUniqueID() {
+        return uniqueID;
+    }
+
     @Override
     public void writeInto(DataOutputStream stream) throws IOException {
-        stream.writeInt(fingerID);
+        stream.writeInt(userID);
+        stream.writeInt(uniqueID);
     }
 
     @Override
     public void readFrom(DataInputStream stream) throws IOException {
-        fingerID = stream.readInt();
+        userID = stream.readInt();
+        uniqueID = stream.readInt();
     }
 }

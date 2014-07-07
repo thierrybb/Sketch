@@ -11,15 +11,10 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 
-import java.io.IOException;
 import java.util.HashMap;
 
 import ca.etsmtl.sketch.R;
-import ca.etsmtl.sketch.common.bus.builder.RemoteBusBuilder;
-import ca.etsmtl.sketch.common.bus.event.Event;
 import ca.etsmtl.sketch.common.bus.eventbus.EventBus;
-import ca.etsmtl.sketch.common.bus.eventbus.Subscribe;
-import ca.etsmtl.sketch.common.event.OnInkDrawingAdded;
 import ca.etsmtl.sketch.graphic.shape.Point2D;
 import ca.etsmtl.sketch.graphic.shape.Stroke;
 import ca.etsmtl.sketch.graphic.util.Constant;

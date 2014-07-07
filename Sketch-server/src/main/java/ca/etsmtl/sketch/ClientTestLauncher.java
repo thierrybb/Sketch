@@ -2,11 +2,6 @@ package ca.etsmtl.sketch;
 
 import java.io.IOException;
 
-import ca.etsmtl.sketch.common.bus.builder.RemoteBusBuilder;
-import ca.etsmtl.sketch.common.bus.event.Event;
-import ca.etsmtl.sketch.common.bus.eventbus.EventBus;
-import ca.etsmtl.sketch.common.event.OnInkDrawingAdded;
-
 public class ClientTestLauncher {
     public static void main(String[] args) throws IOException {
 //        RemoteBusBuilder remoteBusBuilder = new RemoteBusBuilder();

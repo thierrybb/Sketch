@@ -13,7 +13,7 @@ import ca.etsmtl.sketch.surface.opengl.BufferFactory;
 import static android.util.FloatMath.cos;
 import static android.util.FloatMath.sin;
 
-public class Circle extends BaseShape {
+class Circle extends BaseShape {
     private PointF center;
     private float radius;
     private final int borderColor;
@@ -23,7 +23,6 @@ public class Circle extends BaseShape {
     private FloatBuffer vertixBuffer;
     private ShortBuffer indicesBuffer;
     private int indicesCount;
-
 
     public Circle(PointF center, float radius, int borderColor, int fillColor) {
         this.center = center;
