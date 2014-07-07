@@ -3,7 +3,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.6.+'
+        classpath 'com.android.tools.build:gradle:0.12.+'
     }
 }
 apply plugin: 'android'
@@ -15,18 +15,32 @@ repositories {
 
 android {
     compileSdkVersion 19
-    buildToolsVersion '19.0.0'
+    buildToolsVersion '19.1.0'
 
     defaultConfig {
-        minSdkVersion 18
+        minSdkVersion 14
         targetSdkVersion 19
+    }
+
+
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES.txt'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/notice.txt'
+        exclude 'META-INF/license.txt'
+        exclude 'META-INF/dependencies.txt'
+        exclude 'META-INF/LGPL2.1'
     }
 }
 
 dependencies {
     compile 'com.android.support:appcompat-v7:+'
-    compile 'com.android.support:support-v4:18.0.0'
-    compile 'com.google.android.gms:play-services:4.0.30'
+    compile 'com.android.support:support-v4:19.0.0'
+    compile 'com.google.android.gms:play-services:4.4.+'
     compile 'com.squareup.picasso:picasso:2.1.1@jar'
     compile 'com.larswerkman:HoloColorPicker:1.1'
     compile 'com.bugsense.trace:bugsense:3.4'
@@ -34,8 +48,10 @@ dependencies {
             {
                 exclude module: 'support-v4'
             }
-    compile group: 'org.codehaus.jackson', name: 'jackson-mapper-asl', version: '1.9.11'
+//    compile group: 'org.codehaus.jackson', name: 'jackson-mapper-asl', version: '1.9.11'
     compile 'com.j256:ormlite:3.0'
 //    compile 'org.java-websocket:Java-WebSocket:1.3.0'
     compile 'com.koushikdutta.async:androidasync:1+'
+
+    compile project(":Sketch-common")
 }

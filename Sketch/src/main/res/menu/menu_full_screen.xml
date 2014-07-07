@@ -14,7 +14,7 @@
         android:title="Save"
         android:icon="@android:drawable/ic_menu_save"
         android:showAsAction="always"
-        android:actionProviderClass="ca.etsmtl.log792.pdavid.sketch.ui.activity.provider.SaveActionProvider" />
+        android:actionProviderClass="ca.etsmtl.sketch.ui.activity.provider.SaveActionProvider" />
     <item
         android:id="@+id/menu_hand"
         android:title="Hand"
@@ -26,11 +26,11 @@
         android:icon="@android:drawable/ic_menu_edit"
         android:showAsAction="always" />
 
-    <item
-        android:id="@+id/menu_draw_text_creation"
-        android:title="Add Text"
-        android:icon="@android:drawable/ic_menu_sort_alphabetically"
-        android:showAsAction="always" />
+    <!--<item-->
+        <!--android:id="@+id/menu_draw_text_creation"-->
+        <!--android:title="Add Text"-->
+        <!--android:icon="@android:drawable/ic_menu_sort_alphabetically"-->
+        <!--android:showAsAction="always" />-->
     <item
         android:id="@+id/menu_info"
         android:title="Help"

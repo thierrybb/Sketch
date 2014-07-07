@@ -6,8 +6,10 @@
     For more on layout aliases, see:
     http://developer.android.com/training/multiscreen/screensizes.html#TaskUseAliasFilters
     -->
-    <item type="layout" name="activity_menuitem_list">@layout/activity_menuitem_list_2_pane</item>
-    <item type="layout" name="fragment_sketches_grid_view">@layout/fragment_sketches_grid_view_large</item>
+    <item name="activity_menuitem_list" type="layout">@layout/activity_menuitem_list_2_pane</item>
+    <item name="fragment_sketches_grid_view" type="layout">
+        @layout/fragment_sketches_grid_view_large
+    </item>
 
 
 </resources>

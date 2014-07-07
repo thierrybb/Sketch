@@ -1,1 +1,1 @@
-include ':Sketch'
+include ':Sketch', ':Sketch-common', ':Sketch-server'

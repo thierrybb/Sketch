@@ -23,7 +23,7 @@
 
     <fragment
         android:id="@+id/menuitem_list"
-        android:name="ca.etsmtl.log792.pdavid.sketch.ui.fragment.MenuItemListFragment"
+        android:name="ca.etsmtl.sketch.ui.fragment.MenuItemListFragment"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"

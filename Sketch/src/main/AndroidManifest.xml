@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="ca.etsmtl.log792.pdavid.sketch"
+    package="ca.etsmtl.sketch"
     android:versionCode="1"
     android:versionName="1.0">
 
@@ -21,13 +21,13 @@
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
 
     <permission
-        android:name="ca.etsmtl.log792.pdavid.sketch.gcm.permission.C2D_MESSAGE"
+        android:name="ca.etsmtl.sketch.gcm.permission.C2D_MESSAGE"
         android:protectionLevel="signature" />
 
-    <uses-permission android:name="ca.etsmtl.log792.pdavid.sketch.gcm.permission.C2D_MESSAGE" />
+    <uses-permission android:name="ca.etsmtl.sketch.gcm.permission.C2D_MESSAGE" />
 
     <application
-        android:name="ca.etsmtl.log792.pdavid.sketch.ApplicationManager"
+        android:name="ca.etsmtl.sketch.ApplicationManager"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
@@ -37,48 +37,43 @@
             android:value="@integer/google_play_services_version" />
 
         <receiver
-            android:name="ca.etsmtl.log792.pdavid.sketch.network.GcmBroadcastReceiver"
+            android:name="ca.etsmtl.sketch.network.GcmBroadcastReceiver"
             android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
                 <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
 
-                <category android:name="ca.etsmtl.log792.pdavid.sketch.gcm" />
+                <category android:name="ca.etsmtl.sketch.gcm" />
             </intent-filter>
         </receiver>
 
-        <service android:name="ca.etsmtl.log792.pdavid.sketch.network.GcmIntentService" />
+        <service android:name="ca.etsmtl.sketch.network.GcmIntentService" />
         <service
             android:name="com.octo.android.robospice.JacksonSpringAndroidSpiceService"
             android:exported="false" />
 
         <activity
-            android:name="ca.etsmtl.log792.pdavid.sketch.ui.activity.MenuItemListActivity"
+            android:name="ca.etsmtl.sketch.ui.activity.MenuItemListActivity"
             android:label="@string/app_name">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity
-            android:name="ca.etsmtl.log792.pdavid.sketch.ui.activity.MenuItemDetailActivity"
+            android:name="ca.etsmtl.sketch.ui.activity.MenuItemDetailActivity"
             android:label="@string/app_name"
-            android:parentActivityName=".MenuItemListActivity">
+            android:parentActivityName="ca.etsmtl.sketch.ui.activity.MenuItemListActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MenuItemListActivity" />
         </activity>
         <activity
-            android:name="ca.etsmtl.log792.pdavid.sketch.ui.activity.HandleInviteActivity"
+            android:name="ca.etsmtl.sketch.ui.activity.HandleInviteActivity"
             android:label="@string/app_name"
-            android:parentActivityName=".MenuItemListActivity">
+            android:parentActivityName="ca.etsmtl.sketch.ui.activity.MenuItemListActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MenuItemListActivity" />
+                android:value="ca.etsmtl.sketch.ui.activity.MenuItemListActivity" />
         </activity>
         <activity
-            android:name="ca.etsmtl.log792.pdavid.sketch.ui.activity.FullscreenActivity"
+            android:name="ca.etsmtl.sketch.ui.activity.FullscreenActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_fullscreen"
             android:launchMode="singleTop"
@@ -87,6 +82,11 @@
             <meta-data
                 android:name="android.support.UI_OPTIONS"
                 android:value="splitActionBarWhenNarrow" />
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
 
 

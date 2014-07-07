@@ -17,10 +17,10 @@
         android:layout_height="match_parent"
         android:fitsSystemWindows="true">
 
-        <ca.etsmtl.log792.pdavid.sketch.graphic.MultitouchSurfaceView
+        <ca.etsmtl.sketch.surface.DrawableGLSurfaceView
             android:id="@+id/canvas"
-            android:layout_height="match_parent"
-            android:layout_width="match_parent" />
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
 
         <com.larswerkman.holocolorpicker.ColorPicker
             android:id="@+id/picker"
@@ -29,7 +29,7 @@
             android:layout_gravity="left|bottom"
             android:visibility="gone" />
 
-        <ca.etsmtl.log792.pdavid.sketch.ui.view.TextCreatorView
+        <ca.etsmtl.sketch.ui.view.TextCreatorView
             android:id="@+id/text_creation"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

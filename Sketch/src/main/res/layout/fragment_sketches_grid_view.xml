@@ -15,12 +15,12 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:columnWidth="110dp"
-            android:numColumns="auto_fit"
-            android:horizontalSpacing="10dp"
-            android:stretchMode="columnWidth"
             android:gravity="center"
-            tools:listitem="@layout/sketch_grid_item"
-            android:verticalSpacing="10dp" />
+            android:horizontalSpacing="10dp"
+            android:numColumns="auto_fit"
+            android:stretchMode="columnWidth"
+            android:verticalSpacing="10dp"
+            tools:listitem="@layout/sketch_grid_item" />
     </LinearLayout>
 
     <!-- This initially-hidden ImageView will hold the expanded/zoomed version of
@@ -34,7 +34,7 @@
         android:id="@+id/expanded_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="invisible"
-        android:contentDescription="@string/app_name" />
+        android:contentDescription="@string/app_name"
+        android:visibility="invisible" />
 
 </FrameLayout>

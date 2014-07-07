@@ -1,0 +1,9 @@
+apply plugin: 'java'
+
+version = "1.0.0"
+
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile project(":Sketch-common")
+}

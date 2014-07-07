@@ -39,4 +39,11 @@
         <item>Droid Sans</item>
     </string-array>
 
+
+    <string name="unable_to_connect_to_server">Could not connect to server, the server might be offline. Try again later.</string>
+    <string name="connection_dialog_title">Connection to server..</string>
+    <string name="connection_dialog_message">Application trying to communicate with server, please wait...</string>
+    <string name="new_user_connected">{0} is now connected</string>
+
+
 </resources>
