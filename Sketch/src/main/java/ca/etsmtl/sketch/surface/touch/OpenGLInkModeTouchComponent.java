@@ -1,5 +1,6 @@
 package ca.etsmtl.sketch.surface.touch;
 
+import android.graphics.Color;
 import android.util.Pair;
 
 import java.util.HashMap;
@@ -11,6 +12,8 @@ import ca.etsmtl.sketch.common.event.OnFingerDownInkMode;
 import ca.etsmtl.sketch.common.event.OnFingerMoveInkMode;
 import ca.etsmtl.sketch.common.event.OnFingerUpInkMode;
 import ca.etsmtl.sketch.common.event.OnInkStrokeAdded;
+import ca.etsmtl.sketch.surface.Collaborator;
+import ca.etsmtl.sketch.surface.CollaboratorsCollection;
 import ca.etsmtl.sketch.surface.openglshape.Drawing;
 import ca.etsmtl.sketch.surface.openglshape.FingerCursorShape;
 
@@ -22,11 +25,15 @@ public class OpenGLInkModeTouchComponent {
     private int strokeColor = 0;
     private int currentUserID;
     private UniqueIDGenerator newShapeIDGenerator;
+    private CollaboratorsCollection collaborators;
 
-    public OpenGLInkModeTouchComponent(Drawing drawing, int currentUserID, UniqueIDGenerator newShapeIDGenerator) {
+    public OpenGLInkModeTouchComponent(Drawing drawing, int currentUserID,
+                                       UniqueIDGenerator newShapeIDGenerator,
+                                       CollaboratorsCollection collaborators) {
         this.drawing = drawing;
         this.currentUserID = currentUserID;
         this.newShapeIDGenerator = newShapeIDGenerator;
+        this.collaborators = collaborators;
     }
 
     public void plug(EventBus bus) throws NoSuchMethodException {
@@ -42,7 +49,14 @@ public class OpenGLInkModeTouchComponent {
 
     @Subscribe
     public void onFingerDown(OnFingerDownInkMode event) {
-        FingerCursorShape newShape = new FingerCursorShape();
+        int color = Color.BLACK;
+
+        if (collaborators.containCollaborator(event.getUserID())) {
+            Collaborator collaborator = collaborators.get(event.getUserID());
+            color = collaborator.getColor();
+        }
+
+        FingerCursorShape newShape = new FingerCursorShape(color);
         newShape.accumulatePoint(event.getPosition());
         allShapesForFinger.put(Pair.create(event.getUserID(), event.getFingerID()), newShape);
         drawing.addShape(newShape, newShapeIDGenerator.generateUniqueID(), currentUserID);

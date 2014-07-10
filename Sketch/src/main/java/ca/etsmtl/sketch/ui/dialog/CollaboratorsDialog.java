@@ -64,8 +64,9 @@ public class CollaboratorsDialog {
             }
 
             TextView viewById = (TextView) convertView.findViewById(R.id.collaborators_name);
+            View colorSquare = convertView.findViewById(R.id.color_square);
             Collaborator currentCollaborator = getItem(position);
-//            viewById.setBackgroundColor(currentCollaborator.getColors());
+            colorSquare.setBackgroundColor(currentCollaborator.getColor());
             viewById.setText(currentCollaborator.getName());
 
             return convertView;

@@ -25,13 +25,16 @@ public class OnFingerUpInkMode implements Event {
     public int getUserID() {
         return userID;
     }
+
     @Override
     public void writeInto(DataOutputStream stream) throws IOException {
         stream.writeInt(fingerID);
+        stream.writeInt(userID);
     }
 
     @Override
     public void readFrom(DataInputStream stream) throws IOException {
         fingerID = stream.readInt();
+        userID = stream.readInt();
     }
 }

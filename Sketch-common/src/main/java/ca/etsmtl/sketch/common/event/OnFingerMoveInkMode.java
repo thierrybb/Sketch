@@ -38,11 +38,13 @@ public class OnFingerMoveInkMode implements Event {
         stream.writeInt(fingerID);
         stream.writeFloat(position.getX());
         stream.writeFloat(position.getY());
+        stream.writeInt(userID);
     }
 
     @Override
     public void readFrom(DataInputStream stream) throws IOException {
         fingerID = stream.readInt();
         position = new PointF(stream.readFloat(), stream.readFloat());
+        userID = stream.readInt();
     }
 }

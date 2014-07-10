@@ -137,7 +137,7 @@ public class DrawableGLSurfaceView extends GLSurfaceView {
 
         bus.post(new OnNewClientConnected(UserUtils.getUsername(this.getContext()), currentUserID));
 
-        inkModeTouchComponent = new OpenGLInkModeTouchComponent(drawing, currentUserID, newShapeIDGenerator);
+        inkModeTouchComponent = new OpenGLInkModeTouchComponent(drawing, currentUserID, newShapeIDGenerator, collaborators);
         inkModeTouchComponent.plug(bus);
     }
 

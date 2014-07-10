@@ -9,7 +9,7 @@ import java.util.Random;
  */
 public class ColorGenerator {
     public final static int[] COLORS_STANDARD = new int[] {
-            Color.BLUE, Color.GRAY, Color.GREEN, Color.RED
+            Color.GREEN, Color.GRAY, Color.BLUE, Color.RED
     };
 
     private int currentIndex = 0;

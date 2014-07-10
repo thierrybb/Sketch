@@ -20,7 +20,7 @@ public class Collaborator {
         return name;
     }
 
-    public int getColors() {
+    public int getColor() {
         return colors;
     }
 }

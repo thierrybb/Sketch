@@ -20,8 +20,8 @@ public class FingerCursorShape extends BaseShape {
     private int color;
     private List<PointF> points = new ArrayList<PointF>();
 
-    public FingerCursorShape() {
-        init(0);
+    public FingerCursorShape(int color) {
+        init(color);
     }
 
     private void init(int lineColor) {
