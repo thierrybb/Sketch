@@ -12,8 +12,8 @@ import ca.etsmtl.sketch.common.event.OnFingerDownInkMode;
 import ca.etsmtl.sketch.common.event.OnFingerMoveInkMode;
 import ca.etsmtl.sketch.common.event.OnFingerUpInkMode;
 import ca.etsmtl.sketch.common.event.OnInkStrokeAdded;
-import ca.etsmtl.sketch.surface.Collaborator;
-import ca.etsmtl.sketch.surface.CollaboratorsCollection;
+import ca.etsmtl.sketch.surface.collaborator.Collaborator;
+import ca.etsmtl.sketch.surface.collaborator.CollaboratorsCollection;
 import ca.etsmtl.sketch.surface.openglshape.Drawing;
 import ca.etsmtl.sketch.surface.openglshape.FingerCursorShape;
 
@@ -36,7 +36,7 @@ public class OpenGLInkModeTouchComponent {
         this.collaborators = collaborators;
     }
 
-    public void plug(EventBus bus) throws NoSuchMethodException {
+    public void plugInto(EventBus bus) throws NoSuchMethodException {
         bus.register(this, OnFingerDownInkMode.class);
         bus.register(this, OnFingerUpInkMode.class);
         bus.register(this, OnFingerMoveInkMode.class);

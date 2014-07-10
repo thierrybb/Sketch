@@ -1,4 +1,4 @@
-package ca.etsmtl.sketch.surface;
+package ca.etsmtl.sketch.surface.collaborator;
 
 public class Collaborator {
 

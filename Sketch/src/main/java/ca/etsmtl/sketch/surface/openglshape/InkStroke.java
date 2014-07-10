@@ -37,6 +37,8 @@ public class InkStroke extends BaseShape {
         gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
 
         gl.glDisable(GL10.GL_LINE_SMOOTH);
+        gl.glEnable(GL10.GL_BLEND);
+        gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
 
         gl.glVertexPointer(2, GL10.GL_FLOAT, 0, vertixBuffer);
 
@@ -44,5 +46,6 @@ public class InkStroke extends BaseShape {
                 GL10.GL_UNSIGNED_SHORT, indiceBuffer);
 
         gl.glDisableClientState(GL10.GL_VERTEX_ARRAY);
+        gl.glDisable(GL10.GL_BLEND);
     }
 }

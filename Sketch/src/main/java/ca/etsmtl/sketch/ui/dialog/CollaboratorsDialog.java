@@ -11,11 +11,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import ca.etsmtl.sketch.R;
-import ca.etsmtl.sketch.surface.Collaborator;
-import ca.etsmtl.sketch.surface.CollaboratorsCollection;
+import ca.etsmtl.sketch.surface.collaborator.Collaborator;
+import ca.etsmtl.sketch.surface.collaborator.CollaboratorsCollection;
 
 public class CollaboratorsDialog {
     private Context context;
