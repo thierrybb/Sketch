@@ -6,33 +6,35 @@ import ca.etsmtl.sketch.common.bus.event.Event;
 import ca.etsmtl.sketch.common.bus.io.DataInputStream;
 import ca.etsmtl.sketch.common.bus.io.DataOutputStream;
 
-public class OnNewUserAdded implements Event {
+public class OnNewClientConnected implements Event {
     private String name;
     private int id;
 
-    public OnNewUserAdded(String name, int id) {
+    public OnNewClientConnected(String name, int id) {
         this.name = name;
         this.id = id;
     }
 
-    public OnNewUserAdded() {
+    public OnNewClientConnected() {
     }
 
     public String getName() {
         return name;
     }
 
-    public int getId() {
+    public int getUserId() {
         return id;
     }
 
     @Override
     public void writeInto(DataOutputStream stream) throws IOException {
         stream.writeString(name);
+        stream.writeInt(id);
     }
 
     @Override
     public void readFrom(DataInputStream stream) throws IOException {
         name = stream.readString();
+        id = stream.readInt();
     }
 }

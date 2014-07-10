@@ -40,6 +40,9 @@ public class ServerConnectorComponent {
         outputEventQueue.offer(new OnNewIDAssigned(userID));
 
         this.userID = userID;
+
+        System.out.println("New user registered [" + userID + "].");
+
     }
 
     private class QueueDelegatorListener implements EventBus.EventListener {
@@ -57,6 +60,7 @@ public class ServerConnectorComponent {
 
     private class OutputServerThread extends Thread {
         private BlockingQueue<Event> eventQueue;
+        private EventBus bus;
         private EventOutputStream outputStream;
 
         public OutputServerThread(EventOutputStream outputStream, BlockingQueue<Event> eventQueue) {
@@ -69,15 +73,13 @@ public class ServerConnectorComponent {
             while (isRunning) {
                 try {
                     Event event = eventQueue.take();
-//                    System.out.println("Sending back event to client " + event.getClass());
-
                     if (!events.contains(event)) {
                         outputStream.writeEvent(event);
                     }
 
                     events.remove(event);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    System.out.println("OutputServerThread exception from : [" + userID + "].");
                     isRunning = false;
                 }
             }
@@ -98,6 +100,8 @@ public class ServerConnectorComponent {
         @Override
         public void run() {
             List<Class<? extends Event>> registeredEvents = new ArrayList<Class<? extends Event>>();
+            registeredEvents.add(OnClientDisconnected.class);
+            eventBus.register(mainBusEventListener, OnClientDisconnected.class);
             try {
                 while (isRunning) {
                     Event event = inputStream.readEvent();
@@ -118,13 +122,13 @@ public class ServerConnectorComponent {
 
             } catch (Exception e) {
                 e.printStackTrace();
-                System.out.println("Client disconnected.");
+                System.out.println("Client [" + userID + "] disconnected.");
+                eventBus.post(new OnClientDisconnected(userID));
             } finally {
                 for (Class<? extends Event> registeredEvent : registeredEvents) {
                     eventBus.unregister(mainBusEventListener, registeredEvent);
                 }
 
-                eventBus.post(new OnClientDisconnected(userID));
                 isRunning = false;
             }
         }

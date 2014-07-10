@@ -1,10 +1,10 @@
 package ca.etsmtl.sketch.common.bus.component;
 
+import ca.etsmtl.sketch.common.event.OnNewClientConnected;
 import ca.etsmtl.sketch.common.bus.eventbus.EventBus;
 import ca.etsmtl.sketch.common.bus.eventbus.Subscribe;
 import ca.etsmtl.sketch.common.bus.shapeserialization.ShapeSerializer;
 import ca.etsmtl.sketch.common.event.OnInkStrokeAdded;
-import ca.etsmtl.sketch.common.event.OnNewUserAdded;import ca.etsmtl.sketch.common.event.OnSyncDrawingEvent;
 
 public class PersistentDrawingComponent {
     private EventBus bus;
@@ -14,7 +14,7 @@ public class PersistentDrawingComponent {
         this.bus = bus;
         try {
             bus.register(this, OnInkStrokeAdded.class);
-            bus.register(this, OnNewUserAdded.class);
+            bus.register(this, OnNewClientConnected.class);
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
         }
@@ -26,7 +26,7 @@ public class PersistentDrawingComponent {
     }
 
     @Subscribe
-    public void onUserAdded(OnNewUserAdded onNewUserAdded) {
+    public void onUserAdded(OnNewClientConnected OnNewClientConnected) {
         serializer.pullAllInkStroke(new ShapeSerializer.InkStoreReaderStrategy() {
             @Override
             public void readStroke(float[] strokes, int color, int id, int userID) {

@@ -16,6 +16,10 @@ public class OnClientDisconnected implements Event {
     public OnClientDisconnected() {
     }
 
+    public int getUserID() {
+        return userID;
+    }
+
     @Override
     public void writeInto(DataOutputStream stream) throws IOException {
         stream.writeInt(userID);

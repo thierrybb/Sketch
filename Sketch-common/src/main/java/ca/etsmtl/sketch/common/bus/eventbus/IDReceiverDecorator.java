@@ -1,17 +1,28 @@
 package ca.etsmtl.sketch.common.bus.eventbus;
 
+import java.util.concurrent.Semaphore;
+
 import ca.etsmtl.sketch.common.bus.event.Event;
 import ca.etsmtl.sketch.common.bus.event.OnNewIDAssigned;
 
 public class IDReceiverDecorator implements EventBus {
     private EventBus decoratedObject;
-    private int id;
+    private int id = -1;
+
+    private Semaphore idReceived = new Semaphore(0);
 
     public IDReceiverDecorator(EventBus decoratedObject) {
         this.decoratedObject = decoratedObject;
     }
 
     public int getId() {
+        if (id == -1) {
+            try {
+                idReceived.acquire();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
         return id;
     }
 
@@ -34,6 +45,7 @@ public class IDReceiverDecorator implements EventBus {
     public void post(final Event event) {
         if (event instanceof OnNewIDAssigned) {
             this.id = ((OnNewIDAssigned)event).getNewID();
+            idReceived.release(idReceived.availablePermits());
         }
 
         decoratedObject.post(event);

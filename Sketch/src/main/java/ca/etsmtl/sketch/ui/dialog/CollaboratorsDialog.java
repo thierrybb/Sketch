@@ -60,7 +60,7 @@ public class CollaboratorsDialog {
         public View getView(int position, View convertView, ViewGroup parent) {
             if (convertView == null) {
                 LayoutInflater inflater = LayoutInflater.from(context);
-                convertView = inflater.inflate(R.layout.list_view_collaborators_item, parent);
+                convertView = inflater.inflate(R.layout.list_view_collaborators_item, null);
             }
 
             TextView viewById = (TextView) convertView.findViewById(R.id.collaborators_name);

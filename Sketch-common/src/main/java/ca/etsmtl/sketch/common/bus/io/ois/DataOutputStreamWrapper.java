@@ -1,5 +1,6 @@
 package ca.etsmtl.sketch.common.bus.io.ois;
 
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
@@ -12,7 +13,7 @@ public class DataOutputStreamWrapper implements DataOutputStream {
     private OutputStream outputStream;
 
     public DataOutputStreamWrapper(OutputStream out) {
-            outputStream = (out);
+            outputStream = new BufferedOutputStream(out);
     }
 
     public static byte[] convertFloatByteArray(float value) {

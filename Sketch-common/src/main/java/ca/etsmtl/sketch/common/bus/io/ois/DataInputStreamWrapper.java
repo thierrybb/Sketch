@@ -1,5 +1,6 @@
 package ca.etsmtl.sketch.common.bus.io.ois;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -12,12 +13,15 @@ public class DataInputStreamWrapper implements DataInputStream {
     private InputStream inputStream;
 
     public DataInputStreamWrapper(InputStream inputStream) throws IOException {
-        this.inputStream = (inputStream);
+        this.inputStream = new BufferedInputStream(inputStream);
     }
 
     @Override
     public String readString() throws IOException {
         int bytesLength = readInt();
+
+        if (bytesLength == 0)
+            return "";
 
         if (bytesLength < 0) {
             throw new IOException("Stream closed");

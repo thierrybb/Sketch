@@ -15,6 +15,7 @@ import ca.etsmtl.sketch.R;
 import ca.etsmtl.sketch.common.bus.builder.RemoteBusBuilder;
 import ca.etsmtl.sketch.common.bus.component.UniqueIDGenerator;
 import ca.etsmtl.sketch.common.bus.event.OnClientDisconnected;
+import ca.etsmtl.sketch.common.event.OnNewClientConnected;
 import ca.etsmtl.sketch.common.bus.eventbus.EventBus;
 import ca.etsmtl.sketch.common.bus.eventbus.IDReceiverDecorator;
 import ca.etsmtl.sketch.common.bus.eventbus.SimpleEventBus;
@@ -22,7 +23,6 @@ import ca.etsmtl.sketch.common.bus.eventbus.Subscribe;
 import ca.etsmtl.sketch.common.event.OnInkStrokeAdded;
 import ca.etsmtl.sketch.common.event.OnInkStrokeReAdded;
 import ca.etsmtl.sketch.common.event.OnInkStrokeRemoved;
-import ca.etsmtl.sketch.common.event.OnNewUserAdded;
 import ca.etsmtl.sketch.eventbus.UIThreadEventBusDecorator;
 import ca.etsmtl.sketch.surface.command.AddInkStroke;
 import ca.etsmtl.sketch.surface.command.DrawingCommand;
@@ -105,22 +105,11 @@ public class DrawableGLSurfaceView extends GLSurfaceView {
                     bus = remoteBusBuilder.setSocket(socket)
                             .setDecoratedBus(decorator)
                             .build();
-                    bus.register(DrawableGLSurfaceView.this, OnInkStrokeAdded.class);
-                    bus.register(DrawableGLSurfaceView.this, OnNewUserAdded.class);
-                    bus.register(DrawableGLSurfaceView.this, OnInkStrokeRemoved.class);
-                    bus.register(DrawableGLSurfaceView.this, OnInkStrokeReAdded.class);
-                    bus.register(DrawableGLSurfaceView.this, OnClientDisconnected.class);
-
+                    registerToEventbus();
 
                     currentUserID = decorator.getId();
 
-                    inkPencilTouchStrategy = new InkPencilTouchStrategy(currentUserID, bus);
-                    onTouchListener = new StrategyTouchListenerDelegator(inkPencilTouchStrategy);
-                    setOnTouchListener(onTouchListener);
-                    bus.post(new OnNewUserAdded(UserUtils.getUsername(DrawableGLSurfaceView.this.getContext()), currentUserID));
-
-                    inkModeTouchComponent = new OpenGLInkModeTouchComponent(drawing, currentUserID, newShapeIDGenerator);
-                    inkModeTouchComponent.plug(bus);
+                    initAfterEventbusConnected();
                 } catch (IOException e) {
                     post(new Runnable() {
                         @Override
@@ -139,6 +128,25 @@ public class DrawableGLSurfaceView extends GLSurfaceView {
                 }
             }
         }.start();
+    }
+
+    private void initAfterEventbusConnected() throws NoSuchMethodException {
+        inkPencilTouchStrategy = new InkPencilTouchStrategy(currentUserID, bus);
+        onTouchListener = new StrategyTouchListenerDelegator(inkPencilTouchStrategy);
+        setOnTouchListener(onTouchListener);
+
+        bus.post(new OnNewClientConnected(UserUtils.getUsername(this.getContext()), currentUserID));
+
+        inkModeTouchComponent = new OpenGLInkModeTouchComponent(drawing, currentUserID, newShapeIDGenerator);
+        inkModeTouchComponent.plug(bus);
+    }
+
+    private void registerToEventbus() throws NoSuchMethodException {
+        bus.register(this, OnInkStrokeAdded.class);
+        bus.register(this, OnNewClientConnected.class);
+        bus.register(this, OnInkStrokeRemoved.class);
+        bus.register(this, OnInkStrokeReAdded.class);
+        bus.register(this, OnClientDisconnected.class);
     }
 
     @Subscribe
@@ -166,14 +174,14 @@ public class DrawableGLSurfaceView extends GLSurfaceView {
     }
 
     @Subscribe
-    public void onNewUserAdded(OnNewUserAdded event) {
-        if (event.getId() != currentUserID) {
+    public void onNewUserAdded(OnNewClientConnected event) {
+        if (event.getUserId() != currentUserID && !collaborators.containsKey(event.getUserId())) {
             String message = String.format(getContext().getString(R.string.new_user_connected), event.getName());
             Toast.makeText(this.getContext(), message, Toast.LENGTH_LONG).show();
-            collaborators.put(event.getId(), new Collaborator(event.getId(), colorGenerator.next(),
+            collaborators.put(event.getUserId(), new Collaborator(event.getUserId(), colorGenerator.next(),
                     event.getName()));
 
-            bus.post(new OnNewUserAdded(UserUtils.getUsername(DrawableGLSurfaceView.this.getContext()), currentUserID));
+            bus.post(new OnNewClientConnected(UserUtils.getUsername(DrawableGLSurfaceView.this.getContext()), currentUserID));
         }
     }
 

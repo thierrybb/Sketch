@@ -47,7 +47,7 @@
     <string name="user_disconnected">%s leave the sketch</string>
     <string name="close">Close</string>
     <string name="collaborators_dialog_caption">Collaborators</string>
-    <string name="no_collaborator_message">There is no collaborator online</string>
+    <string name="no_collaborator_message">There are no collaborator online</string>
 
 
 </resources>
