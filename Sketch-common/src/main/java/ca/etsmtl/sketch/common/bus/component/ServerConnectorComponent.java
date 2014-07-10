@@ -6,6 +6,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import ca.etsmtl.sketch.common.bus.event.Event;
+import ca.etsmtl.sketch.common.bus.event.OnClientDisconnected;
 import ca.etsmtl.sketch.common.bus.event.OnNewIDAssigned;
 import ca.etsmtl.sketch.common.bus.event.OnRequestListenToEventType;
 import ca.etsmtl.sketch.common.bus.event.OnRequestUnregisterToEventType;
@@ -22,6 +23,10 @@ public class ServerConnectorComponent {
 
     private EventBus.EventListener mainBusEventListener;
 
+    private int userID;
+
+    private boolean isRunning = true;
+
     public ServerConnectorComponent(EventInputStream inputStream, EventOutputStream outputStream) {
         this.inputStream = inputStream;
         this.outputStream = outputStream;
@@ -33,6 +38,8 @@ public class ServerConnectorComponent {
         new OutputServerThread(outputStream, outputEventQueue).start();
 
         outputEventQueue.offer(new OnNewIDAssigned(userID));
+
+        this.userID = userID;
     }
 
     private class QueueDelegatorListener implements EventBus.EventListener {
@@ -59,7 +66,7 @@ public class ServerConnectorComponent {
 
         @Override
         public void run() {
-            while (true) {
+            while (isRunning) {
                 try {
                     Event event = eventQueue.take();
 //                    System.out.println("Sending back event to client " + event.getClass());
@@ -71,6 +78,7 @@ public class ServerConnectorComponent {
                     events.remove(event);
                 } catch (Exception e) {
                     e.printStackTrace();
+                    isRunning = false;
                 }
             }
         }
@@ -91,7 +99,7 @@ public class ServerConnectorComponent {
         public void run() {
             List<Class<? extends Event>> registeredEvents = new ArrayList<Class<? extends Event>>();
             try {
-                while (true) {
+                while (isRunning) {
                     Event event = inputStream.readEvent();
 
                     if (event instanceof OnRequestListenToEventType) {
@@ -115,6 +123,9 @@ public class ServerConnectorComponent {
                 for (Class<? extends Event> registeredEvent : registeredEvents) {
                     eventBus.unregister(mainBusEventListener, registeredEvent);
                 }
+
+                eventBus.post(new OnClientDisconnected(userID));
+                isRunning = false;
             }
         }
     }
