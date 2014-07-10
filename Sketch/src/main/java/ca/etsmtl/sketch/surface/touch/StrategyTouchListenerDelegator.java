@@ -1,25 +1,24 @@
-package ca.etsmtl.sketch.surface;
+package ca.etsmtl.sketch.surface.touch;
 
 import android.view.MotionEvent;
 import android.view.View;
 
 import java.util.HashMap;
 
-import ca.etsmtl.sketch.common.bus.eventbus.EventBus;
-import ca.etsmtl.sketch.common.event.OnFingerDownInkMode;
-import ca.etsmtl.sketch.common.event.OnFingerMoveInkMode;
-import ca.etsmtl.sketch.common.event.OnFingerUpInkMode;
 import ca.etsmtl.sketch.common.graphic.PointF;
 
-public class EventBusTouchListenerDelegator implements View.OnTouchListener {
-    private EventBus eventBus;
-    private int userID;
+public class StrategyTouchListenerDelegator implements View.OnTouchListener {
+
+    private TouchStrategy currentStrategy;
 
     private HashMap<Integer, PointF> fingerLastPos = new HashMap<Integer, PointF>();
 
-    public EventBusTouchListenerDelegator(EventBus eventBus, int userID) {
-        this.eventBus = eventBus;
-        this.userID = userID;
+    public StrategyTouchListenerDelegator(TouchStrategy startStrategy) {
+        this.currentStrategy = startStrategy;
+    }
+
+    public void setCurrentStrategy(TouchStrategy currentStrategy) {
+        this.currentStrategy = currentStrategy;
     }
 
     @Override
@@ -30,11 +29,11 @@ public class EventBusTouchListenerDelegator implements View.OnTouchListener {
                 || event.getActionMasked() == MotionEvent.ACTION_DOWN) {
             PointF point = new PointF(event.getX(event.getActionIndex()), event.getY(event.getActionIndex()));
             fingerLastPos.put(pointerId, point);
-            eventBus.post(new OnFingerDownInkMode(pointerId, userID, point));
+            currentStrategy.onPointerDown(pointerId, point);
         } else if (event.getActionMasked() == MotionEvent.ACTION_POINTER_UP
                 || event.getActionMasked() == MotionEvent.ACTION_UP
                 || event.getActionMasked() == MotionEvent.ACTION_CANCEL) {
-            eventBus.post(new OnFingerUpInkMode(pointerId, userID));
+            currentStrategy.onPointerUp(pointerId);
         } else if (event.getActionMasked() == MotionEvent.ACTION_MOVE) {
             for (int i = 0; i < event.getPointerCount(); i++) {
                 pointerId = event.getPointerId(i);
@@ -44,7 +43,7 @@ public class EventBusTouchListenerDelegator implements View.OnTouchListener {
 
                     if (!lastPos.equals(event.getX(i), event.getY(i))) {
                         PointF newPoint = new PointF(event.getX(i), event.getY(i));
-                        eventBus.post(new OnFingerMoveInkMode(pointerId, newPoint, userID));
+                        currentStrategy.onPointerMove(pointerId, newPoint);
                     }
                 }
             }

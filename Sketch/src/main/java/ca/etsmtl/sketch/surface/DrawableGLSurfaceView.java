@@ -2,6 +2,7 @@ package ca.etsmtl.sketch.surface;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.graphics.Color;
 import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
 import android.widget.Toast;
@@ -18,6 +19,7 @@ import ca.etsmtl.sketch.common.bus.eventbus.IDReceiverDecorator;
 import ca.etsmtl.sketch.common.bus.eventbus.SimpleEventBus;
 import ca.etsmtl.sketch.common.bus.eventbus.Subscribe;
 import ca.etsmtl.sketch.common.event.OnInkStrokeAdded;
+import ca.etsmtl.sketch.common.event.OnInkStrokeReAdded;
 import ca.etsmtl.sketch.common.event.OnInkStrokeRemoved;
 import ca.etsmtl.sketch.common.event.OnNewUserAdded;
 import ca.etsmtl.sketch.eventbus.UIThreadEventBusDecorator;
@@ -25,7 +27,11 @@ import ca.etsmtl.sketch.surface.command.AddInkStroke;
 import ca.etsmtl.sketch.surface.command.DrawingCommand;
 import ca.etsmtl.sketch.surface.openglshape.Drawing;
 import ca.etsmtl.sketch.surface.openglshape.Shape;
+import ca.etsmtl.sketch.surface.touch.InkPencilTouchStrategy;
+import ca.etsmtl.sketch.surface.touch.StrategyTouchListenerDelegator;
 import ca.etsmtl.sketch.surface.touch.OpenGLInkModeTouchComponent;
+import ca.etsmtl.sketch.ui.dialog.CollaboratorsDialog;
+import ca.etsmtl.sketch.utils.ColorGenerator;
 import ca.etsmtl.sketch.utils.UserUtils;
 
 public class DrawableGLSurfaceView extends GLSurfaceView {
@@ -42,6 +48,12 @@ public class DrawableGLSurfaceView extends GLSurfaceView {
     private ProgressDialog connectionDialog;
     private int currentStrokeColor = 0;
     private UniqueIDGenerator newShapeIDGenerator = new UniqueIDGenerator();
+
+    private CollaboratorsCollection collaborators = new CollaboratorsCollection();
+    private InkPencilTouchStrategy inkPencilTouchStrategy;
+    private StrategyTouchListenerDelegator onTouchListener;
+
+    private ColorGenerator colorGenerator = new ColorGenerator();
 
     public DrawableGLSurfaceView(Context context) {
         super(context);
@@ -95,11 +107,14 @@ public class DrawableGLSurfaceView extends GLSurfaceView {
                     bus.register(DrawableGLSurfaceView.this, OnInkStrokeAdded.class);
                     bus.register(DrawableGLSurfaceView.this, OnNewUserAdded.class);
                     bus.register(DrawableGLSurfaceView.this, OnInkStrokeRemoved.class);
+                    bus.register(DrawableGLSurfaceView.this, OnInkStrokeReAdded.class);
 
 
                     currentUserID = decorator.getId();
 
-                    setOnTouchListener(new EventBusTouchListenerDelegator(bus, currentUserID));
+                    inkPencilTouchStrategy = new InkPencilTouchStrategy(currentUserID, bus);
+                    onTouchListener = new StrategyTouchListenerDelegator(inkPencilTouchStrategy);
+                    setOnTouchListener(onTouchListener);
                     bus.post(new OnNewUserAdded(UserUtils.getUsername(DrawableGLSurfaceView.this.getContext()), currentUserID));
 
                     inkModeTouchComponent = new OpenGLInkModeTouchComponent(drawing, currentUserID, newShapeIDGenerator);
@@ -111,6 +126,7 @@ public class DrawableGLSurfaceView extends GLSurfaceView {
                             Toast.makeText(DrawableGLSurfaceView.this.getContext(),
                                     R.string.unable_to_connect_to_server, Toast.LENGTH_LONG).show();
                             DrawableGLSurfaceView.this.setEnabled(false);
+                            DrawableGLSurfaceView.this.setBackgroundColor(Color.GRAY);
                         }
                     });
                     e.printStackTrace();
@@ -130,26 +146,21 @@ public class DrawableGLSurfaceView extends GLSurfaceView {
         executeCommand(command);
     }
 
+    @Subscribe
+    public void onInkStrokeReAdded(OnInkStrokeReAdded event) {
+        AddInkStroke command = new AddInkStroke(event.getPoints(), event.getStrokeColor(),
+                event.getUserID(), event.getUniqueID());
+        executeWithoutSaveIt(command);
+    }
+
     private void executeCommand(DrawingCommand command) {
         undoCommands.add(command);
-        command.execute(drawing, bus);
         redoCommands.clear();
+        executeWithoutSaveIt(command);
     }
 
-    public void undo() {
-        if (!undoCommands.isEmpty()) {
-            DrawingCommand pop = undoCommands.pop();
-            pop.undo(drawing, bus);
-            redoCommands.add(pop);
-        }
-    }
-
-    public void redo() {
-        if (!redoCommands.isEmpty()) {
-            DrawingCommand pop = redoCommands.pop();
-            undoCommands.add(pop);
-            pop.redo(drawing, bus);
-        }
+    private void executeWithoutSaveIt(DrawingCommand command) {
+        command.execute(drawing, bus);
     }
 
     @Subscribe
@@ -157,6 +168,10 @@ public class DrawableGLSurfaceView extends GLSurfaceView {
         if (event.getId() != currentUserID) {
             String message = String.format(getContext().getString(R.string.new_user_connected), event.getName());
             Toast.makeText(this.getContext(), message, Toast.LENGTH_LONG).show();
+            collaborators.put(event.getId(), new Collaborator(event.getId(), colorGenerator.next(),
+                    event.getName()));
+
+            bus.post(new OnNewUserAdded(UserUtils.getUsername(DrawableGLSurfaceView.this.getContext()), currentUserID));
         }
     }
 
@@ -168,5 +183,28 @@ public class DrawableGLSurfaceView extends GLSurfaceView {
     public void setStrokeColor(int strokeColor) {
         currentStrokeColor = strokeColor;
         inkModeTouchComponent.setStrokeColor(strokeColor);
+    }
+
+    /* TODO Refactor that into external of the surface */
+
+    public void redo() {
+        if (!redoCommands.isEmpty()) {
+            DrawingCommand pop = redoCommands.pop();
+            undoCommands.add(pop);
+            pop.redo(drawing, bus);
+        }
+    }
+
+    public void undo() {
+        if (!undoCommands.isEmpty()) {
+            DrawingCommand pop = undoCommands.pop();
+            pop.undo(drawing, bus);
+            redoCommands.add(pop);
+        }
+    }
+
+    public void showCollaborators() {
+        CollaboratorsDialog dialog = new CollaboratorsDialog(this.getContext(), collaborators);
+        dialog.show();
     }
 }

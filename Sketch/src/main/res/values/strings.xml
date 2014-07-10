@@ -44,6 +44,8 @@
     <string name="connection_dialog_title">Connection to server..</string>
     <string name="connection_dialog_message">Application trying to communicate with server, please wait...</string>
     <string name="new_user_connected">%s is now connected</string>
+    <string name="close">Close</string>
+    <string name="collaborators_dialog_caption">Collaborators</string>
 
 
 </resources>

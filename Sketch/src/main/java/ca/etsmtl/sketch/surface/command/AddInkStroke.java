@@ -1,7 +1,7 @@
 package ca.etsmtl.sketch.surface.command;
 
 import ca.etsmtl.sketch.common.bus.eventbus.EventBus;
-import ca.etsmtl.sketch.common.event.OnInkStrokeAdded;
+import ca.etsmtl.sketch.common.event.OnInkStrokeReAdded;
 import ca.etsmtl.sketch.common.event.OnInkStrokeRemoved;
 import ca.etsmtl.sketch.surface.openglshape.Drawing;
 import ca.etsmtl.sketch.surface.openglshape.InkStroke;
@@ -31,6 +31,6 @@ public class AddInkStroke implements DrawingCommand {
 
     @Override
     public void redo(Drawing drawing, EventBus bus) {
-        bus.post(new OnInkStrokeAdded(points, color, userID, shapeID));
+        bus.post(new OnInkStrokeReAdded(points, color, userID, shapeID));
     }
 }

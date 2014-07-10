@@ -105,6 +105,9 @@ public class FullscreenActivity extends FragmentActivity {
             case R.id.menu_undo:
                 canvas.undo();
                 return true;
+            case R.id.menu_view_collaborators:
+                canvas.showCollaborators();
+                return true;
             case R.id.menu_redo:
                 canvas.redo();
                 return true;
