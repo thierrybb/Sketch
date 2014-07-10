@@ -14,6 +14,7 @@ import java.util.Stack;
 import ca.etsmtl.sketch.R;
 import ca.etsmtl.sketch.common.bus.builder.RemoteBusBuilder;
 import ca.etsmtl.sketch.common.bus.component.UniqueIDGenerator;
+import ca.etsmtl.sketch.common.bus.event.OnClientDisconnected;
 import ca.etsmtl.sketch.common.bus.eventbus.EventBus;
 import ca.etsmtl.sketch.common.bus.eventbus.IDReceiverDecorator;
 import ca.etsmtl.sketch.common.bus.eventbus.SimpleEventBus;
@@ -28,8 +29,8 @@ import ca.etsmtl.sketch.surface.command.DrawingCommand;
 import ca.etsmtl.sketch.surface.openglshape.Drawing;
 import ca.etsmtl.sketch.surface.openglshape.Shape;
 import ca.etsmtl.sketch.surface.touch.InkPencilTouchStrategy;
-import ca.etsmtl.sketch.surface.touch.StrategyTouchListenerDelegator;
 import ca.etsmtl.sketch.surface.touch.OpenGLInkModeTouchComponent;
+import ca.etsmtl.sketch.surface.touch.StrategyTouchListenerDelegator;
 import ca.etsmtl.sketch.ui.dialog.CollaboratorsDialog;
 import ca.etsmtl.sketch.utils.ColorGenerator;
 import ca.etsmtl.sketch.utils.UserUtils;
@@ -108,6 +109,7 @@ public class DrawableGLSurfaceView extends GLSurfaceView {
                     bus.register(DrawableGLSurfaceView.this, OnNewUserAdded.class);
                     bus.register(DrawableGLSurfaceView.this, OnInkStrokeRemoved.class);
                     bus.register(DrawableGLSurfaceView.this, OnInkStrokeReAdded.class);
+                    bus.register(DrawableGLSurfaceView.this, OnClientDisconnected.class);
 
 
                     currentUserID = decorator.getId();
@@ -176,6 +178,16 @@ public class DrawableGLSurfaceView extends GLSurfaceView {
     }
 
     @Subscribe
+    public void onUserDisconnected(OnClientDisconnected event) {
+        if (collaborators.containsKey(event.getUserID())) {
+            Collaborator leavedCollaborator = collaborators.get(event.getUserID());
+            String message = String.format(getContext().getString(R.string.user_disconnected), leavedCollaborator.getName());
+            Toast.makeText(this.getContext(), message, Toast.LENGTH_LONG).show();
+            collaborators.remove(event.getUserID());
+        }
+    }
+
+    @Subscribe
     public void onInkStrokeRemoved(OnInkStrokeRemoved event) {
         drawing.removeShape(event.getUniqueID(), event.getUserID());
     }
@@ -204,7 +216,11 @@ public class DrawableGLSurfaceView extends GLSurfaceView {
     }
 
     public void showCollaborators() {
-        CollaboratorsDialog dialog = new CollaboratorsDialog(this.getContext(), collaborators);
-        dialog.show();
+        if (collaborators.isEmpty()) {
+            Toast.makeText(this.getContext(), getContext().getString(R.string.no_collaborator_message), Toast.LENGTH_LONG).show();
+        } else {
+            CollaboratorsDialog dialog = new CollaboratorsDialog(this.getContext(), collaborators);
+            dialog.show();
+        }
     }
 }
