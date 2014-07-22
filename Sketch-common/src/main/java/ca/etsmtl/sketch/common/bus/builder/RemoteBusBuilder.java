@@ -5,6 +5,7 @@ import java.net.Socket;
 
 import ca.etsmtl.sketch.common.bus.eventbus.EventBus;
 import ca.etsmtl.sketch.common.bus.eventbus.RemoteClientConnectorDecorator;
+import ca.etsmtl.sketch.common.bus.io.DataOutputStream;
 import ca.etsmtl.sketch.common.bus.io.event.EventFromDataInputStream;
 import ca.etsmtl.sketch.common.bus.io.event.EventInputStream;
 import ca.etsmtl.sketch.common.bus.io.event.EventOutputStream;
@@ -28,12 +29,16 @@ public class RemoteBusBuilder {
         return this;
     }
 
-    public EventBus build() throws IOException {
-        EventOutputStream outputStream =
-                new EventToDataOutputStream(new DataOutputStreamWrapper(socket.getOutputStream()));
+    public EventBus build(String eventBusID) throws IOException {
+        DataOutputStream outputStream = new DataOutputStreamWrapper(socket.getOutputStream());
+        outputStream.writeString(eventBusID);
+        outputStream.flush();
+
+        EventOutputStream eventOutputStream =
+                new EventToDataOutputStream(outputStream);
         EventInputStream inputStream =
                 new EventFromDataInputStream(new DataInputStreamWrapper(socket.getInputStream()));
 
-        return new RemoteClientConnectorDecorator(bus, outputStream, inputStream);
+        return new RemoteClientConnectorDecorator(bus, eventOutputStream, inputStream);
     }
 }

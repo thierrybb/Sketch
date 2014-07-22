@@ -18,10 +18,12 @@ import ca.etsmtl.sketch.common.bus.eventbus.EventBus;
 import ca.etsmtl.sketch.common.bus.eventbus.IDReceiverDecorator;
 import ca.etsmtl.sketch.common.bus.eventbus.SimpleEventBus;
 import ca.etsmtl.sketch.common.bus.eventbus.Subscribe;
+import ca.etsmtl.sketch.common.event.OnAllStrokeRestored;
 import ca.etsmtl.sketch.common.event.OnInkStrokeAdded;
 import ca.etsmtl.sketch.common.event.OnInkStrokeErased;
 import ca.etsmtl.sketch.common.event.OnInkStrokeReAdded;
 import ca.etsmtl.sketch.common.event.OnInkStrokeRemoved;
+import ca.etsmtl.sketch.common.event.OnStrokeRestored;
 import ca.etsmtl.sketch.eventbus.UIThreadEventBusDecorator;
 import ca.etsmtl.sketch.surface.collaborator.CollaboratorComponent;
 import ca.etsmtl.sketch.surface.collaborator.CollaboratorsCollection;
@@ -117,12 +119,12 @@ public class DrawableGLSurfaceView extends GLSurfaceView {
                     IDReceiverDecorator decorator = new IDReceiverDecorator(new UIThreadEventBusDecorator(new SimpleEventBus(), DrawableGLSurfaceView.this));
                     bus = remoteBusBuilder.setSocket(socket)
                             .setDecoratedBus(decorator)
-                            .build();
+                            .build("asdfwegWEQqwer@342@#$2rewfsdfSADGASGR@#425$#%3T34trGFdgSDFGsdg");
                     registerToEventbus();
 
                     currentUserID = decorator.getId();
 
-                    initAfterEventbusConnected();
+                    initAfterEventBusConnected();
                 } catch (IOException e) {
                     post(new Runnable() {
                         @Override
@@ -143,7 +145,7 @@ public class DrawableGLSurfaceView extends GLSurfaceView {
         }.start();
     }
 
-    private void initAfterEventbusConnected() throws NoSuchMethodException {
+    private void initAfterEventBusConnected() throws NoSuchMethodException {
         inkPencilTouchStrategy = new InkPencilTouchStrategy(currentUserID, bus);
         eraseModeStrategy = new EraseModeTouchStrategy(currentUserID, drawing, bus);
         setToPenDrawingMode();
@@ -161,6 +163,8 @@ public class DrawableGLSurfaceView extends GLSurfaceView {
         bus.register(this, OnInkStrokeRemoved.class);
         bus.register(this, OnInkStrokeReAdded.class);
         bus.register(this, OnInkStrokeErased.class);
+        bus.register(this, OnStrokeRestored.class);
+        bus.register(this, OnAllStrokeRestored.class);
     }
 
     @Subscribe
@@ -186,6 +190,22 @@ public class DrawableGLSurfaceView extends GLSurfaceView {
         EraseInkStroke command = new EraseInkStroke(event.getEraserUserID(),
                 event.getUserID(), event.getUniqueID());
         executeCommand(command);
+    }
+
+    @Subscribe
+    public void onStrokeRestored(OnStrokeRestored event) {
+        if (event.getDestinationUserID() == currentUserID) {
+            drawing.addShape(new InkStroke(event.getPoints(), event.getStrokeColor()), event.getUniqueID(),
+                    event.getUserID());
+        }
+    }
+
+    @Subscribe
+    public void onAllStrokeRestored(OnAllStrokeRestored event) {
+        if (event.getDestinationUserID() == currentUserID) {
+            bus.unregister(this, OnStrokeRestored.class);
+            bus.unregister(this, OnAllStrokeRestored.class);
+        }
     }
 
     public void setStrokeColor(int strokeColor) {

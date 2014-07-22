@@ -1,4 +1,4 @@
-package ca.etsmtl.sketch.utils;
+package ca.etsmtl.sketch.common.utils;
 
 public class Identifier {
     private int localID;

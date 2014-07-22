@@ -7,7 +7,7 @@ import ca.etsmtl.sketch.common.event.OnInkStrokeErased;
 import ca.etsmtl.sketch.common.graphic.PointF;
 import ca.etsmtl.sketch.surface.openglshape.Drawing;
 import ca.etsmtl.sketch.surface.openglshape.Shape;
-import ca.etsmtl.sketch.utils.Identifier;
+import ca.etsmtl.sketch.common.utils.Identifier;
 
 public class EraseModeTouchStrategy implements TouchStrategy {
     private PointF lastPointerPos = null;

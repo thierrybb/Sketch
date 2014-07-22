@@ -10,7 +10,7 @@ import javax.microedition.khronos.opengles.GL10;
 
 import ca.etsmtl.sketch.common.graphic.PointF;
 import ca.etsmtl.sketch.surface.transformation.MatrixWrapper;
-import ca.etsmtl.sketch.utils.Identifier;
+import ca.etsmtl.sketch.common.utils.Identifier;
 
 public class Drawing extends BaseShape implements Shape.ShapeListener, Iterable<Map.Entry<Identifier, Shape>> {
     private ConcurrentHashMap<Identifier, Shape> shapeIDMap = new ConcurrentHashMap<Identifier, Shape>();
