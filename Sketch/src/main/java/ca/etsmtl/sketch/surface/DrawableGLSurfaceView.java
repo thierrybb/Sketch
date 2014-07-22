@@ -14,8 +14,6 @@ import java.util.Stack;
 import ca.etsmtl.sketch.R;
 import ca.etsmtl.sketch.common.bus.builder.RemoteBusBuilder;
 import ca.etsmtl.sketch.common.bus.component.UniqueIDGenerator;
-import ca.etsmtl.sketch.common.bus.event.OnClientDisconnected;
-import ca.etsmtl.sketch.common.event.OnNewClientConnected;
 import ca.etsmtl.sketch.common.bus.eventbus.EventBus;
 import ca.etsmtl.sketch.common.bus.eventbus.IDReceiverDecorator;
 import ca.etsmtl.sketch.common.bus.eventbus.SimpleEventBus;
@@ -30,11 +28,12 @@ import ca.etsmtl.sketch.surface.command.AddInkStroke;
 import ca.etsmtl.sketch.surface.command.DrawingCommand;
 import ca.etsmtl.sketch.surface.openglshape.Drawing;
 import ca.etsmtl.sketch.surface.openglshape.Shape;
+import ca.etsmtl.sketch.surface.touch.FingerMotionMatrixDelegator;
 import ca.etsmtl.sketch.surface.touch.InkPencilTouchStrategy;
 import ca.etsmtl.sketch.surface.touch.OpenGLInkModeTouchComponent;
 import ca.etsmtl.sketch.surface.touch.StrategyTouchListenerDelegator;
+import ca.etsmtl.sketch.surface.transformation.MatrixWrapper;
 import ca.etsmtl.sketch.ui.dialog.CollaboratorsDialog;
-import ca.etsmtl.sketch.utils.UserUtils;
 
 public class DrawableGLSurfaceView extends GLSurfaceView {
     private DrawingRenderer drawingRenderer;
@@ -53,7 +52,9 @@ public class DrawableGLSurfaceView extends GLSurfaceView {
 
     private CollaboratorsCollection collaborators = new CollaboratorsCollection();
     private InkPencilTouchStrategy inkPencilTouchStrategy;
-    private StrategyTouchListenerDelegator onTouchListener;
+
+    private StrategyTouchListenerDelegator drawableTouchDelegator;
+    private FingerMotionMatrixDelegator fingerMotionMatrixDelegator;
 
     public DrawableGLSurfaceView(Context context) {
         super(context);
@@ -83,11 +84,17 @@ public class DrawableGLSurfaceView extends GLSurfaceView {
                 this.getResources().getString(R.string.connection_dialog_title),
                 this.getResources().getString(R.string.connection_dialog_message), true);
 
-        drawingRenderer = new DrawingRenderer(drawing);
+        MatrixWrapper matrix = new MatrixWrapper();
+        drawingRenderer = new DrawingRenderer(drawing, matrix);
+
+        fingerMotionMatrixDelegator = new FingerMotionMatrixDelegator(getContext(), matrix);
+
+        drawableTouchDelegator = new StrategyTouchListenerDelegator(matrix);
+
         setRenderer(drawingRenderer);
 
         // Render the view only when there is a change in the drawing data
-        setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+        setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
 
         createEventBus();
     }
@@ -131,8 +138,8 @@ public class DrawableGLSurfaceView extends GLSurfaceView {
 
     private void initAfterEventbusConnected() throws NoSuchMethodException {
         inkPencilTouchStrategy = new InkPencilTouchStrategy(currentUserID, bus);
-        onTouchListener = new StrategyTouchListenerDelegator(inkPencilTouchStrategy);
-        setOnTouchListener(onTouchListener);
+        drawableTouchDelegator.setCurrentStrategy(inkPencilTouchStrategy);
+        setOnTouchListener(drawableTouchDelegator);
 
         inkModeTouchComponent = new OpenGLInkModeTouchComponent(drawing, currentUserID, newShapeIDGenerator, collaborators);
         inkModeTouchComponent.plugInto(bus);
@@ -180,6 +187,14 @@ public class DrawableGLSurfaceView extends GLSurfaceView {
     public void setStrokeColor(int strokeColor) {
         currentStrokeColor = strokeColor;
         inkModeTouchComponent.setStrokeColor(strokeColor);
+    }
+
+    public void setToDrawingMode() {
+        setOnTouchListener(drawableTouchDelegator);
+    }
+
+    public void setToPanMode() {
+        setOnTouchListener(fingerMotionMatrixDelegator);
     }
 
     /* TODO Refactor that into external of the surface */

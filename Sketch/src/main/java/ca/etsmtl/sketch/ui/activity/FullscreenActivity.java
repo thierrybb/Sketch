@@ -101,6 +101,10 @@ public class FullscreenActivity extends FragmentActivity {
             case R.id.menu_info:
                 return true;
             case R.id.menu_draw_tools:
+                canvas.setToDrawingMode();
+                return true;
+            case R.id.menu_pan_mode:
+                canvas.setToPanMode();
                 return true;
             case R.id.menu_undo:
                 canvas.undo();

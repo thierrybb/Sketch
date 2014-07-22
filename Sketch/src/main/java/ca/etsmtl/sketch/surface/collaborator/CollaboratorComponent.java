@@ -11,7 +11,6 @@ import ca.etsmtl.sketch.common.bus.eventbus.EventBus;
 import ca.etsmtl.sketch.common.bus.eventbus.Subscribe;
 import ca.etsmtl.sketch.common.event.OnClientKeepAlive;
 import ca.etsmtl.sketch.common.event.OnNewClientConnected;
-import ca.etsmtl.sketch.surface.DrawableGLSurfaceView;
 import ca.etsmtl.sketch.utils.ColorGenerator;
 import ca.etsmtl.sketch.utils.UserUtils;
 

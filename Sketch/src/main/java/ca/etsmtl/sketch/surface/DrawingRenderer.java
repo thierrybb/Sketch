@@ -6,12 +6,15 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import ca.etsmtl.sketch.surface.openglshape.Drawing;
+import ca.etsmtl.sketch.surface.transformation.MatrixWrapper;
 
 public class DrawingRenderer implements GLSurfaceView.Renderer {
     private Drawing drawing;
+    private MatrixWrapper wrapper;
 
-    public DrawingRenderer(Drawing drawing) {
+    public DrawingRenderer(Drawing drawing, MatrixWrapper wrapper) {
         this.drawing = drawing;
+        this.wrapper = wrapper;
     }
 
     @Override
@@ -38,8 +41,8 @@ public class DrawingRenderer implements GLSurfaceView.Renderer {
     @Override
     public void onDrawFrame(GL10 gl) {
         gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
-        gl.glTranslatef(0, 0, 0);
-        gl.glScalef(1, 1, 1);
+
+        wrapper.applyToOpenGL(gl);
 
         drawing.draw(gl);
     }

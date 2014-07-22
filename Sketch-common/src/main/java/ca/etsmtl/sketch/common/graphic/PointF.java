@@ -20,4 +20,9 @@ public class PointF {
     public boolean equals(float x, float y) {
         return this.x == x && this.y == y;
     }
+
+    public void set(float x, float y) {
+        this.x = x;
+        this.y = y;
+    }
 }

@@ -27,6 +27,12 @@
         android:showAsAction="always" />
 
     <item
+        android:id="@+id/menu_pan_mode"
+        android:title="Pan mode"
+        android:icon="@drawable/ic_action_av_full_screen"
+        android:showAsAction="always" />
+
+    <item
         android:id="@+id/menu_undo"
         android:title="Undo"
         android:icon="@drawable/ic_undo"

@@ -6,15 +6,18 @@ import android.view.View;
 import java.util.HashMap;
 
 import ca.etsmtl.sketch.common.graphic.PointF;
+import ca.etsmtl.sketch.surface.transformation.MatrixWrapper;
 
 public class StrategyTouchListenerDelegator implements View.OnTouchListener {
 
     private TouchStrategy currentStrategy;
+    private MatrixWrapper pointMatrix;
 
     private HashMap<Integer, PointF> fingerLastPos = new HashMap<Integer, PointF>();
 
-    public StrategyTouchListenerDelegator(TouchStrategy startStrategy) {
-        this.currentStrategy = startStrategy;
+    public StrategyTouchListenerDelegator(MatrixWrapper pointMatrix) {
+        this.currentStrategy = TouchStrategy.NULL_STRATEGY;
+        this.pointMatrix = pointMatrix;
     }
 
     public void setCurrentStrategy(TouchStrategy currentStrategy) {
@@ -29,6 +32,7 @@ public class StrategyTouchListenerDelegator implements View.OnTouchListener {
                 || event.getActionMasked() == MotionEvent.ACTION_DOWN) {
             PointF point = new PointF(event.getX(event.getActionIndex()), event.getY(event.getActionIndex()));
             fingerLastPos.put(pointerId, point);
+            point = pointMatrix.convertPointFromView(point);
             currentStrategy.onPointerDown(pointerId, point);
         } else if (event.getActionMasked() == MotionEvent.ACTION_POINTER_UP
                 || event.getActionMasked() == MotionEvent.ACTION_UP
@@ -43,6 +47,7 @@ public class StrategyTouchListenerDelegator implements View.OnTouchListener {
 
                     if (!lastPos.equals(event.getX(i), event.getY(i))) {
                         PointF newPoint = new PointF(event.getX(i), event.getY(i));
+                        newPoint = pointMatrix.convertPointFromView(newPoint);
                         currentStrategy.onPointerMove(pointerId, newPoint);
                     }
                 }

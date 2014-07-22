@@ -45,7 +45,12 @@ public class DataInputStreamWrapper implements DataInputStream {
 
     private static byte[] read(InputStream inputStream, int count) throws IOException {
         byte[] bytesRead = new byte[count];
-        inputStream.read(bytesRead);
+        int byteRead = inputStream.read(bytesRead);
+
+        if (byteRead != count) {
+            throw new IOException("Unable to read bytes");
+        }
+
         return bytesRead;
     }
 
