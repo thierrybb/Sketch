@@ -9,15 +9,16 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.microedition.khronos.opengles.GL10;
 
 import ca.etsmtl.sketch.common.graphic.PointF;
+import ca.etsmtl.sketch.surface.transformation.MatrixWrapper;
 import ca.etsmtl.sketch.utils.Identifier;
 
 public class Drawing extends BaseShape implements Shape.ShapeListener, Iterable<Map.Entry<Identifier, Shape>> {
     private ConcurrentHashMap<Identifier, Shape> shapeIDMap = new ConcurrentHashMap<Identifier, Shape>();
 
     @Override
-    public void draw(GL10 gl) {
+    public void draw(GL10 gl, MatrixWrapper matrix) {
         for (Shape shape : shapeIDMap.values()) {
-            shape.draw(gl);
+            shape.draw(gl, matrix);
         }
     }
 

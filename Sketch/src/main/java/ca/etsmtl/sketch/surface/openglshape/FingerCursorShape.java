@@ -12,6 +12,7 @@ import javax.microedition.khronos.opengles.GL10;
 import ca.etsmtl.sketch.common.graphic.PointF;
 import ca.etsmtl.sketch.surface.opengl.BufferFactory;
 import ca.etsmtl.sketch.surface.opengl.OpenGLUtils;
+import ca.etsmtl.sketch.surface.transformation.MatrixWrapper;
 
 public class FingerCursorShape extends BaseShape {
     private FloatBuffer vertixBuffer;
@@ -51,7 +52,7 @@ public class FingerCursorShape extends BaseShape {
     }
 
     @Override
-    public void draw(GL10 gl) {
+    public void draw(GL10 gl, MatrixWrapper matrix) {
         float red = ((color >> 16) & 0xFF) / 255.0f;
         float green = ((color >> 8) & 0xFF) / 255.0f;
         float blue = (color & 0xFF) / 255.0f;
@@ -70,8 +71,14 @@ public class FingerCursorShape extends BaseShape {
 
         gl.glDisableClientState(GL10.GL_VERTEX_ARRAY);
 
-        Circle circle = new Circle(points.get(points.size() - 1), 5, Color.BLACK, Color.CYAN);
-        circle.draw(gl);
+        // draw the circle with always the same size, ignoring matrix
+        gl.glPushMatrix();
+        gl.glLoadIdentity();
+        PointF lastPoint = points.get(points.size() - 1);
+        lastPoint = matrix.computePoint(lastPoint.clone());
+        Circle circle = new Circle(lastPoint, 5, Color.BLACK, Color.CYAN);
+        circle.draw(gl, matrix);
+        gl.glPopMatrix();
     }
 
     @Override

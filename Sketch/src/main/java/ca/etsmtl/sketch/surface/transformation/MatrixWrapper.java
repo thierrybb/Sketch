@@ -39,6 +39,13 @@ public class MatrixWrapper {
         return point;
     }
 
+    public PointF computePoint(PointF point) {
+        float[] coordinateToConvert = new float[] { point.x, point.y };
+        matrix.mapPoints(coordinateToConvert);
+        point.set(coordinateToConvert[0], coordinateToConvert[1]);
+        return point;
+    }
+
     public void save() {
         savedMatrix.set(matrix);
     }

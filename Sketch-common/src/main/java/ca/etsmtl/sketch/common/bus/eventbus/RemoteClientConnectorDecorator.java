@@ -105,6 +105,7 @@ public class RemoteClientConnectorDecorator implements EventBus {
                     eventBusToForwardEvent.post(event);
                 } catch (Exception e) {
                     e.printStackTrace();
+                    serverIsUp = false;
                 }
             }
         }

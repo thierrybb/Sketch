@@ -44,6 +44,6 @@ public class DrawingRenderer implements GLSurfaceView.Renderer {
 
         wrapper.applyToOpenGL(gl);
 
-        drawing.draw(gl);
+        drawing.draw(gl, wrapper);
     }
 }

@@ -153,4 +153,9 @@ public class FingerMotionMatrixDelegator extends GestureDetector.SimpleOnGesture
         return FloatMath.sqrt(x * x + y * y);
     }
 
+    @Override
+    public boolean onDoubleTap(MotionEvent e) {
+        matrix.postScale(1.5f, new PointF(e.getX(), e.getY()));
+        return super.onDoubleTap(e);
+    }
 }

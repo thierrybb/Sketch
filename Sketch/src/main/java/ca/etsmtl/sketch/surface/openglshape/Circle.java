@@ -9,6 +9,7 @@ import javax.microedition.khronos.opengles.GL10;
 
 import ca.etsmtl.sketch.common.graphic.PointF;
 import ca.etsmtl.sketch.surface.opengl.BufferFactory;
+import ca.etsmtl.sketch.surface.transformation.MatrixWrapper;
 
 import static android.util.FloatMath.cos;
 import static android.util.FloatMath.sin;
@@ -70,7 +71,7 @@ class Circle extends BaseShape {
     }
 
     @Override
-    public void draw(GL10 gl) {
+    public void draw(GL10 gl, MatrixWrapper matrix) {
         gl.glEnable(GL10.GL_BLEND);
         gl.glEnable(GL10.GL_LINE_SMOOTH);
         // Enabled the vertices buffer for writing and to be used during

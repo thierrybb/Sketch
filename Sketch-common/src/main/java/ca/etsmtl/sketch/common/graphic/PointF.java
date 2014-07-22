@@ -25,4 +25,8 @@ public class PointF {
         this.x = x;
         this.y = y;
     }
+
+    public PointF clone() {
+        return new PointF(x, y);
+    }
 }

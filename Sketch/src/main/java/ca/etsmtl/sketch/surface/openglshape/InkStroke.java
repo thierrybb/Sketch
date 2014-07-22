@@ -10,6 +10,7 @@ import javax.microedition.khronos.opengles.GL10;
 import ca.etsmtl.sketch.common.graphic.PointF;
 import ca.etsmtl.sketch.surface.opengl.BufferFactory;
 import ca.etsmtl.sketch.surface.opengl.OpenGLUtils;
+import ca.etsmtl.sketch.surface.transformation.MatrixWrapper;
 
 public class InkStroke extends BaseShape {
     private FloatBuffer vertixBuffer;
@@ -36,18 +37,19 @@ public class InkStroke extends BaseShape {
     }
 
     @Override
-    public void draw(GL10 gl) {
+    public void draw(GL10 gl, MatrixWrapper matrix) {
         float red = ((color >> 16) & 0xFF) / 255.0f;
         float green = ((color >> 8) & 0xFF) / 255.0f;
         float blue = (color & 0xFF) / 255.0f;
         gl.glColor4f(red, green, blue, 1.0f);
         gl.glLineWidth(5.0f);
+//        gl.glLineWidthx(5);
 
         gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
 
-        gl.glDisable(GL10.GL_LINE_SMOOTH);
-        gl.glEnable(GL10.GL_BLEND);
-        gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+//        gl.glEnable(GL10.GL_LINE_SMOOTH);
+//        gl.glEnable(GL10.GL_BLEND);
+//        gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
 
         gl.glVertexPointer(2, GL10.GL_FLOAT, 0, vertixBuffer);
 
@@ -55,7 +57,8 @@ public class InkStroke extends BaseShape {
                 GL10.GL_UNSIGNED_SHORT, indiceBuffer);
 
         gl.glDisableClientState(GL10.GL_VERTEX_ARRAY);
-        gl.glDisable(GL10.GL_BLEND);
+//        gl.glDisable(GL10.GL_BLEND);
+//        gl.glDisable(GL10.GL_LINE_SMOOTH);
     }
 
     @Override
