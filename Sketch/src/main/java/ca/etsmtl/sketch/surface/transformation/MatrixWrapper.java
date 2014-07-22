@@ -30,7 +30,7 @@ public class MatrixWrapper {
         gl.glScalef(matrixValues[Matrix.MSCALE_X], matrixValues[Matrix.MSCALE_Y], 0.0f);
     }
 
-    public PointF convertPointFromView(PointF point) {
+    public PointF computePointFromInverse(PointF point) {
         Matrix inverse = new Matrix();
         matrix.invert(inverse);
         float[] coordinateToConvert = new float[] { point.x, point.y };

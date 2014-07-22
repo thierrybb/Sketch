@@ -20,6 +20,11 @@ public class AddInkStroke implements DrawingCommand {
     }
 
     @Override
+    public int getUserIdSource() {
+        return userID;
+    }
+
+    @Override
     public void execute(Drawing drawing, EventBus bus) {
         drawing.addShape(new InkStroke(points, color), shapeID, userID);
     }

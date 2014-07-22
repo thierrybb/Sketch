@@ -19,6 +19,7 @@ import ca.etsmtl.sketch.common.bus.eventbus.IDReceiverDecorator;
 import ca.etsmtl.sketch.common.bus.eventbus.SimpleEventBus;
 import ca.etsmtl.sketch.common.bus.eventbus.Subscribe;
 import ca.etsmtl.sketch.common.event.OnInkStrokeAdded;
+import ca.etsmtl.sketch.common.event.OnInkStrokeErased;
 import ca.etsmtl.sketch.common.event.OnInkStrokeReAdded;
 import ca.etsmtl.sketch.common.event.OnInkStrokeRemoved;
 import ca.etsmtl.sketch.eventbus.UIThreadEventBusDecorator;
@@ -26,12 +27,16 @@ import ca.etsmtl.sketch.surface.collaborator.CollaboratorComponent;
 import ca.etsmtl.sketch.surface.collaborator.CollaboratorsCollection;
 import ca.etsmtl.sketch.surface.command.AddInkStroke;
 import ca.etsmtl.sketch.surface.command.DrawingCommand;
+import ca.etsmtl.sketch.surface.command.EraseInkStroke;
 import ca.etsmtl.sketch.surface.openglshape.Drawing;
+import ca.etsmtl.sketch.surface.openglshape.InkStroke;
 import ca.etsmtl.sketch.surface.openglshape.Shape;
+import ca.etsmtl.sketch.surface.touch.EraseModeTouchStrategy;
 import ca.etsmtl.sketch.surface.touch.FingerMotionMatrixDelegator;
 import ca.etsmtl.sketch.surface.touch.InkPencilTouchStrategy;
 import ca.etsmtl.sketch.surface.touch.OpenGLInkModeTouchComponent;
 import ca.etsmtl.sketch.surface.touch.StrategyTouchListenerDelegator;
+import ca.etsmtl.sketch.surface.touch.TouchStrategy;
 import ca.etsmtl.sketch.surface.transformation.MatrixWrapper;
 import ca.etsmtl.sketch.ui.dialog.CollaboratorsDialog;
 
@@ -51,9 +56,11 @@ public class DrawableGLSurfaceView extends GLSurfaceView {
     private UniqueIDGenerator newShapeIDGenerator = new UniqueIDGenerator();
 
     private CollaboratorsCollection collaborators = new CollaboratorsCollection();
-    private InkPencilTouchStrategy inkPencilTouchStrategy;
 
     private StrategyTouchListenerDelegator drawableTouchDelegator;
+    private InkPencilTouchStrategy inkPencilTouchStrategy;
+    private TouchStrategy eraseModeStrategy;
+
     private FingerMotionMatrixDelegator fingerMotionMatrixDelegator;
 
     public DrawableGLSurfaceView(Context context) {
@@ -138,7 +145,8 @@ public class DrawableGLSurfaceView extends GLSurfaceView {
 
     private void initAfterEventbusConnected() throws NoSuchMethodException {
         inkPencilTouchStrategy = new InkPencilTouchStrategy(currentUserID, bus);
-        drawableTouchDelegator.setCurrentStrategy(inkPencilTouchStrategy);
+        eraseModeStrategy = new EraseModeTouchStrategy(currentUserID, drawing, bus);
+        setToPenDrawingMode();
         setOnTouchListener(drawableTouchDelegator);
 
         inkModeTouchComponent = new OpenGLInkModeTouchComponent(drawing, currentUserID, newShapeIDGenerator, collaborators);
@@ -152,6 +160,7 @@ public class DrawableGLSurfaceView extends GLSurfaceView {
         bus.register(this, OnInkStrokeAdded.class);
         bus.register(this, OnInkStrokeRemoved.class);
         bus.register(this, OnInkStrokeReAdded.class);
+        bus.register(this, OnInkStrokeErased.class);
     }
 
     @Subscribe
@@ -163,25 +172,20 @@ public class DrawableGLSurfaceView extends GLSurfaceView {
 
     @Subscribe
     public void onInkStrokeReAdded(OnInkStrokeReAdded event) {
-        AddInkStroke command = new AddInkStroke(event.getPoints(), event.getStrokeColor(),
-                event.getUserID(), event.getUniqueID());
-        executeWithoutSaveIt(command);
+        drawing.addShape(new InkStroke(event.getPoints(), event.getStrokeColor()), event.getUniqueID(),
+                event.getUserID());
     }
-
-    private void executeCommand(DrawingCommand command) {
-        undoCommands.add(command);
-        redoCommands.clear();
-        executeWithoutSaveIt(command);
-    }
-
-    private void executeWithoutSaveIt(DrawingCommand command) {
-        command.execute(drawing, bus);
-    }
-
 
     @Subscribe
     public void onInkStrokeRemoved(OnInkStrokeRemoved event) {
         drawing.removeShape(event.getUniqueID(), event.getUserID());
+    }
+
+    @Subscribe
+    public void onInkStrokeErased(OnInkStrokeErased event) {
+        EraseInkStroke command = new EraseInkStroke(event.getEraserUserID(),
+                event.getUserID(), event.getUniqueID());
+        executeCommand(command);
     }
 
     public void setStrokeColor(int strokeColor) {
@@ -189,7 +193,13 @@ public class DrawableGLSurfaceView extends GLSurfaceView {
         inkModeTouchComponent.setStrokeColor(strokeColor);
     }
 
-    public void setToDrawingMode() {
+    public void setToPenDrawingMode() {
+        drawableTouchDelegator.setCurrentStrategy(inkPencilTouchStrategy);
+        setOnTouchListener(drawableTouchDelegator);
+    }
+
+    public void setToEraseMode() {
+        drawableTouchDelegator.setCurrentStrategy(eraseModeStrategy);
         setOnTouchListener(drawableTouchDelegator);
     }
 
@@ -198,6 +208,15 @@ public class DrawableGLSurfaceView extends GLSurfaceView {
     }
 
     /* TODO Refactor that into external of the surface */
+
+    private void executeCommand(DrawingCommand command) {
+        if (command.getUserIdSource() == currentUserID) {
+            undoCommands.add(command);
+            redoCommands.clear();
+        }
+
+        command.execute(drawing, bus);
+    }
 
     public void redo() {
         if (!redoCommands.isEmpty()) {

@@ -32,7 +32,7 @@ public class StrategyTouchListenerDelegator implements View.OnTouchListener {
                 || event.getActionMasked() == MotionEvent.ACTION_DOWN) {
             PointF point = new PointF(event.getX(event.getActionIndex()), event.getY(event.getActionIndex()));
             fingerLastPos.put(pointerId, point);
-            point = pointMatrix.convertPointFromView(point);
+            point = pointMatrix.computePointFromInverse(point);
             currentStrategy.onPointerDown(pointerId, point);
         } else if (event.getActionMasked() == MotionEvent.ACTION_POINTER_UP
                 || event.getActionMasked() == MotionEvent.ACTION_UP
@@ -47,7 +47,7 @@ public class StrategyTouchListenerDelegator implements View.OnTouchListener {
 
                     if (!lastPos.equals(event.getX(i), event.getY(i))) {
                         PointF newPoint = new PointF(event.getX(i), event.getY(i));
-                        newPoint = pointMatrix.convertPointFromView(newPoint);
+                        newPoint = pointMatrix.computePointFromInverse(newPoint);
                         currentStrategy.onPointerMove(pointerId, newPoint);
                     }
                 }

@@ -1,18 +1,18 @@
 package ca.etsmtl.sketch.surface.openglshape;
 
-import android.util.Pair;
-
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.microedition.khronos.opengles.GL10;
 
-public class Drawing extends BaseShape implements Shape.ShapeListener {
-    private ConcurrentHashMap<Pair<Integer, Integer>, Shape> shapeIDMap = new ConcurrentHashMap<Pair<Integer, Integer>, Shape>();
+import ca.etsmtl.sketch.common.graphic.PointF;
+import ca.etsmtl.sketch.utils.Identifier;
+
+public class Drawing extends BaseShape implements Shape.ShapeListener, Iterable<Map.Entry<Identifier, Shape>> {
+    private ConcurrentHashMap<Identifier, Shape> shapeIDMap = new ConcurrentHashMap<Identifier, Shape>();
 
     @Override
     public void draw(GL10 gl) {
@@ -21,22 +21,32 @@ public class Drawing extends BaseShape implements Shape.ShapeListener {
         }
     }
 
+    @Override
+    public boolean intersect(PointF pt1, PointF pt2) {
+        for (Shape shape : shapeIDMap.values()) {
+            if (shape.intersect(pt1, pt2))
+                return true;
+        }
+
+        return false;
+    }
+
     public void addShape(Shape shape, int shapeID, int userID) {
-        shapeIDMap.put(Pair.create(shapeID, userID), shape);
+        shapeIDMap.put(Identifier.create(shapeID, userID), shape);
         shape.attachListener(this);
         invalide();
     }
 
     public void removeShape(Shape shapeToRemove) {
-        List<Pair<Integer, Integer>> removeKeys = new ArrayList<Pair<Integer, Integer>>();
+        List<Identifier> removeKeys = new ArrayList<Identifier>();
 
-        for (Map.Entry<Pair<Integer, Integer>, Shape> pairShapeEntry : shapeIDMap.entrySet()) {
+        for (Map.Entry<Identifier, Shape> pairShapeEntry : shapeIDMap.entrySet()) {
             if (pairShapeEntry.getValue().equals(shapeToRemove)) {
                 removeKeys.add(pairShapeEntry.getKey());
             }
         }
 
-        for (Pair<Integer, Integer> removeKey : removeKeys) {
+        for (Identifier removeKey : removeKeys) {
             shapeIDMap.remove(removeKey);
         }
 
@@ -44,12 +54,27 @@ public class Drawing extends BaseShape implements Shape.ShapeListener {
     }
 
     public void removeShape(int shapeID, int userID) {
-        shapeIDMap.remove(Pair.create(shapeID, userID));
+        shapeIDMap.remove(Identifier.create(shapeID, userID));
         invalide();
     }
 
     @Override
     public void onShapeChanged() {
         invalide();
+    }
+
+    @Override
+    public Iterator<Map.Entry<Identifier, Shape>> iterator() {
+        return shapeIDMap.entrySet().iterator();
+    }
+
+    public Shape shapeByID(int userID, int shapeID) {
+        Identifier identifier = Identifier.create(shapeID, userID);
+
+        if (shapeIDMap.containsKey(identifier)) {
+            return shapeIDMap.get(identifier);
+        }
+
+        return new NullShape();
     }
 }

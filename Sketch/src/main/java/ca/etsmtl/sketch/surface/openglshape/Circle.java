@@ -97,6 +97,11 @@ class Circle extends BaseShape {
         gl.glDisable(GL10.GL_BLEND);
     }
 
+    @Override
+    public boolean intersect(PointF pt1, PointF pt2) {
+        return false;
+    }
+
     private void setColor(GL10 gl, int color) {
         float alpha = ((color >> 24) & 0xFF) / 255.0f;
         float red = ((color >> 16) & 0xFF) / 255.0f;

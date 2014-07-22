@@ -74,6 +74,11 @@ public class FingerCursorShape extends BaseShape {
         circle.draw(gl);
     }
 
+    @Override
+    public boolean intersect(PointF pt1, PointF pt2) {
+        return false;
+    }
+
     public float[] getPoints() {
         return OpenGLUtils.build2DVertices(points.toArray(new PointF[0]));
     }

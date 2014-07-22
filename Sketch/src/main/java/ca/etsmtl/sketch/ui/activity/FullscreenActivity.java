@@ -1,14 +1,11 @@
 package ca.etsmtl.sketch.ui.activity;
 
 import android.app.ActionBar;
-import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -18,10 +15,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.ViewParent;
-import android.widget.EditText;
-import android.widget.Toast;
 
 import com.larswerkman.holocolorpicker.ColorPicker;
 
@@ -31,7 +25,6 @@ import java.lang.reflect.Field;
 
 import ca.etsmtl.sketch.R;
 import ca.etsmtl.sketch.surface.DrawableGLSurfaceView;
-import ca.etsmtl.sketch.ui.activity.provider.SaveActionProvider;
 import ca.etsmtl.sketch.ui.dialog.SaveDialog;
 import ca.etsmtl.sketch.ui.view.TextCreatorView;
 
@@ -101,7 +94,10 @@ public class FullscreenActivity extends FragmentActivity {
             case R.id.menu_info:
                 return true;
             case R.id.menu_draw_tools:
-                canvas.setToDrawingMode();
+                canvas.setToPenDrawingMode();
+                return true;
+            case R.id.menu_erase:
+                canvas.setToEraseMode();
                 return true;
             case R.id.menu_pan_mode:
                 canvas.setToPanMode();
