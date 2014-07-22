@@ -2,7 +2,6 @@ package ca.etsmtl.sketch.common.bus.event;
 
 import java.io.IOException;
 
-import ca.etsmtl.sketch.common.bus.event.Event;
 import ca.etsmtl.sketch.common.bus.io.DataInputStream;
 import ca.etsmtl.sketch.common.bus.io.DataOutputStream;
 

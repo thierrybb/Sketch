@@ -45,7 +45,7 @@ public class IDReceiverDecorator implements EventBus {
     public void post(final Event event) {
         if (event instanceof OnNewIDAssigned) {
             this.id = ((OnNewIDAssigned)event).getNewID();
-            idReceived.release(idReceived.availablePermits());
+            idReceived.release();
         }
 
         decoratedObject.post(event);

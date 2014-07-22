@@ -23,6 +23,8 @@ public class ServerConnectorComponent {
 
     private EventBus.EventListener mainBusEventListener;
 
+    private List<Event> events = new ArrayList<Event>();
+
     private int userID;
 
     private boolean isRunning = true;
@@ -40,39 +42,36 @@ public class ServerConnectorComponent {
         outputEventQueue.offer(new OnNewIDAssigned(userID));
 
         this.userID = userID;
-
-        System.out.println("New user registered [" + userID + "].");
-
     }
-
     private class QueueDelegatorListener implements EventBus.EventListener {
+
         private BlockingQueue<Event> outputEventQueue;
 
         public QueueDelegatorListener(BlockingQueue<Event> outputEventQueue) {
             this.outputEventQueue = outputEventQueue;
         }
-
         @Override
         public void onEventReceived(Event event) {
             outputEventQueue.offer(event);
         }
-    }
 
+    }
     private class OutputServerThread extends Thread {
         private BlockingQueue<Event> eventQueue;
         private EventBus bus;
+
         private EventOutputStream outputStream;
 
         public OutputServerThread(EventOutputStream outputStream, BlockingQueue<Event> eventQueue) {
             this.outputStream = outputStream;
             this.eventQueue = eventQueue;
         }
-
         @Override
         public void run() {
             while (isRunning) {
                 try {
                     Event event = eventQueue.take();
+
                     if (!events.contains(event)) {
                         outputStream.writeEvent(event);
                     }
@@ -84,9 +83,8 @@ public class ServerConnectorComponent {
                 }
             }
         }
-    }
 
-    private List<Event> events = new ArrayList<Event>();
+    }
 
     private class ReadEventServerThread extends Thread {
         private EventInputStream inputStream;

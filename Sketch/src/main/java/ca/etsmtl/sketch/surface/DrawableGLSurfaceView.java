@@ -24,6 +24,7 @@ import ca.etsmtl.sketch.common.event.OnInkStrokeErased;
 import ca.etsmtl.sketch.common.event.OnInkStrokeReAdded;
 import ca.etsmtl.sketch.common.event.OnInkStrokeRemoved;
 import ca.etsmtl.sketch.common.event.OnStrokeRestored;
+import ca.etsmtl.sketch.common.event.OnSyncRequireEvent;
 import ca.etsmtl.sketch.eventbus.UIThreadEventBusDecorator;
 import ca.etsmtl.sketch.surface.collaborator.CollaboratorComponent;
 import ca.etsmtl.sketch.surface.collaborator.CollaboratorsCollection;
@@ -64,6 +65,7 @@ public class DrawableGLSurfaceView extends GLSurfaceView {
     private TouchStrategy eraseModeStrategy;
 
     private FingerMotionMatrixDelegator fingerMotionMatrixDelegator;
+    private Socket eventBusSocket;
 
     public DrawableGLSurfaceView(Context context) {
         super(context);
@@ -73,6 +75,25 @@ public class DrawableGLSurfaceView extends GLSurfaceView {
     public DrawableGLSurfaceView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        createEventBus();
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        if (eventBusSocket.isConnected()) {
+            try {
+                eventBusSocket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        super.onDetachedFromWindow();
     }
 
     private void init() {
@@ -104,8 +125,6 @@ public class DrawableGLSurfaceView extends GLSurfaceView {
 
         // Render the view only when there is a change in the drawing data
         setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
-
-        createEventBus();
     }
 
     private void createEventBus() {
@@ -114,10 +133,10 @@ public class DrawableGLSurfaceView extends GLSurfaceView {
             public void run() {
                 try {
                     RemoteBusBuilder remoteBusBuilder = new RemoteBusBuilder();
-                    Socket socket = new Socket("192.168.2.125", 11112);
+                    eventBusSocket = new Socket("192.168.2.125", 11112);
 
                     IDReceiverDecorator decorator = new IDReceiverDecorator(new UIThreadEventBusDecorator(new SimpleEventBus(), DrawableGLSurfaceView.this));
-                    bus = remoteBusBuilder.setSocket(socket)
+                    bus = remoteBusBuilder.setSocket(eventBusSocket)
                             .setDecoratedBus(decorator)
                             .build("asdfwegWEQqwer@342@#$2rewfsdfSADGASGR@#425$#%3T34trGFdgSDFGsdg");
                     registerToEventbus();
@@ -156,6 +175,8 @@ public class DrawableGLSurfaceView extends GLSurfaceView {
 
         CollaboratorComponent collaboratorComponent = new CollaboratorComponent(currentUserID, collaborators, getContext());
         collaboratorComponent.plugInto(bus);
+
+        bus.post(new OnSyncRequireEvent(currentUserID));
     }
 
     private void registerToEventbus() throws NoSuchMethodException {

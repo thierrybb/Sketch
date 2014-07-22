@@ -102,6 +102,7 @@ public class RemoteClientConnectorDecorator implements EventBus {
             while (serverIsUp) {
                 try {
                     Event event = eis.readEvent();
+                    System.out.println(event.getClass().getName());
                     eventBusToForwardEvent.post(event);
                 } catch (Exception e) {
                     e.printStackTrace();

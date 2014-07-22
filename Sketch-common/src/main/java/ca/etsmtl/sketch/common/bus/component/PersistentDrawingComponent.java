@@ -1,15 +1,15 @@
 package ca.etsmtl.sketch.common.bus.component;
 
-import ca.etsmtl.sketch.common.event.OnAllStrokeRestored;
-import ca.etsmtl.sketch.common.event.OnInkStrokeErased;
-import ca.etsmtl.sketch.common.event.OnInkStrokeReAdded;
-import ca.etsmtl.sketch.common.event.OnInkStrokeRemoved;
-import ca.etsmtl.sketch.common.event.OnNewClientConnected;
 import ca.etsmtl.sketch.common.bus.eventbus.EventBus;
 import ca.etsmtl.sketch.common.bus.eventbus.Subscribe;
 import ca.etsmtl.sketch.common.bus.shapeserialization.ShapeSerializer;
+import ca.etsmtl.sketch.common.event.OnAllStrokeRestored;
 import ca.etsmtl.sketch.common.event.OnInkStrokeAdded;
+import ca.etsmtl.sketch.common.event.OnInkStrokeErased;
+import ca.etsmtl.sketch.common.event.OnInkStrokeReAdded;
+import ca.etsmtl.sketch.common.event.OnInkStrokeRemoved;
 import ca.etsmtl.sketch.common.event.OnStrokeRestored;
+import ca.etsmtl.sketch.common.event.OnSyncRequireEvent;
 
 public class PersistentDrawingComponent {
     private EventBus bus;
@@ -22,7 +22,7 @@ public class PersistentDrawingComponent {
     public void plug(EventBus bus) {
         this.bus = bus;
         try {
-            bus.register(this, OnNewClientConnected.class);
+            bus.register(this, OnSyncRequireEvent.class);
             bus.register(this, OnInkStrokeAdded.class);
             bus.register(this, OnInkStrokeRemoved.class);
             bus.register(this, OnInkStrokeReAdded.class);
@@ -56,13 +56,14 @@ public class PersistentDrawingComponent {
     }
 
     @Subscribe
-    public void onUserAdded(final OnNewClientConnected event) {
+    public void onSyncRequireEvent(final OnSyncRequireEvent event) {
+        System.out.println("Sync from " + event.getUserID());
         serializer.pullAllInkStroke(new ShapeSerializer.InkStoreReaderStrategy() {
             @Override
             public void readStroke(float[] strokes, int color, int id, int userID) {
-                bus.post(new OnStrokeRestored(strokes, color, userID, id, event.getUserId()));
+                bus.post(new OnStrokeRestored(strokes, color, userID, id, event.getUserID()));
             }
         });
-        bus.post(new OnAllStrokeRestored(event.getUserId()));
+        bus.post(new OnAllStrokeRestored(event.getUserID()));
     }
 }
