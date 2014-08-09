@@ -9,23 +9,22 @@
     <string name="title_activity_fullscreen">Sketch 1</string>
     <string name="drawer_open">Open</string>
     <string name="drawer_close">Close</string>
-
     <string name="menu_1">My Sketches</string>
     <string name="menu_2">Favorites</string>
     <string name="menu_3">Nearby Sketchers</string>
     <string name="menu_4">Sketch !!!</string>
     <string name="default_drawing_title">Untitled</string>
     <string name="default_new_drawing">New +</string>
-    <!--Alert dialogs -->
+    <!-- Alert dialogs -->
     <string name="alert_dialog_save_modif_message">Before closing, Do you want to save ?</string>
     <string name="alert_dialog_save_modif_title">Warning !</string>
     <string name="save_png">Save to PNG</string>
     <string name="save_svg">Save to SVG</string>
-    <string name="default_svg_string"><![CDATA[ <?xml version=\"1.0\" standalone=\"no\"?>
+    <string name="default_svg_string">
+<![CDATA[ <?xml version=\"1.0\" standalone=\"no\"?>
             <!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">
             <svg width=\"%1$dpx\" height=\"%2$dpx\" viewBox=\"0 0 %3$d %4$d \" xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\"> ]]>
     </string>
-
     <string name="sender_id">AIzaSyBVWa1YUnX514OxUZC4PMeAP2hyA9WjVBA</string>
     <string name="backend_url_register">http://young-lowlands-1317.herokuapp.com/register?udid=%1$s&amp;lat=%2$f&amp;lng=%3$f&amp;ip=%4$s</string>
     <string name="backend_url_invite">http://young-lowlands-1317.herokuapp.com/invite?udid_from=%1$s&amp;udid_to=%2$s</string>
@@ -39,7 +38,6 @@
         <item>Droid Sans</item>
     </string-array>
 
-
     <string name="unable_to_connect_to_server">Could not connect to server, the server might be offline. Try again later.</string>
     <string name="connection_dialog_title">Connection to server..</string>
     <string name="connection_dialog_message">Application trying to communicate with server, please wait...</string>
@@ -48,6 +46,13 @@
     <string name="close">Close</string>
     <string name="collaborators_dialog_caption">Collaborators</string>
     <string name="no_collaborator_message">There are no collaborator online</string>
-
+    <string name="title_activity_home">HomeActivity</string>
+    <string name="title_section1">Section 1</string>
+    <string name="title_section2">Section 2</string>
+    <string name="title_section3">Section 3</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="action_example">Example action</string>
+    <string name="action_settings">Settings</string>
 
 </resources>

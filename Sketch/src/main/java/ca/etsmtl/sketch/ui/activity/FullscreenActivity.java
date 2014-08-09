@@ -29,6 +29,9 @@ import ca.etsmtl.sketch.ui.dialog.SaveDialog;
 import ca.etsmtl.sketch.ui.view.TextCreatorView;
 
 public class FullscreenActivity extends FragmentActivity {
+    public static final String DRAWING_ID_INTENT_KEY = "drawingID";
+    public static final String DRAWING_BUS_PORT = "DRAWING_BUS_PORT";
+    public static final String DRAWING_BUS_SERVER_IP = "DRAWING_BUS_SERVER_IP";
     private ColorPicker picker;
     private SaveDialog saveDialog;
     private TextCreatorView textCreationView;
@@ -62,6 +65,10 @@ public class FullscreenActivity extends FragmentActivity {
 //                multiTouchFramework.insertText(((EditText) v.findViewById(R.id.text_creation_text)).getText().toString());
             }
         });
+
+        canvas.loadDrawing(getIntent().getStringExtra(DRAWING_ID_INTENT_KEY),
+                getIntent().getStringExtra(DRAWING_BUS_SERVER_IP),
+                getIntent().getIntExtra(DRAWING_BUS_PORT, 11112));
     }
 
     @Override

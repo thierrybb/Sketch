@@ -1,0 +1,8 @@
+brew install mongodb --with-openssl
+
+start mongo : mongod --config /usr/local/etc/mongod.conf
+
+pip install py-bcrypt
+http://www.mindrot.org/projects/py-bcrypt/
+
+pip install -r requirements.txt

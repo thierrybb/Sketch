@@ -5,5 +5,8 @@ version = "1.0.0"
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'org.apache.commons:commons-lang3:3.0'
+    compile 'org.mongodb:mongo-java-driver:2.12.3'
+    compile 'org.apache.httpcomponents:httpclient:4.3.5'
+    compile 'org.json:json:20140107'
     testCompile 'junit:junit:4.10'
 }

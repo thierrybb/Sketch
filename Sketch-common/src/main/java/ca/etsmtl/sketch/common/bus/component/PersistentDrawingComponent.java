@@ -2,7 +2,7 @@ package ca.etsmtl.sketch.common.bus.component;
 
 import ca.etsmtl.sketch.common.bus.eventbus.EventBus;
 import ca.etsmtl.sketch.common.bus.eventbus.Subscribe;
-import ca.etsmtl.sketch.common.bus.shapeserialization.ShapeSerializer;
+import ca.etsmtl.sketch.common.provider.shapeserialization.ShapeSerializer;
 import ca.etsmtl.sketch.common.event.OnAllStrokeRestored;
 import ca.etsmtl.sketch.common.event.OnInkStrokeAdded;
 import ca.etsmtl.sketch.common.event.OnInkStrokeErased;

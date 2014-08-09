@@ -1,4 +1,4 @@
-package ca.etsmtl.sketch.common.bus.component;
+package ca.etsmtl.sketch.common.utils;
 
 public class UniqueIDGenerator {
     private static int nextID = 0;

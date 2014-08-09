@@ -18,6 +18,8 @@ public class RemoteBusBuilder {
     private EventBus bus;
     private Socket socket;
 
+    private String account, password;
+
 
     public RemoteBusBuilder setDecoratedBus(EventBus bus) {
         this.bus = bus;
@@ -29,9 +31,23 @@ public class RemoteBusBuilder {
         return this;
     }
 
+    public RemoteBusBuilder setAccount(String account) {
+        this.account = account;
+        return this;
+    }
+
+    public RemoteBusBuilder setPassword(String password) {
+        this.password = password;
+        return this;
+    }
+
     public EventBus build(String eventBusID) throws IOException {
         DataOutputStream outputStream = new DataOutputStreamWrapper(socket.getOutputStream());
         outputStream.writeString(eventBusID);
+        outputStream.flush();
+        outputStream.writeString(account);
+        outputStream.flush();
+        outputStream.writeString(password);
         outputStream.flush();
 
         EventOutputStream eventOutputStream =

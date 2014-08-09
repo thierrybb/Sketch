@@ -1,14 +1,17 @@
 package ca.etsmtl.sketch.common.bus.builder;
 
+import com.mongodb.DB;
+import com.mongodb.MongoClient;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
 import ca.etsmtl.sketch.common.bus.component.PersistentDrawingComponent;
 import ca.etsmtl.sketch.common.bus.component.ServerConnectorComponent;
-import ca.etsmtl.sketch.common.bus.component.UniqueIDGenerator;
 import ca.etsmtl.sketch.common.bus.eventbus.EventBus;
 import ca.etsmtl.sketch.common.bus.eventbus.SimpleEventBus;
 import ca.etsmtl.sketch.common.bus.io.event.EventFromDataInputStream;
@@ -17,16 +20,33 @@ import ca.etsmtl.sketch.common.bus.io.event.EventOutputStream;
 import ca.etsmtl.sketch.common.bus.io.event.EventToDataOutputStream;
 import ca.etsmtl.sketch.common.bus.io.ois.DataInputStreamWrapper;
 import ca.etsmtl.sketch.common.bus.io.ois.DataOutputStreamWrapper;
-import ca.etsmtl.sketch.common.bus.shapeserialization.MemorySerializer;
+import ca.etsmtl.sketch.common.provider.BackendUserProvider;
+import ca.etsmtl.sketch.common.provider.DrawingProvider;
+import ca.etsmtl.sketch.common.provider.shapeserialization.CachedSerializerDecorator;
+import ca.etsmtl.sketch.common.provider.shapeserialization.MongoDBShapeSerializer;
+import ca.etsmtl.sketch.common.provider.shapeserialization.ShapeSerializer;
 
 public class ServerBus {
     private ServerSocket serverSocket;
     private int port;
 
     private Map<String, EventBus> availableBus = new HashMap<String, EventBus>();
+    private final DB db;
+    private DrawingProvider drawingProvider;
 
-    public ServerBus(int port) {
+    public ServerBus(String authServerAddress, int port) {
         this.port = port;
+
+        // TODO : Externalize database init
+        MongoClient mongoClient = null;
+        try {
+            mongoClient = new MongoClient("localhost");
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+        db = mongoClient.getDB("Sketch");
+
+        drawingProvider = new BackendUserProvider(authServerAddress);
     }
 
     private EventBus createForID(String id) {
@@ -36,7 +56,9 @@ public class ServerBus {
 
         EventBus bus = new SimpleEventBus();
 
-        PersistentDrawingComponent persistentDrawingComponent = new PersistentDrawingComponent(new MemorySerializer());
+        ShapeSerializer serializer = new CachedSerializerDecorator(new MongoDBShapeSerializer(db, id));
+
+        PersistentDrawingComponent persistentDrawingComponent = new PersistentDrawingComponent(serializer);
         persistentDrawingComponent.plug(bus);
 
         availableBus.put(id, bus);
@@ -44,8 +66,6 @@ public class ServerBus {
     }
 
     public void start() {
-        UniqueIDGenerator idGenerator = new UniqueIDGenerator();
-
         try {
             serverSocket = new ServerSocket(port);
         } catch (IOException e) {
@@ -66,11 +86,20 @@ public class ServerBus {
 
                 String busID = inputStream.readString();
 
-                ServerConnectorComponent serverConnectorComponent = new ServerConnectorComponent(eventInputStream, outputStream);
-                int userID = idGenerator.generateUniqueID();
-                serverConnectorComponent.startOn(createForID(busID), userID);
+                String account = inputStream.readString();
+                String password = inputStream.readString();
 
-                System.out.println("New user registered on bus ID [" + busID + "] with user ID [" + userID + "]");
+                DrawingProvider.AccessToken token = drawingProvider.getToken(busID, account, password);
+
+                if (token.equals(DrawingProvider.NULL_TOKEN)) {
+                    clientSocket.close();
+                }
+                else {
+                    ServerConnectorComponent serverConnectorComponent = new ServerConnectorComponent(eventInputStream, outputStream);
+                    serverConnectorComponent.startOn(createForID(busID), token.ID);
+
+                    System.out.println("New user registered on bus ID [" + busID + "] with user ID [" + token.ID + "]");
+                }
             } catch (IOException e) {
                 e.printStackTrace();
                 System.err.println("Accept de " + port + " a échoué.");

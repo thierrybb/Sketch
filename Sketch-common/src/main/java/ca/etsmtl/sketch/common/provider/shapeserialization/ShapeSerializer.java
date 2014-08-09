@@ -1,4 +1,4 @@
-package ca.etsmtl.sketch.common.bus.shapeserialization;
+package ca.etsmtl.sketch.common.provider.shapeserialization;
 
 public interface ShapeSerializer {
     void serializeInkStroke(float[] strokes, int strokeColor, int uniqueID, int userID);

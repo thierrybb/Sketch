@@ -5,7 +5,7 @@ import android.util.Pair;
 
 import java.util.HashMap;
 
-import ca.etsmtl.sketch.common.bus.component.UniqueIDGenerator;
+import ca.etsmtl.sketch.common.utils.UniqueIDGenerator;
 import ca.etsmtl.sketch.common.bus.eventbus.EventBus;
 import ca.etsmtl.sketch.common.bus.eventbus.Subscribe;
 import ca.etsmtl.sketch.common.event.OnFingerDownInkMode;

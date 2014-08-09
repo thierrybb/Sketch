@@ -8,7 +8,7 @@ public class ServerLauncher {
             System.out.println("Usage : Sketch-server.jar [port]");
         }
 
-        ServerBus serverBus = new ServerBus(11112);
+        ServerBus serverBus = new ServerBus("http://127.0.0.1:5000/", 11112);
         serverBus.start();
     }
 }

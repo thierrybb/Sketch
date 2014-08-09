@@ -13,7 +13,6 @@ import java.util.Stack;
 
 import ca.etsmtl.sketch.R;
 import ca.etsmtl.sketch.common.bus.builder.RemoteBusBuilder;
-import ca.etsmtl.sketch.common.bus.component.UniqueIDGenerator;
 import ca.etsmtl.sketch.common.bus.eventbus.EventBus;
 import ca.etsmtl.sketch.common.bus.eventbus.IDReceiverDecorator;
 import ca.etsmtl.sketch.common.bus.eventbus.SimpleEventBus;
@@ -25,6 +24,7 @@ import ca.etsmtl.sketch.common.event.OnInkStrokeReAdded;
 import ca.etsmtl.sketch.common.event.OnInkStrokeRemoved;
 import ca.etsmtl.sketch.common.event.OnStrokeRestored;
 import ca.etsmtl.sketch.common.event.OnSyncRequireEvent;
+import ca.etsmtl.sketch.common.utils.UniqueIDGenerator;
 import ca.etsmtl.sketch.eventbus.UIThreadEventBusDecorator;
 import ca.etsmtl.sketch.surface.collaborator.CollaboratorComponent;
 import ca.etsmtl.sketch.surface.collaborator.CollaboratorsCollection;
@@ -42,6 +42,7 @@ import ca.etsmtl.sketch.surface.touch.StrategyTouchListenerDelegator;
 import ca.etsmtl.sketch.surface.touch.TouchStrategy;
 import ca.etsmtl.sketch.surface.transformation.MatrixWrapper;
 import ca.etsmtl.sketch.ui.dialog.CollaboratorsDialog;
+import ca.etsmtl.sketch.utils.UserUtils;
 
 public class DrawableGLSurfaceView extends GLSurfaceView {
     private DrawingRenderer drawingRenderer;
@@ -80,7 +81,6 @@ public class DrawableGLSurfaceView extends GLSurfaceView {
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        createEventBus();
     }
 
     @Override
@@ -127,24 +127,26 @@ public class DrawableGLSurfaceView extends GLSurfaceView {
         setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
     }
 
-    private void createEventBus() {
+    public void loadDrawing(final String drawingID, final String serverIP, final int serverPort) {
         new Thread() {
             @Override
             public void run() {
                 try {
                     RemoteBusBuilder remoteBusBuilder = new RemoteBusBuilder();
-                    eventBusSocket = new Socket("192.168.2.125", 11112);
+                    eventBusSocket = new Socket(serverIP, serverPort);
 
                     IDReceiverDecorator decorator = new IDReceiverDecorator(new UIThreadEventBusDecorator(new SimpleEventBus(), DrawableGLSurfaceView.this));
                     bus = remoteBusBuilder.setSocket(eventBusSocket)
+                            .setAccount(UserUtils.getUsername(DrawableGLSurfaceView.this.getContext()))
+                            .setPassword(UserUtils.getPassword(DrawableGLSurfaceView.this.getContext()))
                             .setDecoratedBus(decorator)
-                            .build("asdfwegWEQqwer@342@#$2rewfsdfSADGASGR@#425$#%3T34trGFdgSDFGsdg");
+                            .build(drawingID);
                     registerToEventbus();
 
                     currentUserID = decorator.getId();
 
                     initAfterEventBusConnected();
-                } catch (IOException e) {
+                } catch (Exception e) {
                     post(new Runnable() {
                         @Override
                         public void run() {
@@ -154,8 +156,6 @@ public class DrawableGLSurfaceView extends GLSurfaceView {
                             DrawableGLSurfaceView.this.setBackgroundColor(Color.GRAY);
                         }
                     });
-                    e.printStackTrace();
-                } catch (NoSuchMethodException e) {
                     e.printStackTrace();
                 } finally {
                     connectionDialog.cancel();
