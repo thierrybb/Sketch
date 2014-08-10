@@ -48,7 +48,7 @@
     <string name="add_collaborator_dialog_caption">Add collaborator</string>
     <string name="add">Add</string>
     <string name="no_collaborator_message">There are no collaborator online</string>
-    <string name="title_activity_home">HomeActivity</string>
+    <string name="title_activity_home">Sketch</string>
     <string name="title_section1">Section 1</string>
     <string name="title_section2">Section 2</string>
     <string name="title_section3">Section 3</string>

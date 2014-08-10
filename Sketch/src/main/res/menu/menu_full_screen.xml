@@ -9,21 +9,10 @@
         android:title="Color Wheel"
 
         android:showAsAction="always" />
-    <!--<item-->
-        <!--android:id="@+id/menu_save"-->
-        <!--android:title="Save"-->
-        <!--android:icon="@android:drawable/ic_menu_save"-->
-        <!--android:showAsAction="always"-->
-        <!--android:actionProviderClass="ca.etsmtl.sketch.ui.activity.provider.SaveActionProvider" />-->
-    <!--<item-->
-        <!--android:id="@+id/menu_hand"-->
-        <!--android:title="Hand"-->
-        <!--android:icon="@android:drawable/ic_menu_compass"-->
-        <!--android:showAsAction="ifRoom" />-->
     <item
         android:id="@+id/menu_draw_tools"
         android:title="Drawing Tools"
-        android:icon="@android:drawable/ic_menu_edit"
+        android:icon="@drawable/ic_action_content_edit"
         android:showAsAction="always" />
 
     <item
