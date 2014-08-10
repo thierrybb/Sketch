@@ -29,7 +29,7 @@
     <item
         android:id="@+id/menu_erase"
         android:title="Erase lines"
-        android:icon="@drawable/ic_action_erase"
+        android:icon="@drawable/ic_action_eraser"
         android:showAsAction="always" />
 
     <item
@@ -49,6 +49,11 @@
         android:title="View collaborators"
         android:icon="@drawable/ic_action_social_group"
         android:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/menu_add_collaborators"
+        android:title="Add collaborator"
+        android:showAsAction="never" />
 
     <item
         android:id="@+id/menu_redo"

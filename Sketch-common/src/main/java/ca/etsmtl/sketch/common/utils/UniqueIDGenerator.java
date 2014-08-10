@@ -6,4 +6,8 @@ public class UniqueIDGenerator {
     public synchronized int generateUniqueID() {
         return nextID++;
     }
+
+    public void setNextID(int value) {
+        nextID = value;
+    }
 }

@@ -25,6 +25,7 @@ import java.lang.reflect.Field;
 
 import ca.etsmtl.sketch.R;
 import ca.etsmtl.sketch.surface.DrawableGLSurfaceView;
+import ca.etsmtl.sketch.ui.dialog.AddCollaboratorDialog;
 import ca.etsmtl.sketch.ui.dialog.SaveDialog;
 import ca.etsmtl.sketch.ui.view.TextCreatorView;
 
@@ -36,6 +37,7 @@ public class FullscreenActivity extends FragmentActivity {
     private SaveDialog saveDialog;
     private TextCreatorView textCreationView;
     private DrawableGLSurfaceView canvas;
+    private String currentDrawingID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +68,8 @@ public class FullscreenActivity extends FragmentActivity {
             }
         });
 
-        canvas.loadDrawing(getIntent().getStringExtra(DRAWING_ID_INTENT_KEY),
+        currentDrawingID = getIntent().getStringExtra(DRAWING_ID_INTENT_KEY);
+        canvas.loadDrawing(currentDrawingID,
                 getIntent().getStringExtra(DRAWING_BUS_SERVER_IP),
                 getIntent().getIntExtra(DRAWING_BUS_PORT, 11112));
     }
@@ -106,6 +109,9 @@ public class FullscreenActivity extends FragmentActivity {
             case R.id.menu_erase:
                 canvas.setToEraseMode();
                 return true;
+            case R.id.menu_add_collaborators:
+                addCollaborator();
+                return true;
             case R.id.menu_pan_mode:
                 canvas.setToPanMode();
                 return true;
@@ -133,6 +139,11 @@ public class FullscreenActivity extends FragmentActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void addCollaborator() {
+        AddCollaboratorDialog dialog = new AddCollaboratorDialog(this, currentDrawingID);
+        dialog.show();
     }
 
     private void toggleTextCreation() {

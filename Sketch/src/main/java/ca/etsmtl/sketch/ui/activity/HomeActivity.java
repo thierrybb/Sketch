@@ -1,128 +1,37 @@
 package ca.etsmtl.sketch.ui.activity;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.view.MotionEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.Toast;
+import android.widget.ListView;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ca.etsmtl.sketch.R;
 import ca.etsmtl.sketch.request.RequestFactory;
-import ca.etsmtl.sketch.ui.activity.util.util.SystemUiHider;
 import ca.etsmtl.sketch.utils.UserUtils;
 
-/**
- * An example full-screen activity that shows and hides the system UI (i.e.
- * status bar and navigation/system bar) with user interaction.
- *
- * @see SystemUiHider
- */
 public class HomeActivity extends Activity {
-    /**
-     * Whether or not the system UI should be auto-hidden after
-     * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
-     */
-    private static final boolean AUTO_HIDE = true;
-
-    /**
-     * If {@link #AUTO_HIDE} is set, the number of milliseconds to wait after
-     * user interaction before hiding the system UI.
-     */
-    private static final int AUTO_HIDE_DELAY_MILLIS = 3000;
-
-    /**
-     * If set, will toggle the system UI visibility upon interaction. Otherwise,
-     * will show the system UI visibility upon interaction.
-     */
-    private static final boolean TOGGLE_ON_CLICK = true;
-
-    /**
-     * The flags to pass to {@link SystemUiHider#getInstance}.
-     */
-    private static final int HIDER_FLAGS = SystemUiHider.FLAG_HIDE_NAVIGATION;
-
-    /**
-     * The instance of the {@link SystemUiHider} for this activity.
-     */
-    private SystemUiHider mSystemUiHider;
+    private List<String> sketches = new ArrayList<String>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_home);
 
-        setContentView(R.layout.activity_home2);
-
-        final View controlsView = findViewById(R.id.fullscreen_content_controls);
-        final View contentView = findViewById(R.id.fullscreen_content);
-
-        // Set up an instance of SystemUiHider to control the system UI for
-        // this activity.
-        mSystemUiHider = SystemUiHider.getInstance(this, contentView, HIDER_FLAGS);
-        mSystemUiHider.setup();
-        mSystemUiHider
-                .setOnVisibilityChangeListener(new SystemUiHider.OnVisibilityChangeListener() {
-                    // Cached values.
-                    int mControlsHeight;
-                    int mShortAnimTime;
-
-                    @Override
-                    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-                    public void onVisibilityChange(boolean visible) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-                            // If the ViewPropertyAnimator API is available
-                            // (Honeycomb MR2 and later), use it to animate the
-                            // in-layout UI controls at the bottom of the
-                            // screen.
-                            if (mControlsHeight == 0) {
-                                mControlsHeight = controlsView.getHeight();
-                            }
-                            if (mShortAnimTime == 0) {
-                                mShortAnimTime = getResources().getInteger(
-                                        android.R.integer.config_shortAnimTime);
-                            }
-                            controlsView.animate()
-                                    .translationY(visible ? 0 : mControlsHeight)
-                                    .setDuration(mShortAnimTime);
-                        } else {
-                            // If the ViewPropertyAnimator APIs aren't
-                            // available, simply show or hide the in-layout UI
-                            // controls.
-                            controlsView.setVisibility(visible ? View.VISIBLE : View.GONE);
-                        }
-
-                        if (visible && AUTO_HIDE) {
-                            // Schedule a hide().
-                            delayedHide(AUTO_HIDE_DELAY_MILLIS);
-                        }
-                    }
-                });
-
-        // Set up the user interaction to manually show or hide the system UI.
-        contentView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (TOGGLE_ON_CLICK) {
-                    mSystemUiHider.toggle();
-                } else {
-                    mSystemUiHider.show();
-                }
-            }
-        });
-
-        // Upon interacting with UI controls, delay any scheduled hide()
-        // operations to prevent the jarring behavior of controls going away
-        // while interacting with the UI.
-        findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
-
+        getActionBar().setTitle("My sketches");
 
         Button button = (Button) findViewById(R.id.button);
 
@@ -178,48 +87,24 @@ public class HomeActivity extends Activity {
         );
     }
 
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
 
-        // Trigger the initial hide() shortly after the activity has been
-        // created, to briefly hint to the user that UI controls
-        // are available.
-        delayedHide(100);
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.home, menu);
+        return true;
     }
 
-
-    /**
-     * Touch listener to use for in-layout UI controls to delay hiding the
-     * system UI. This is to prevent the jarring behavior of controls going away
-     * while interacting with activity UI.
-     */
-    View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View view, MotionEvent motionEvent) {
-            if (AUTO_HIDE) {
-                delayedHide(AUTO_HIDE_DELAY_MILLIS);
-            }
-            return false;
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+        if (id == R.id.action_settings) {
+            return true;
         }
-    };
-
-    Handler mHideHandler = new Handler();
-    Runnable mHideRunnable = new Runnable() {
-        @Override
-        public void run() {
-            mSystemUiHider.hide();
-        }
-    };
-
-    /**
-     * Schedules a call to hide() in [delay] milliseconds, canceling any
-     * previously scheduled calls.
-     */
-
-    private void delayedHide(int delayMillis) {
-        mHideHandler.removeCallbacks(mHideRunnable);
-        mHideHandler.postDelayed(mHideRunnable, delayMillis);
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -236,16 +121,91 @@ public class HomeActivity extends Activity {
 
                 @Override
                 public void onSuccess() {
+                    refreshDrawingList();
                 }
 
                 @Override
                 public void onCancel() {
 
                 }
-            }).execute();
+            }
+            ).execute();
         }
 
         super.onResume();
+    }
+
+    private void refreshDrawingList() {
+        new AsyncTask<Void, Void, JSONObject>() {
+            @Override
+            protected JSONObject doInBackground(Void... params) {
+                return RequestFactory.newGet(HomeActivity.this)
+                        .action("api/list_drawing")
+                        .executeForAnswer();
+            }
+
+            @Override
+            protected void onPostExecute(JSONObject result) {
+                ListView listView = (ListView) findViewById(R.id.listView);
+                sketches.clear();
+
+                JSONArray drawings = null;
+                try {
+                    drawings = result.getJSONArray("drawings");
+
+                    for (int i = 0; i < drawings.length(); i++) {
+                        sketches.add(drawings.get(i).toString());
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(HomeActivity.this,
+                        android.R.layout.simple_list_item_1,
+                        android.R.id.text1, sketches.toArray(new String[0]));
+
+                listView.setAdapter(adapter);
+
+                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        openSketch(sketches.get(position));
+                    }
+                });
+            }
+        }.execute();
+    }
+
+    private void openSketch(final String sketchID) {
+        new AsyncTask<Void, Void, JSONObject>() {
+            @Override
+            protected JSONObject doInBackground(Void... params) {
+                return RequestFactory.newGet(HomeActivity.this)
+                        .action("api/open_drawing")
+                        .addParameter("drawing", sketchID)
+                        .executeForAnswer();
+            }
+
+            @Override
+            protected void onPostExecute(JSONObject response) {
+                if (response.has("bus")) {
+                    try {
+                        String bus = response.getString("bus");
+                        Integer port = response.getInt("bus_port");
+                        String drawingID = response.getString("drawing_id");
+
+                        Intent i = new Intent(HomeActivity.this, FullscreenActivity.class);
+                        i.putExtra(FullscreenActivity.DRAWING_ID_INTENT_KEY, drawingID);
+                        i.putExtra(FullscreenActivity.DRAWING_BUS_SERVER_IP, bus);
+                        i.putExtra(FullscreenActivity.DRAWING_BUS_PORT, port);
+                        startActivity(i);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }.execute();
     }
 
     private void startLoginActivity() {

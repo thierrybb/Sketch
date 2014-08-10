@@ -25,6 +25,7 @@ import ca.etsmtl.sketch.common.provider.DrawingProvider;
 import ca.etsmtl.sketch.common.provider.shapeserialization.CachedSerializerDecorator;
 import ca.etsmtl.sketch.common.provider.shapeserialization.MongoDBShapeSerializer;
 import ca.etsmtl.sketch.common.provider.shapeserialization.ShapeSerializer;
+import ca.etsmtl.sketch.common.utils.UniqueIDGenerator;
 
 public class ServerBus {
     private ServerSocket serverSocket;
@@ -66,6 +67,9 @@ public class ServerBus {
     }
 
     public void start() {
+
+        UniqueIDGenerator generator = new UniqueIDGenerator();
+
         try {
             serverSocket = new ServerSocket(port);
         } catch (IOException e) {

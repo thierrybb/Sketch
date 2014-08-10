@@ -24,13 +24,12 @@ class GetStrategy implements RequestStrategy {
     @Override
     public JSONObject execute(String action, Map<String, String> parameter) {
         try {
-
             String parameters = "";
 
             for (Map.Entry<String, String> stringStringEntry : parameter.entrySet()) {
-                parameters += (parameters == "") ? "" : "&"
-                        + URLEncoder.encode((stringStringEntry.getKey()) + "="
-                        + URLEncoder.encode(stringStringEntry.getValue()));
+                parameters += ((parameters == "") ? "" : "&")
+                        + URLEncoder.encode(stringStringEntry.getKey()) + "="
+                        + URLEncoder.encode(stringStringEntry.getValue());
             }
 
             String fullUrl = baseUrl + action + "?" + parameters;

@@ -65,6 +65,9 @@ class UserProvider:
         drawing.save()
         return drawing
 
+    def drawing_not_exist(self, email, drawing_id):
+        return not self.drawing_exist(email, drawing_id)
+
     def drawing_exist(self, email, drawing_id):
         try:
             UserDrawing.objects.get(Email=email, DrawingID=drawing_id)

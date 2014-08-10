@@ -1,7 +1,9 @@
 package ca.etsmtl.sketch.surface;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
@@ -68,6 +70,8 @@ public class DrawableGLSurfaceView extends GLSurfaceView {
     private FingerMotionMatrixDelegator fingerMotionMatrixDelegator;
     private Socket eventBusSocket;
 
+    private int maxRestoredID = 0;
+
     public DrawableGLSurfaceView(Context context) {
         super(context);
         init();
@@ -112,7 +116,15 @@ public class DrawableGLSurfaceView extends GLSurfaceView {
 
         connectionDialog = ProgressDialog.show(this.getContext(),
                 this.getResources().getString(R.string.connection_dialog_title),
-                this.getResources().getString(R.string.connection_dialog_message), true);
+                this.getResources().getString(R.string.connection_dialog_message), true, true);
+
+        connectionDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                // TODO : Crap hack, need to be change
+                ((Activity)getContext()).finish();
+            }
+        });
 
         MatrixWrapper matrix = new MatrixWrapper();
         drawingRenderer = new DrawingRenderer(drawing, matrix);
@@ -158,7 +170,7 @@ public class DrawableGLSurfaceView extends GLSurfaceView {
                     });
                     e.printStackTrace();
                 } finally {
-                    connectionDialog.cancel();
+                    connectionDialog.dismiss();
                 }
             }
         }.start();
@@ -218,6 +230,10 @@ public class DrawableGLSurfaceView extends GLSurfaceView {
         if (event.getDestinationUserID() == currentUserID) {
             drawing.addShape(new InkStroke(event.getPoints(), event.getStrokeColor()), event.getUniqueID(),
                     event.getUserID());
+
+            if (event.getUserID() == currentUserID) {
+                maxRestoredID = maxRestoredID > event.getUniqueID() ? maxRestoredID : event.getUniqueID();
+            }
         }
     }
 
@@ -226,6 +242,8 @@ public class DrawableGLSurfaceView extends GLSurfaceView {
         if (event.getDestinationUserID() == currentUserID) {
             bus.unregister(this, OnStrokeRestored.class);
             bus.unregister(this, OnAllStrokeRestored.class);
+
+            newShapeIDGenerator.setNextID(maxRestoredID + 1);
         }
     }
 
