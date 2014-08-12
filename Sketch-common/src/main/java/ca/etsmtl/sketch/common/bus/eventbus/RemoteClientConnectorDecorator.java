@@ -62,7 +62,6 @@ public class RemoteClientConnectorDecorator implements EventBus {
         outputEventQueue.add(event);
     }
 
-    @Override
     public void dispose() {
         serverIsUp = false;
     }

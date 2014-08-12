@@ -38,9 +38,4 @@ public class UIThreadEventBusDecorator implements EventBus {
             }
         });
     }
-
-    @Override
-    public void dispose() {
-        decoratedObject.dispose();
-    }
 }

@@ -1,8 +1,8 @@
-__author__ = 'ofortin'
+__author__ = 'thierry'
 
 config = {
     "event_bus": {
-        "address": "127.0.0.1",
+        "address": "192.168.2.125",
         "port": "11112",
     }
 }

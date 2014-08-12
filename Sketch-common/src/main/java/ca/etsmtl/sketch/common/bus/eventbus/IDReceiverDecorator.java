@@ -50,9 +50,4 @@ public class IDReceiverDecorator implements EventBus {
 
         decoratedObject.post(event);
     }
-
-    @Override
-    public void dispose() {
-        decoratedObject.dispose();
-    }
 }

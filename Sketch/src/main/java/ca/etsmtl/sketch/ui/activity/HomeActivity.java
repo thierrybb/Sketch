@@ -56,10 +56,10 @@ public class HomeActivity extends Activity {
                                         Integer port = response.getInt("bus_port");
                                         String drawingID = response.getString("drawing_id");
 
-                                        Intent i = new Intent(HomeActivity.this, FullscreenActivity.class);
-                                        i.putExtra(FullscreenActivity.DRAWING_ID_INTENT_KEY, drawingID);
-                                        i.putExtra(FullscreenActivity.DRAWING_BUS_SERVER_IP, bus);
-                                        i.putExtra(FullscreenActivity.DRAWING_BUS_PORT, port);
+                                        Intent i = new Intent(HomeActivity.this, DrawingActivity.class);
+                                        i.putExtra(DrawingActivity.DRAWING_ID_INTENT_KEY, drawingID);
+                                        i.putExtra(DrawingActivity.DRAWING_BUS_SERVER_IP, bus);
+                                        i.putExtra(DrawingActivity.DRAWING_BUS_PORT, port);
                                         startActivity(i);
                                     } catch (JSONException e) {
                                         e.printStackTrace();
@@ -195,10 +195,10 @@ public class HomeActivity extends Activity {
                         Integer port = response.getInt("bus_port");
                         String drawingID = response.getString("drawing_id");
 
-                        Intent i = new Intent(HomeActivity.this, FullscreenActivity.class);
-                        i.putExtra(FullscreenActivity.DRAWING_ID_INTENT_KEY, drawingID);
-                        i.putExtra(FullscreenActivity.DRAWING_BUS_SERVER_IP, bus);
-                        i.putExtra(FullscreenActivity.DRAWING_BUS_PORT, port);
+                        Intent i = new Intent(HomeActivity.this, DrawingActivity.class);
+                        i.putExtra(DrawingActivity.DRAWING_ID_INTENT_KEY, drawingID);
+                        i.putExtra(DrawingActivity.DRAWING_BUS_SERVER_IP, bus);
+                        i.putExtra(DrawingActivity.DRAWING_BUS_PORT, port);
                         startActivity(i);
                     } catch (JSONException e) {
                         e.printStackTrace();

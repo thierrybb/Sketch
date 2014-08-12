@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#0099cc"
-    tools:context=".FullscreenActivity">
+    tools:context=".DrawingActivity">
 
     <!-- The primary full-screen view. This can be replaced with whatever view
          is needed to present your content, e.g. VideoView, SurfaceView,
@@ -29,12 +29,6 @@
             android:layout_gravity="left|bottom"
             android:visibility="gone" />
 
-        <ca.etsmtl.sketch.ui.view.TextCreatorView
-            android:id="@+id/text_creation"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="right"
-            android:visibility="gone" />
     </FrameLayout>
 
 </FrameLayout>
