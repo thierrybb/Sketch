@@ -31,7 +31,13 @@
         android:id="@+id/menu_undo"
         android:title="Undo"
         android:icon="@drawable/ic_undo"
-        android:showAsAction="ifRoom" />
+        android:showAsAction="always" />
+
+    <item
+        android:id="@+id/menu_redo"
+        android:title="Redo"
+        android:icon="@android:drawable/ic_menu_edit"
+        android:showAsAction="never" />
 
     <item
         android:id="@+id/menu_view_collaborators"
@@ -44,11 +50,7 @@
         android:title="Add collaborator"
         android:showAsAction="never" />
 
-    <item
-        android:id="@+id/menu_redo"
-        android:title="Redo"
-        android:icon="@android:drawable/ic_menu_edit"
-        android:showAsAction="never" />
+
     <!--<item-->
     <!--android:id="@+id/menu_draw_text_creation"-->
     <!--android:title="Add Text"-->

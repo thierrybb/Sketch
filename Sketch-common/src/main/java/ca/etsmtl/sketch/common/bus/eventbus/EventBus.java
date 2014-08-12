@@ -14,6 +14,4 @@ public interface EventBus {
     public interface EventListener {
         void onEventReceived(Event event);
     }
-
-    void dispose();
 }

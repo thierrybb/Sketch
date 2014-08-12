@@ -24,5 +24,5 @@ class Application:
     def run(self):
         from mongoengine import connect
         connect(self._bd_name)
-        self._app.run(host=self._host ,port=self._port)
+        self._app.run(host=self._host ,port=self._port, debug=False)
 

@@ -3,6 +3,7 @@ from flask import Blueprint, request, jsonify, session
 from app.main import requires_auth
 from app.main.user_provider import UserProvider
 from app.models.UserDrawing import UserDrawing
+import config
 
 __author__ = 'thierry'
 
@@ -14,7 +15,7 @@ drawing = Blueprint('drawing', __name__)
 @requires_auth
 def open_drawing():
     drawing_id = request.args.get('drawing')
-    return jsonify({"bus": "192.168.2.125", "bus_port": 11112, "drawing_id" : drawing_id})
+    return jsonify({"bus": config["event_bus"]["address"], "bus_port": config["event_bus"]["port"], "drawing_id" : drawing_id})
 
 
 @drawing.route('/api/create_drawing', methods=['GET'])
@@ -23,7 +24,7 @@ def create_drawing():
     provider = UserProvider()
     drawing_id = os.urandom(50).encode("base64").replace("\n", "n")
     provider.create_drawing(session["email"], drawing_id)
-    return jsonify({"bus": "192.168.2.125", "bus_port": 11112, "drawing_id" : drawing_id})
+    return jsonify({"bus": config["event_bus"]["address"], "bus_port": config["event_bus"]["port"], "drawing_id" : drawing_id})
 
 @drawing.route('/api/list_drawing', methods=['GET'])
 @requires_auth

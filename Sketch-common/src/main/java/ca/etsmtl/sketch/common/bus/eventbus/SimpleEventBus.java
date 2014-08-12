@@ -49,9 +49,4 @@ public class SimpleEventBus implements EventBus {
             }
         }
     }
-
-    @Override
-    public void dispose() {
-        subscribers.clear();
-    }
 }
